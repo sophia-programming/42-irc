@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #define DEFAULT_PORT "6667"  // ポート番号は文字列として定義する必要がある
 

@@ -28,7 +28,16 @@ int setupServer() {
 		return 1;
 	}
 
-	// ここにソケット作成、バインド、リッスンのコードを追加
+	//setup the TCP listening socket
+	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	if (iResult == -1) {
+		std::cout << "Error at bind(): " << strerror(errno) << std::endl;
+		freeaddrinfo(result);
+		close(ListenSocket);
+		return 1;
+	}
+
+	//リッスンのコードを追加
 
 	freeaddrinfo(result);
 	return 0;
