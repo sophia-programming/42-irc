@@ -1,12 +1,14 @@
 NAME = ircserv
-src = $(wildcard *.c)
-objs = $(src:.c=.o)
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g
+srcs = $(wildcard srcs/*.cpp)
+includes = -I./includes
+objs = $(srcs:.cpp=.o)
+
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g $(includes)
 
 all : $(NAME)
 
-$(NAME): $(obj)
-	c++ $(CXXFLAGS) $(objs) -o $(NAME)
+$(NAME): $(objs)
+	c++ $(CXXFLAGS) $(includes) $(objs) -o $(NAME)
 
 clean:
 	$(RM) $(objs)
