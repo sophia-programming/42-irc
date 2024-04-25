@@ -37,9 +37,38 @@ int setupServer() {
 		return 1;
 	}
 
-	//リッスンのコードを追加
-
+	if (listen(ListenSocket, SOMAXCONN) == -1) {
+		std::cout << "Error at listen(): " << strerror(errno) << std::endl;
+		freeaddrinfo(result);
+		close(ListenSocket);
+		return 1;
+	}
 	freeaddrinfo(result);
+
+	std::cout << "Server is listening on port " << DEFAULT_PORT << std::endl;
+
+	while (true) {
+		int ClientSocket = accept(ListenSocket, NULL, NULL);
+		if (ClientSocket == -1) {
+			std::cout << "Error at accept(): " << strerror(errno) << std::endl;
+			freeaddrinfo(result);
+			close(ListenSocket);
+			return 1;
+		}
+
+		std::cout << YELLOW << "Client connected" << STOP << std::endl;
+		//receive message from client
+		char buffer[1024];
+		ssize_t bytesReceived = recv(ClientSocket, buffer, sizeof(buffer), 0);
+		if (bytesReceived > 0) {
+			std::cout << "Received message: " << std::string(buffer, bytesReceived) << std::endl;
+			// echo the buffer back to the sender
+			std::string response = "Message received: " + std::string(buffer, bytesReceived);
+			send(ClientSocket, response.c_str(), response.size() + 1, 0);
+		}
+		close(ClientSocket);
+	}
+	close(ListenSocket);
 	return 0;
 }
 
