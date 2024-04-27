@@ -12,10 +12,9 @@
 
 /*=== createSocket.cpp ===*/
 int  initializeServer(const char* port, int &listenSocket);
-void handleConnections(int listenSocket, std::string password);
 
 /*=== handleConnections.cpp ===*/
-int authenticate(int ClientSocket, std::string expectedPassword);
+void handleConnections(int listenSocket, std::string password);
 
 /* colors */
 const char *const STOP = "\033[0m";
