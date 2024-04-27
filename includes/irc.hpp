@@ -10,7 +10,7 @@
 
 #define DEFAULT_PORT "6667"  // ポート番号は文字列として定義する必要がある
 
-int setupServer();
+int setupServer(const char *port, std::string password);
 
 /* colors */
 const char *const STOP = "\033[0m";
