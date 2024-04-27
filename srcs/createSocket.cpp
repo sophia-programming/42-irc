@@ -2,19 +2,42 @@
 
 int authenticate(int ClientSocket, std::string expectedPassword) {
 	char buffer[1024];
-	std::string prompt = "Password: ";
-	std::cout << GREEN << prompt << STOP << std::endl;
-	send(ClientSocket, prompt.c_str(), prompt.size() + 1, 0);
+	int max_attempts = 3;  // 最大試行回数
+	int attempts = 0;
 
-	ssize_t bytesReceived = recv(ClientSocket, buffer, sizeof(buffer) - 1, 0);
-	if (bytesReceived > 0) {
-		buffer[bytesReceived] = '\0';
-		std::string receivedPassword(buffer);
-		return receivedPassword == expectedPassword;
-	} else if (bytesReceived == 0) {
-		std::cerr << RED << "Conneciion closed by client" << STOP << std::endl;
-	} else
-		std::cerr << RED << "Error at recv(): " << strerror(errno) << STOP << std::endl;
+	while (attempts < max_attempts) {
+		std::string prompt = (attempts == 0 ? "Password: " : "Password incorrect, try again: ");
+		std::cout << GREEN << prompt << STOP << std::endl;
+		send(ClientSocket, prompt.c_str(), prompt.size() + 1, 0);
+
+		ssize_t bytesReceived = recv(ClientSocket, buffer, sizeof(buffer) - 1, 0);
+		if (bytesReceived > 0) {
+			buffer[bytesReceived] = '\0';
+
+			// Remove possible newline character
+			std::string receivedPassword = buffer;
+			receivedPassword.erase(std::remove(receivedPassword.begin(), receivedPassword.end(), '\n'), receivedPassword.end());
+
+			if (expectedPassword == receivedPassword) {
+				std::cout << "Password correct" << std::endl;
+				std::string response = "Password correct";
+				send(ClientSocket, response.c_str(), response.size() + 1, 0);
+				return 1;  // Authentication successful
+			} else {
+				std::cout << YELLOW << "Password incorrect" << STOP << std::endl;
+				attempts++;
+			}
+		} else if (bytesReceived == 0) {
+			std::cerr << RED << "Connection closed by client" << STOP << std::endl;
+			return 0;
+		} else {
+			std::cerr << RED << "Error at recv(): " <<  STOP << std::endl;
+			return 0;
+		}
+	}
+
+	std::string response = "Password incorrect, access denied.";
+	send(ClientSocket, response.c_str(), response.size() + 1, 0);
 	return 0;
 }
 
@@ -29,7 +52,7 @@ int setupServer(const char *port, std::string password) {
 	hints.ai_flags = AI_PASSIVE;
 
 	if (getaddrinfo(NULL, port, &hints, &result) != 0) {
-		std::cerr << RED << "Error at getaddrinfo: " << strerror(errno) << STOP << std::endl;
+		std::cerr << RED << "Error at getaddrinfo: " << STOP << std::endl;
 		return 1;
 	}
 
