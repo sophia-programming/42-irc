@@ -12,12 +12,13 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	const char *port = argv[1];
-	std::string password = argv[2];
-
-	if (setupServer(port, password) != 0) {
-		std::cerr << RED << "Error setting up server" << STOP <<std::endl;
+	int listenSocket;
+	if (initializeServer(argv[1], listenSocket) != 0) {
+		std::cerr << "Failed to initialize server." << std::endl;
 		return 1;
 	}
+
+	handleConnections(listenSocket, argv[2]);
+	close(listenSocket);
 	return 0;
 }
