@@ -51,31 +51,32 @@ int setupServer() {
 		int ClientSocket = accept(ListenSocket, NULL, NULL);
 		if (ClientSocket == -1) {
 			std::cout << "Error at accept(): " << strerror(errno) << std::endl;
-			freeaddrinfo(result);
 			close(ListenSocket);
 			return 1;
 		}
 
-		std::cout << YELLOW << "Client connected" << STOP << std::endl;
-		//receive message from client
-		char buffer[1024];
-		ssize_t bytesReceived = recv(ClientSocket, buffer, sizeof(buffer), 0);
-		if (bytesReceived > 0) {
-			std::cout << "Received message: " << std::string(buffer, bytesReceived) << std::endl;
-			// echo the buffer back to the sender
-			std::string response = "Message received: " + std::string(buffer, bytesReceived);
-			if (send(ClientSocket, response.c_str(), response.size() + 1, 0) == -1) {
-				std::cout << "Send failed: " << strerror(errno) << std::endl;
+		std::cout << GREEN << "Client connected" << STOP << std::endl;
+
+		// Loop to receive messages continuously until the client disconnects
+		while (true) {
+			char buffer[1024];
+			ssize_t bytesReceived = recv(ClientSocket, buffer, sizeof(buffer), 0);
+			if (bytesReceived > 0) {
+				std::cout << YELLOW << "Received message: " << STOP << std::string(buffer, bytesReceived) << std::endl;
+				std::string response = "Message received: " + std::string(buffer, bytesReceived);
+				send(ClientSocket, response.c_str(), response.size() + 1, 0);
+			} else if (bytesReceived == 0) {
+				std::cout << "Client disconnected" << std::endl;
+				break;  // Exit the inner loop and wait for a new connection
 			} else {
-				std::cout << "Response sent: " << response.size() + 1 << " bytes" << std::endl;
+				std::cout << "Error at recv(): " << strerror(errno) << std::endl;
+				break;  // Exit the inner loop on error
 			}
-		} else if (bytesReceived == 0) {
-			std::cout << "Client disconnected" << std::endl;
-		} else {
-			std::cout << "Error at recv(): " << strerror(errno) << std::endl;
 		}
+
 		close(ClientSocket);
 	}
+
 	close(ListenSocket);
 	return 0;
 }
