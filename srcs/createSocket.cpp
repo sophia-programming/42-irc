@@ -43,8 +43,8 @@ int setupServer() {
 		close(ListenSocket);
 		return 1;
 	}
-	freeaddrinfo(result);
 
+	freeaddrinfo(result);
 	std::cout << "Server is listening on port " << DEFAULT_PORT << std::endl;
 
 	while (true) {
@@ -64,7 +64,15 @@ int setupServer() {
 			std::cout << "Received message: " << std::string(buffer, bytesReceived) << std::endl;
 			// echo the buffer back to the sender
 			std::string response = "Message received: " + std::string(buffer, bytesReceived);
-			send(ClientSocket, response.c_str(), response.size() + 1, 0);
+			if (send(ClientSocket, response.c_str(), response.size() + 1, 0) == -1) {
+				std::cout << "Send failed: " << strerror(errno) << std::endl;
+			} else {
+				std::cout << "Response sent: " << response.size() + 1 << " bytes" << std::endl;
+			}
+		} else if (bytesReceived == 0) {
+			std::cout << "Client disconnected" << std::endl;
+		} else {
+			std::cout << "Error at recv(): " << strerror(errno) << std::endl;
 		}
 		close(ClientSocket);
 	}
