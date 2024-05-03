@@ -1,5 +1,8 @@
 NAME = ircserv
-srcs = $(wildcard srcs/*.cpp)
+srcs = srcs/main.cpp
+srcs += srcs/Server/createSocket.cpp
+srcs += srcs/Server/handleConnections.cpp
+
 includes = -I./includes
 objs = $(srcs:.cpp=.o)
 

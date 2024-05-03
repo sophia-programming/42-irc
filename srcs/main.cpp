@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "Irc.hpp"
 
 #include <stdlib.h>
 //__attribute__((destructor))

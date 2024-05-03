@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "Irc.hpp"
 
 //構造体の初期化: memset()関数を使って構造体をゼロクリアする
 int initializeServer(const char* port, int &listenSocket) {

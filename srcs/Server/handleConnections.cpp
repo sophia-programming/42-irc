@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "Irc.hpp"
 
 // 認証関数
 int authenticate(int ClientSocket, std::string expectedPassword) {
