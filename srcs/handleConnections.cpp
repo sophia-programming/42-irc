@@ -1,5 +1,6 @@
 #include "irc.hpp"
 
+// 認証関数
 int authenticate(int ClientSocket, std::string expectedPassword) {
 	char buffer[1024];
 	int max_attempts = 3;  // 最大試行回数
@@ -41,6 +42,7 @@ int authenticate(int ClientSocket, std::string expectedPassword) {
 	return 0;
 }
 
+// クライアントとの接続を処理する関数
 void handleConnections(int listenSocket, std::string password) {
 	while (true) {
 		int clientSocket = accept(listenSocket, NULL, NULL);
