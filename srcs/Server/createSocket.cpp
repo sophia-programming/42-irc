@@ -1,7 +1,7 @@
-#include "Irc.hpp"
+#include "Server.hpp"
 
 //構造体の初期化: memset()関数を使って構造体をゼロクリアする
-int initializeServer(const char* port, int &listenSocket) {
+int Server::initializeServer(const char* port, int &listenSocket) {
 	struct addrinfo hints, *result = NULL;
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;

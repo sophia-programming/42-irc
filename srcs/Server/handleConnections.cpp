@@ -1,4 +1,4 @@
-#include "Irc.hpp"
+#include "Server.hpp"
 
 // 認証関数
 int authenticate(int ClientSocket, std::string expectedPassword) {
@@ -43,7 +43,7 @@ int authenticate(int ClientSocket, std::string expectedPassword) {
 }
 
 // クライアントとの接続を処理する関数
-void handleConnections(int listenSocket, std::string password) {
+void Server::handleConnections(int listenSocket, std::string password) {
 	while (true) {
 		int clientSocket = accept(listenSocket, NULL, NULL);
 		if (clientSocket == -1) {
