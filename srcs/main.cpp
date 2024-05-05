@@ -1,4 +1,5 @@
-#include "irc.hpp"
+#include <iostream>
+#include "Color.hpp"
 
 #include <stdlib.h>
 //__attribute__((destructor))
@@ -7,18 +8,8 @@
 //}
 
 int main(int argc, char **argv){
-	if (argc != 3){
-		std::cout << GREEN << "Usage: " << argv[0] << " <port> <password>" << STOP << std::endl;
-		return 1;
-	}
-
-	int listenSocket;
-	if (initializeServer(argv[1], listenSocket) != 0) {
-		std::cerr << "Failed to initialize server." << std::endl;
-		return 1;
-	}
-
-	handleConnections(listenSocket, argv[2]);
-	close(listenSocket);
+	(void)argc;
+	(void)argv;
+	std::cout << GREEN << "ft_irc start!" << STOP << std::endl;
 	return 0;
 }
