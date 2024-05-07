@@ -14,5 +14,4 @@ const char *const CYAN = "\033[36m";
 const char *const WHITE = "\033[37m";
 const char *const UNDERLINE =" \033[4m";
 
-
 #endif
