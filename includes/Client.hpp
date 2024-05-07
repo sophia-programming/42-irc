@@ -4,12 +4,16 @@
 #include "Server.hpp"
 
 class Client {
-public:
-	std::string nickname;
-	std::string username;
+private:
+	int FD; //client file descriptor
+	std::string IPaddress; //client IP address
 
-	void setNickname(const std::string &nick);
-	void setUsername(const std::string &user);
+public:
+	Client();
+	int GetFD();
+	void SetFD(int fd);
+	void SetIPAddress(std::string ipaddress);
+	~Client();
 };
 
 #endif

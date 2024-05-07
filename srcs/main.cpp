@@ -7,23 +7,20 @@
 //}
 
 int main(int argc, char **argv){
-	if (argc != 3){
-		std::cout << GREEN << "Usage: " << argv[0] << " <port> <password>" << STOP << std::endl;
-		return 1;
+	(void)argc;
+	(void)argv;
+
+	Server server;
+	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
+	try {
+		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)
+		signal(SIGQUIT, Server::SignalHandler); // catch the signal(ctrl + \)
+		server.ServerInit(); // initialize server
 	}
-
-	// サーバーのインスタンスを作成
-	Server myServer;
-
-	// サーバーの初期化
-	int listenSocket;
-	if (myServer.initializeServer(argv[1], listenSocket) != 0) {
-		std::cerr << "Failed to initialize server." << std::endl;
-		return 1;
+	catch (const std::exception &e) {
+		server.CloseFds();
+		std::cerr << e.what() << std::endl;
 	}
+	std::cout << "The Server Closed" << std::endl;
 
-	// クライアントとの接続を処理
-	myServer.handleConnections(listenSocket, argv[2]);
-	close(listenSocket);
-	return 0;
 }
