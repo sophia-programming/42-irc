@@ -27,6 +27,8 @@ public:
 	~Server();
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket
+
+	void makePoll(int socket);
 	void AcceptNewClient(); //accept new client
 	void ReceiveData(int fd); //receive data from client
 

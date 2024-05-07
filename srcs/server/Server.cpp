@@ -7,32 +7,19 @@ Server::Server() {
 Server::~Server() {
 }
 
-void Server::ServerInit() {
-	this->Port = 4444; // set port
-	ServerSocket(); // create server socket
+void Server::makePoll(int socketFD) {
+	struct pollfd NewPoll;
 
-	std::cout << GREEN << "Server <" << ServerSocketFD << "> is listening on port " << Port << STOP << std::endl;
+	NewPoll.fd = socketFD; // set pollfd file descriptor to socket
+	NewPoll.events = POLLIN; // set pollfd events to POLLIN
+	NewPoll.revents = 0; // set pollfd revents to 0
 
-	while (Server::Signal == false) {
-		if ((poll(&fds[0], fds.size(), -1) == -1) && Server::Signal == false) // wait for an event
-			throw (std::runtime_error("poll() failed"));
-
-		for (size_t i = 0; i < fds.size(); i++) { // check all file descriptors
-			if (fds[i].revents & POLLIN) { // check if there is data to read
-				if (fds[i].fd == ServerSocketFD)
-					AcceptNewClient();
-				else
-					ReceiveData(fds[i].fd); // receive data from client
-			}
-		}
-	}
-	CloseFds();
+	fds.push_back(NewPoll); // add pollfd to vector
 }
 
 void Server::AcceptNewClient() {
 	Client client; // create new client
 	struct sockaddr_in clientAddress;
-	struct pollfd NewPoll; // pollfd structure
 	socklen_t len = sizeof(clientAddress);
 
 	int incomingFD = accept(ServerSocketFD, (struct sockaddr *)&clientAddress, &len); // accept new client
@@ -42,14 +29,10 @@ void Server::AcceptNewClient() {
 	if (fcntl(incomingFD, F_SETFL, O_NONBLOCK) == -1) // set client socket to non-blocking
 		std::cout << RED << "fcntl() failed" << STOP << std::endl;
 
-	NewPoll.fd = incomingFD; // set pollfd file descriptor to client socket
-	NewPoll.events = POLLIN; // set pollfd events to POLLIN
-	NewPoll.revents = 0; // set pollfd revents to 0
-
 	client.SetFD(incomingFD); // set client file descriptor
 	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
 	clients.push_back(client); // add client to vector
-	fds.push_back(NewPoll); // add pollfd to vector
+	makePoll(incomingFD); // call makePoll with the new client's FD
 
 	std::cout << GREEN << "New client <" << incomingFD << " connected" << STOP << std::endl;
 }
@@ -123,4 +106,26 @@ void Server::CloseFds() {
 		std::cout << RED << "Server socket " << ServerSocketFD << " Disconnected" << STOP << std::endl;
 		close(ServerSocketFD);
 	}
+}
+
+void Server::ServerInit() {
+	this->Port = 4444; // set port
+	ServerSocket(); // create server socket
+
+	std::cout << GREEN << "Server <" << ServerSocketFD << "> is listening on port " << Port << STOP << std::endl;
+
+	while (Server::Signal == false) {
+		if ((poll(&fds[0], fds.size(), -1) == -1) && Server::Signal == false) // wait for an event
+			throw (std::runtime_error("poll() failed"));
+
+		for (size_t i = 0; i < fds.size(); i++) { // check all file descriptors
+			if (fds[i].revents & POLLIN) { // check if there is data to read
+				if (fds[i].fd == ServerSocketFD)
+					AcceptNewClient();
+				else
+					ReceiveData(fds[i].fd); // receive data from client
+			}
+		}
+	}
+	CloseFds();
 }
