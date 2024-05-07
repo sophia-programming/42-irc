@@ -28,7 +28,7 @@ public:
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
-	void ReceiveData(); //receive data from client
+	void ReceiveData(int fd); //receive data from client
 
 	static void SignalHandler(int signum); //signal handler
 
