@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include "Server.hpp"
+
 class Client {
 private:
 	int FD; //client file descriptor
@@ -9,8 +11,8 @@ private:
 public:
 	Client();
 	int GetFD();
-	void SeetFD(int fd);
-	void setIPaddress(std::string ipaddress);
+	void SetFD(int fd);
+	void SetIPAddress(std::string ipaddress);
 	~Client();
 };
 

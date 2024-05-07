@@ -16,6 +16,6 @@ void Client::SetFD(int fd) {
 	this->FD = fd;
 }
 
-void Client::SetIPaddress(std::string ipaddress) {
+void Client::SetIPAddress(std::string ipaddress) {
 	this->IPaddress = ipaddress;
 }

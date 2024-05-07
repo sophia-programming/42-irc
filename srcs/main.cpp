@@ -1,5 +1,4 @@
-#include <iostream>
-#include "Color.hpp"
+#include "Server.hpp"
 
 #include <stdlib.h>
 //__attribute__((destructor))
@@ -10,6 +9,17 @@
 int main(int argc, char **argv){
 	(void)argc;
 	(void)argv;
-	std::cout << GREEN << "ft_irc start!" << STOP << std::endl;
-	return 0;
+
+	Server server;
+	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
+	try {
+		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)
+		signal(SIGQUIT, Server::SignalHandler); // catch the signal(ctrl + \)
+		server.ServerInit(); // initialize server
+	}
+	catch (const std::exception &e) {
+		server.CloseFds();
+		std::cerr << e.what() << std::endl;
+	}
+	std::cout << "The Server Closed" << std::endl;
 }
