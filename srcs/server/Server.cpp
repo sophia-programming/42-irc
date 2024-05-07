@@ -13,8 +13,15 @@ void Server::makePoll(int socketFD) {
 	NewPoll.fd = socketFD; // set pollfd file descriptor to socket
 	NewPoll.events = POLLIN; // set pollfd events to POLLIN
 	NewPoll.revents = 0; // set pollfd revents to 0
-
 	fds.push_back(NewPoll); // add pollfd to vector
+
+	if (socketFD != ServerSocketFD) { // check if the socket is not the server socket
+		nickname[socketFD] = "oaoba"; // set default nickname
+		User user(socketFD); // create new user
+		users[nickname[socketFD]] = user; // add user to map
+		std::string message = "Welcome to the chat room " + nickname[socketFD] + "\n";
+		SendData(socketFD, message, message.size()); // send welcome message
+	}
 }
 
 void Server::AcceptNewClient() {
@@ -53,6 +60,10 @@ void Server::ReceiveData(int fd) {
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
+}
+
+void Server::SendData(int fd, std::string message, int size) {
+	send(fd, message.c_str(), size, 0); // send data to client
 }
 
 void Server::ClearClients(int fd) {

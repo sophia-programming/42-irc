@@ -1,12 +1,8 @@
 #include "Client.hpp"
 
-Client::Client() {
-	std::cout << "Client constructor" << std::endl;
-}
+Client::Client() {}
 
-Client::~Client() {
-	std::cout << "Client destructor" << std::endl;
-}
+Client::~Client() {}
 
 int Client::GetFD() {
 	return this->FD;
