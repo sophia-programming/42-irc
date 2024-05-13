@@ -16,9 +16,9 @@ void Server::makePoll(int socketFD) {
 	fds.push_back(NewPoll); // add pollfd to vector
 
 	if (socketFD != ServerSocketFD) { // check if the socket is not the server socket
-		nickname[socketFD] = "oaoba"; // set default nickname
-		User user(socketFD); // create new user
-		users[nickname[socketFD]] = user; // add user to map
+		const std::string nick = "unknown" + std::to_string(socketFD); // set default nickname
+		User user(socketFD, nick); // create new user
+		users[socketFD] = user; // add user to map
 		std::string message = "Welcome to the chat room " + nickname[socketFD] + "\n";
 		SendData(socketFD, message, message.size()); // send welcome message
 	}
@@ -41,7 +41,7 @@ void Server::AcceptNewClient() {
 	clients.push_back(client); // add client to vector
 	makePoll(incomingFD); // call makePoll with the new client's FD
 
-	std::cout << GREEN << "New client <" << incomingFD << " connected" << STOP << std::endl;
+	std::cout << GREEN << "New client <" << incomingFD << "> connected" << STOP << std::endl;
 }
 
 void Server::ReceiveData(int fd) {
@@ -60,6 +60,13 @@ void Server::ReceiveData(int fd) {
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
+	User &user = users[fd]; // get user from map
+	user.addMessage(std::string(buff)); // add message to user message buffer
+	const std::string message = user.getMessage(); // get message from user message buffer
+
+	//find CR LF (end point)
+	if (message.find_first_of("\r\n"))
+		user.parse();
 }
 
 void Server::SendData(int fd, std::string message, int size) {

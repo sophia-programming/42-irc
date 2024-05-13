@@ -14,6 +14,7 @@
 #include "Client.hpp"
 #include "Color.hpp"
 #include "User.hpp"
+#include "Message.hpp"
 
 class Client;
 class User;
@@ -25,7 +26,7 @@ private:
 	static bool Signal; //static boolean to handle signals
 	std::vector<Client> clients; //vector of clients
 	std::vector<struct pollfd> fds; //vector of pollfd structures
-	std::map<std::string, User> users; //map of users
+	std::map<int, User> users; //map of users
 	std::map<int, std::string> nickname; //map of nicknames
 
 
