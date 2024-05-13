@@ -1,12 +1,10 @@
 #include "Server.hpp"
 
-#include <stdlib.h>
-#include <cassert>
+#include "stdlib.h"
 //__attribute__((destructor))
 //static void destructor() {
 //	system("leaks -q ircserv");
 //}
-
 
 int main(int argc, char **argv){
 	(void)argc;

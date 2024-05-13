@@ -4,9 +4,8 @@ Message::Message() {}
 
 Message::~Message() {}
 
-/* プレフィックスの解析開始: parserPrefix()は、IRCクライアントがサーバーから受け取ったメッセージの中から
-       プレフィックス（送信者の識別情報など）を抽出し、それを処理するために必要
-       (メッセージの最初にコロン(:)で始まる部分) */
+/* parsePrefix : IRCメッセージのプレフィックス（例: :irc.example.com）を解析
+ *　⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く*/
 void Message::parsePrefix(const std::string &message, int &i){
 		i = 1;
 		while (message[i] != ' ') //parse prefix
@@ -18,6 +17,7 @@ void Message::parsePrefix(const std::string &message, int &i){
 			i++;
 }
 
+/*parseCommand : IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）*/
 void Message::parseCommand(const std::string &message, int &i){
 	while (message[i] != '\r' && message[i] != '\n' && message[i] != ' ')
 		command.append(&message[i], 1);
@@ -25,6 +25,7 @@ void Message::parseCommand(const std::string &message, int &i){
 		i++;
 }
 
+/*parseParams : IRCメッセージのパラメータを解析 */
 void Message::parseParams(const std::string &message, int &i){
 	while (message[i] != '\r' && message[i] != '\n')
 	{

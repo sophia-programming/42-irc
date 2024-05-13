@@ -3,7 +3,6 @@ srcs = srcs/main.cpp \
 srcs/client/Client.cpp \
 srcs/server/Server.cpp \
 srcs/server/Signal.cpp \
-srcs/server/User.cpp \
 srcs/server/Message.cpp
 
 includes = -I./includes

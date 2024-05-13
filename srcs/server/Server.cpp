@@ -17,7 +17,7 @@ void Server::makePoll(int socketFD) {
 
 	if (socketFD != ServerSocketFD) { // check if the socket is not the server socket
 		const std::string nick = "unknown" + std::to_string(socketFD); // set default nickname
-		User user(socketFD, nick); // create new user
+		Client user(socketFD, nick); // create new user
 		users[socketFD] = user; // add user to map
 		std::string message = "Welcome to the chat room " + nickname[socketFD] + "\n";
 		SendData(socketFD, message, message.size()); // send welcome message
@@ -36,7 +36,7 @@ void Server::AcceptNewClient() {
 	if (fcntl(incomingFD, F_SETFL, O_NONBLOCK) == -1) // set client socket to non-blocking
 		std::cout << RED << "fcntl() failed" << STOP << std::endl;
 
-	client.SetFD(incomingFD); // set client file descriptor
+	client.setFD(incomingFD); // set client file descriptor
 	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
 	clients.push_back(client); // add client to vector
 	makePoll(incomingFD); // call makePoll with the new client's FD
@@ -60,7 +60,7 @@ void Server::ReceiveData(int fd) {
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
-	User &user = users[fd]; // get user from map
+	Client &user = users[fd]; // get user from map
 	user.addMessage(std::string(buff)); // add message to user message buffer
 	const std::string message = user.getMessage(); // get message from user message buffer
 
@@ -81,7 +81,7 @@ void Server::ClearClients(int fd) {
 		}
 	}
 	for (size_t i = 0; i < clients.size(); i++) { // clear clients from  the vector
-		if (clients[i].GetFD() == fd) {
+		if (clients[i].getFD() == fd) {
 			clients.erase(clients.begin() + i);
 			break;
 		}
@@ -117,8 +117,8 @@ void Server::ServerSocket() {
 
 void Server::CloseFds() {
 	for (size_t i = 0; i < clients.size(); i++) { // close all clients
-		std::cout << RED << "Client " << clients[i].GetFD() << " disconnected" << STOP << std::endl;
-		close(clients[i].GetFD());
+		std::cout << RED << "Client " << clients[i].getFD() << " disconnected" << STOP << std::endl;
+		close(clients[i].getFD());
 	}
 	if (ServerSocketFD != -1) { // close server socket
 		std::cout << RED << "Server socket " << ServerSocketFD << " Disconnected" << STOP << std::endl;
