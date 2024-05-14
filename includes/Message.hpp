@@ -17,6 +17,10 @@ public:
 	void parsePrefix(const std::string &message, int &i);
 	void parseCommand(const std::string &message, int &i);
 	void parseParams(const std::string &message, int &i);
+
+	std::string getPrefix() const;
+	std::string getCommand() const;
+	std::vector<std::string> getParams() const;
 };
 
 #endif

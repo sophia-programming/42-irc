@@ -17,7 +17,7 @@ public:
 	Client(int fd, const std::string &nick);
 	~Client();
 
-	void parse();
+	void parse(const std::string &message);
 
 	int getFD() const;
 	void setFD(int fd);
@@ -25,6 +25,8 @@ public:
 	void SetIPAddress(const std::string& ipaddress);
 	void addMessage(const std::string &message);
 	const std::string &getMessage() const;
+
+	void clearMessage(size_t length);
 };
 
 #endif

@@ -45,7 +45,7 @@ void Server::AcceptNewClient() {
 }
 
 void Server::ReceiveData(int fd) {
-	char buff[1024]; // buffer to received data
+	char buff[1024] = {0}; // buffer to received data
 	memset(buff, 0, sizeof(buff)); // clear buffer
 
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // receive data from client
@@ -65,9 +65,10 @@ void Server::ReceiveData(int fd) {
 	const std::string message = user.getMessage(); // get message from user message buffer
 
 	//find CR LF (end point)
-	if (message.find_first_of("\r\n"))
-		user.parse();
+	if (message.find("\r\n"))
+		user.parse(message); // parse message
 }
+
 
 void Server::SendData(int fd, std::string message, int size) {
 	send(fd, message.c_str(), size, 0); // send data to client

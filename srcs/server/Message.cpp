@@ -45,3 +45,15 @@ void Message::parseParams(const std::string &message, int &i){
 			i++; // skip spaces between params
 	}
 }
+
+std::string Message::getPrefix() const {
+	return this->prefix;
+}
+
+std::string Message::getCommand() const {
+	return this->command;
+}
+
+std::vector<std::string> Message::getParams() const {
+	return this->params;
+}
