@@ -17,12 +17,14 @@ void Client::parse(const std::string &message) {
 		parsed_msg.parsePrefix(message, i);
 	parsed_msg.parseCommand(message, i);
 	parsed_msg.parseParams(message, i);
+
 	std::cout << "======= [parsed message] ========" << std::endl;
 	std::cout << "prefix: " << parsed_msg.getPrefix() << std::endl;
 	std::cout << "command: " << parsed_msg.getCommand() << std::endl;
-	for(size_t i = 0; i < parsed_msg.getParams().size(); i++)
-		std::cout << "param[" << i << "]: " << parsed_msg.getParams()[i] << std::endl;
-	this->clearMessage(message.length());
+	for(size_t j = 0; j < parsed_msg.getParams().size(); j++)
+		std::cout << "param[" << j << "]: " << parsed_msg.getParams()[j] << std::endl;
+	std::cout << "================================" << std::endl;
+	this->clearMessage();
 }
 
 void Client::addMessage(const std::string &message) {
@@ -53,11 +55,10 @@ void Client::SetIPAddress(const std::string &ipaddress) {
 	this->IPaddress = ipaddress;
 }
 
-void Client::clearMessage(size_t length) {
-	if (message_buffer.length() <= length) {
-		message_buffer.clear(); // 全ての文字をクリア
-	} else {
-		message_buffer.erase(0, length); // 指定した長さのメッセージを削除
-	}
-}
+// メッセージバッファをクリアする
+void Client::clearMessage() {
+	Message newParsedMsg;
 
+	this->message_buffer = "";
+	this->parsed_msg = newParsedMsg;
+}

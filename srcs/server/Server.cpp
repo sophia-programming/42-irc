@@ -58,7 +58,6 @@ void Server::ReceiveData(int fd) {
 	else {
 		buff[bytes] = '\0';
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
-		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
 	Client &user = users[fd]; // get user from map
 	user.addMessage(std::string(buff)); // add message to user message buffer
@@ -68,7 +67,6 @@ void Server::ReceiveData(int fd) {
 	if (message.find("\r\n"))
 		user.parse(message); // parse message
 }
-
 
 void Server::SendData(int fd, std::string message, int size) {
 	send(fd, message.c_str(), size, 0); // send data to client
