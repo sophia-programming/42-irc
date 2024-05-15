@@ -2,7 +2,7 @@
 
 Client::Client() {}
 
-Client::Client(int fd, const std::string &nick) : FD(fd), nickname(nick) {}
+Client::Client(int fd, const std::string &nick) : fd(fd), nickname(nick) {}
 
 Client::~Client() {}
 
@@ -43,16 +43,16 @@ const std::string &Client::getMessage() const {
 	return (this->message_buffer);
 }
 
-int Client::getFD() const {
-	return this->FD;
+int Client::getfd() const {
+	return this->fd;
 }
 
-void Client::setFD(int fd) {
-	this->FD = fd;
+void Client::setfd(int fd) {
+	this->fd = fd;
 }
 
 void Client::SetIPAddress(const std::string &ipaddress) {
-	this->IPaddress = ipaddress;
+	this->ip_address = ipaddress;
 }
 
 // メッセージバッファをクリアする

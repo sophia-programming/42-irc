@@ -6,8 +6,8 @@
 
 class Client {
 private:
-	int FD; //client file descriptor
-	std::string IPaddress; //client IP address
+	int fd; //client file descriptor
+	std::string ip_address; //client IP address
 	std::string nickname; // max len 9
 	std::string message_buffer; // max len 512
 	Message parsed_msg;
@@ -20,8 +20,8 @@ public:
 	void clearMessage();
 	void parse(const std::string &message);
 
-	int getFD() const;
-	void setFD(int fd);
+	int getfd() const;
+	void setfd(int fd);
 
 	void SetIPAddress(const std::string& ipaddress);
 	void addMessage(const std::string &message);
