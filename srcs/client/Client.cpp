@@ -2,7 +2,7 @@
 
 Client::Client() {}
 
-Client::Client(int fd, const std::string &nick) : fd(fd), nickname(nick) {}
+Client::Client(int fd_, const std::string &nick) : fd_(fd_), nickname_(nick) {}
 
 Client::~Client() {}
 
@@ -14,51 +14,51 @@ void Client::parse(const std::string &message) {
 	int i = 0;
 
 	if (message[i] == ':')
-		parsed_msg.parsePrefix(message, i);
-	parsed_msg.parseCommand(message, i);
-	parsed_msg.parseParams(message, i);
+		parsed_msg_.parsePrefix(message, i);
+	parsed_msg_.parseCommand(message, i);
+	parsed_msg_.parseParams(message, i);
 
 	std::cout << "======= [parsed message] ========" << std::endl;
-	std::cout << "prefix: " << parsed_msg.getPrefix() << std::endl;
-	std::cout << "command: " << parsed_msg.getCommand() << std::endl;
-	for(size_t j = 0; j < parsed_msg.getParams().size(); j++)
-		std::cout << "param[" << j << "]: " << parsed_msg.getParams()[j] << std::endl;
+	std::cout << "prefix: " << parsed_msg_.getPrefix() << std::endl;
+	std::cout << "command: " << parsed_msg_.getCommand() << std::endl;
+	for(size_t j = 0; j < parsed_msg_.getParams().size(); j++)
+		std::cout << "param[" << j << "]: " << parsed_msg_.getParams()[j] << std::endl;
 	std::cout << "================================" << std::endl;
 	this->clearMessage();
 }
 
 void Client::addMessage(const std::string &message) {
-	this->message_buffer += message;
+	this->message_buffer_ += message;
 	size_t pos = 0;
 
 	// メッセージ終端を探す
-	while ((pos = this->message_buffer.find("\r\n")) != std::string::npos) {
-		std::string single_message = this->message_buffer.substr(0, pos);
+	while ((pos = this->message_buffer_.find("\r\n")) != std::string::npos) {
+		std::string single_message = this->message_buffer_.substr(0, pos);
 		this->parse(single_message);
-		this->message_buffer.erase(0, pos + 2); // メッセージをバッファから削除
+		this->message_buffer_.erase(0, pos + 2); // メッセージをバッファから削除
 	}
 }
 
 const std::string &Client::getMessage() const {
-	return (this->message_buffer);
+	return (this->message_buffer_);
 }
 
 int Client::getfd() const {
-	return this->fd;
+	return this->fd_;
 }
 
 void Client::setfd(int fd) {
-	this->fd = fd;
+	this->fd_ = fd;
 }
 
 void Client::SetIPAddress(const std::string &ipaddress) {
-	this->ip_address = ipaddress;
+	this->ip_address_ = ipaddress;
 }
 
 // メッセージバッファをクリアする
 void Client::clearMessage() {
 	Message newParsedMsg;
 
-	this->message_buffer = "";
-	this->parsed_msg = newParsedMsg;
+	this->message_buffer_ = "";
+	this->parsed_msg_ = newParsedMsg;
 }

@@ -6,9 +6,9 @@
 
 class Message {
 private:
-	std::string prefix;
-	std::string command;
-	std::vector<std::string> params;
+	std::string prefix_;
+	std::string command_;
+	std::vector<std::string> params_;
 
 public:
 	Message();

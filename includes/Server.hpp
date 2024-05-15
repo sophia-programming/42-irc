@@ -20,13 +20,13 @@ class User;
 
 class Server {
 private:
-	int port; //server port
-	int server_socketfd; //server socket file descriptor
-	static bool signal; //static boolean to handle signals
-	std::vector<Client> clients; //vector of clients
-	std::vector<struct pollfd> fds; //vector of pollfd structures
-	std::map<int, Client> users; //map of users
-	std::map<int, std::string> nickname; //map of nicknames
+	int port_; //server port
+	int server_socket_fd_; //server socket file descriptor
+	static bool signal_; //static boolean to handle signals
+	std::vector<Client> connected_clients; //vector of clients
+	std::vector<struct pollfd> fds_; //vector of pollfd structures
+	std::map<int, Client> users_; //map of users
+	std::map<int, std::string> nickname_; //map of nicknames
 
 
 public:

@@ -6,15 +6,15 @@
 
 class Client {
 private:
-	int fd; //client file descriptor
-	std::string ip_address; //client IP address
-	std::string nickname; // max len 9
-	std::string message_buffer; // max len 512
-	Message parsed_msg;
+	int fd_; //client file descriptor
+	std::string ip_address_; //client IP address
+	std::string nickname_; // max len 9
+	std::string message_buffer_; // max len 512
+	Message parsed_msg_;
 
 public:
 	Client();
-	Client(int fd, const std::string &nick);
+	Client(int fd_, const std::string &nick);
 	~Client();
 
 	void clearMessage();
