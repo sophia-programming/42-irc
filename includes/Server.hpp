@@ -35,7 +35,7 @@ public:
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket
 
-	void makePoll(int socket);
+	void MakePoll(int socket);
 	void AcceptNewClient(); //accept new client
 	void ReceiveData(int fd); //receive data from client
 	void SendData(int fd, std::string message, int size); //send data to client

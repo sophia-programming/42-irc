@@ -7,7 +7,7 @@ Server::Server() {
 Server::~Server() {
 }
 
-void Server::makePoll(int socketfd) {
+void Server::MakePoll(int socketfd) {
 	struct pollfd NewPoll;
 
 	NewPoll.fd = socketfd; // set pollfd file descriptor to socket
@@ -36,10 +36,10 @@ void Server::AcceptNewClient() {
 	if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) // set client socket to non-blocking
 		std::cout << RED << "fcntl() failed" << STOP << std::endl;
 
-	client.setfd(incomingfd); // set client file descriptor
+	client.SetFd(incomingfd); // set client file descriptor
 	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
 	connected_clients.push_back(client); // add client to vector
-	makePoll(incomingfd); // call makePoll with the new client's fd
+	MakePoll(incomingfd); // call MakePoll with the new client's fd
 
 	std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
 }
@@ -60,12 +60,12 @@ void Server::ReceiveData(int fd) {
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
 	}
 	Client &user = users_[fd]; // get user from map
-	user.addMessage(std::string(buff)); // add message to user message buffer
-	const std::string message = user.getMessage(); // get message from user message buffer
+	user.AddMessage(std::string(buff)); // add message to user message buffer
+	const std::string message = user.GetMessage(); // get message from user message buffer
 
 	//find CR LF (end point)
 	if (message.find("\r\n"))
-		user.parse(message); // parse message
+		user.Parse(message); // parse message
 }
 
 void Server::SendData(int fd, std::string message, int size) {
@@ -80,7 +80,7 @@ void Server::ClearClients(int fd) {
 		}
 	}
 	for (size_t i = 0; i < connected_clients.size(); i++) { // clear clients from  the vector
-		if (connected_clients[i].getfd() == fd) {
+		if (connected_clients[i].GetFd() == fd) {
 			connected_clients.erase(connected_clients.begin() + i);
 			break;
 		}
@@ -116,8 +116,8 @@ void Server::ServerSocket() {
 
 void Server::CloseFds() {
 	for (size_t i = 0; i < connected_clients.size(); i++) { // close all clients
-		std::cout << RED << "Client " << connected_clients[i].getfd() << " disconnected" << STOP << std::endl;
-		close(connected_clients[i].getfd());
+		std::cout << RED << "Client " << connected_clients[i].GetFd() << " disconnected" << STOP << std::endl;
+		close(connected_clients[i].GetFd());
 	}
 	if (server_socket_fd_ != -1) { // close server socket
 		std::cout << RED << "Server socket " << server_socket_fd_ << " Disconnected" << STOP << std::endl;

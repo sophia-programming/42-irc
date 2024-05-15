@@ -14,13 +14,13 @@ public:
 	Message();
 	~Message();
 
-	void parsePrefix(const std::string &message, int &i);
-	void parseCommand(const std::string &message, int &i);
-	void parseParams(const std::string &message, int &i);
+	void ParsePrefix(const std::string &message, int &i);
+	void ParseCommand(const std::string &message, int &i);
+	void ParseParams(const std::string &message, int &i);
 
-	std::string getPrefix() const;
-	std::string getCommand() const;
-	std::vector<std::string> getParams() const;
+	std::string GetPrefix() const;
+	std::string GetCommand() const;
+	std::vector<std::string> GetParams() const;
 };
 
 #endif

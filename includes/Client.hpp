@@ -17,15 +17,15 @@ public:
 	Client(int fd_, const std::string &nick);
 	~Client();
 
-	void clearMessage();
-	void parse(const std::string &message);
+	void ClearMessage();
+	void Parse(const std::string &message);
 
-	int getfd() const;
-	void setfd(int fd);
+	int GetFd() const;
+	void SetFd(int fd);
 
 	void SetIPAddress(const std::string& ipaddress);
-	void addMessage(const std::string &message);
-	const std::string &getMessage() const;
+	void AddMessage(const std::string &message);
+	const std::string &GetMessage() const;
 };
 
 #endif
