@@ -13,20 +13,20 @@
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
-#include "User.hpp"
+#include "Message.hpp"
 
 class Client;
 class User;
 
 class Server {
 private:
-	int Port; //server port
-	int ServerSocketFD; //server socket file descriptor
-	static bool Signal; //static boolean to handle signals
-	std::vector<Client> clients; //vector of clients
-	std::vector<struct pollfd> fds; //vector of pollfd structures
-	std::map<std::string, User> users; //map of users
-	std::map<int, std::string> nickname; //map of nicknames
+	int port_; //server port
+	int server_socket_fd_; //server socket file descriptor
+	static bool signal_; //static boolean to handle signals
+	std::vector<Client> connected_clients; //vector of clients
+	std::vector<struct pollfd> fds_; //vector of pollfd structures
+	std::map<int, Client> users_; //map of users
+	std::map<int, std::string> nickname_; //map of nicknames
 
 
 public:
@@ -35,7 +35,7 @@ public:
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket
 
-	void makePoll(int socket);
+	void MakePoll(int socket);
 	void AcceptNewClient(); //accept new client
 	void ReceiveData(int fd); //receive data from client
 	void SendData(int fd, std::string message, int size); //send data to client
