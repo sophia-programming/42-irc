@@ -24,6 +24,11 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+test: $(NAME)
+	@chmod +x test/*.sh
+	@echo "Running tests..."
+	@./test/test_auth.sh
+
+.PHONY: all clean fclean re test
 
 
