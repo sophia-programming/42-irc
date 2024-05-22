@@ -1,23 +1,25 @@
 NAME = ircserv
-srcs = srcs/main.cpp \
-srcs/client/Client.cpp \
-srcs/server/Server.cpp \
-srcs/server/Signal.cpp \
-srcs/server/Message.cpp
+SRC_DIR	=	./srcs
+SRCS	=	$(shell find $(SRC_DIR) -type f -name '*.cpp')
 
-includes = -I./includes
-objs = $(srcs:.cpp=.o)
+INCLUDES	=	-I./includes
+OBJ_DIR	=	./objs
+OBJS	=	$(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 #CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g $(includes)
-CXXFLAGS = -std=c++98 -g $(includes)
+CXXFLAGS = -std=c++98 -g $(INCLUDES)
 
 all : $(NAME)
 
-$(NAME): $(objs)
-	c++ $(CXXFLAGS) $(includes) $(objs) -o $(NAME)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	$(RM) $(objs)
+	$(RM) -rf $(OBJ_DIR)
 
 fclean: clean
 	$(RM) $(NAME)
@@ -25,5 +27,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-

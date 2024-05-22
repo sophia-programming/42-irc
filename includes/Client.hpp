@@ -23,6 +23,9 @@ public:
 	int GetFd() const;
 	void SetFd(int fd);
 
+	std::string GetNickname() const;
+	std::string GetIpAdress() const;
+
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 	const std::string &GetMessage() const;
