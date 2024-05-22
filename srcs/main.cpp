@@ -1,24 +1,25 @@
-#include "irc.hpp"
+#include "Server.hpp"
 
-#include <stdlib.h>
+#include "stdlib.h"
 //__attribute__((destructor))
 //static void destructor() {
 //	system("leaks -q ircserv");
 //}
 
 int main(int argc, char **argv){
-	if (argc != 3){
-		std::cout << GREEN << "Usage: " << argv[0] << " <port> <password>" << STOP << std::endl;
-		return 1;
-	}
+	(void)argc;
+	(void)argv;
 
-	int listenSocket;
-	if (initializeServer(argv[1], listenSocket) != 0) {
-		std::cerr << "Failed to initialize server." << std::endl;
-		return 1;
+	Server server;
+	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
+	try {
+//		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)
+		signal(SIGQUIT, Server::SignalHandler); // catch the signal(ctrl + \)
+		server.ServerInit(); // initialize server
 	}
-
-	handleConnections(listenSocket, argv[2]);
-	close(listenSocket);
-	return 0;
+	catch (const std::exception &e) {
+		server.CloseFds();
+		std::cerr << e.what() << std::endl;
+	}
+	std::cout << "The Server Closed" << std::endl;
 }
