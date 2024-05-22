@@ -47,6 +47,14 @@ int Client::GetFd() const {
 	return this->fd_;
 }
 
+std::string Client::GetNickname() const {
+	return this->nickname_;
+}
+
+std::string Client::GetIpAdress() const {
+	return this->ip_address_;
+}
+
 void Client::SetFd(int fd) {
 	this->fd_ = fd;
 }

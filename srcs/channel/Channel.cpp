@@ -5,12 +5,12 @@ Channel::Channel(std::string channel_name):name_(channel_name), limit_(__LONG_MA
 
 void Channel::AddUserAsN(Client& user)
 {
-    this->users_.emplace(user,P_Nomal);
+    this->users_.insert(std::pair{user,P_Nomal});
 }
 
 void Channel::AddUserAsO(Client& user)
 {
-    this->users_.emplace(user, P_Operator);
+    this->users_.insert(std::pair{user, P_Operator});
 }
 
 void Channel::RmUser(const std::string& username)
@@ -29,11 +29,6 @@ void Channel::RmUser(const std::string& username)
 void Channel::SetToic(const std::string& topic)
 {
     this->topic_=topic;
-}
-
-void Channel::SetMode(const std::string &mode)
-{
-    this->mode_.emplace_back(mode);
 }
 
 void Channel::SetKey(const std::string &key)
@@ -94,7 +89,6 @@ const User_Priv Channel::GetPriv(Client &user)
 {
     return this->users_.find(user)->second;
 }
-
 
 const char *Channel::ChannelException::what(void) const throw()
 {

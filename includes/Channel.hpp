@@ -60,7 +60,7 @@ class Channel{
 
 		// setter
 		void SetToic(const std::string& topic);
-		void SetMode(const std::string& mode);
+		// void SetMode(const std::string& mode);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
 
