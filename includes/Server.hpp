@@ -14,9 +14,11 @@
 #include "Client.hpp"
 #include "Color.hpp"
 #include "Message.hpp"
+#include "Channel.hpp"
 
 class Client;
 class User;
+class Channel;
 
 class Server {
 private:
@@ -27,6 +29,12 @@ private:
 	std::vector<struct pollfd> fds_; //vector of pollfd structures
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
+
+	//channelのリスト(検索高速化の為に一旦mapで設定)
+	// 1:channel namel -> チャンネル名の文字列
+	// 2: channel class -> チャンネルオブジェクト
+	std::map<std::string, Channel> channel_list_;
+
 
 
 public:
@@ -44,6 +52,11 @@ public:
 
 	void CloseFds(); //close file descriptor
 	void ClearClients(int fd); //clear clients
+
+	int GetPort() const;
+	bool IsChannel(std::string& name);
+	Channel GetChannel(std::string& name);
+	void CreateChannel(std::string& name);
 };
 
 #endif
