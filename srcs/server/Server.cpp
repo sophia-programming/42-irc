@@ -1,7 +1,8 @@
 #include "Server.hpp"
 
-Server::Server() {
-	server_socket_fd_ = -1;
+Server::Server(char *port, char *password) {
+	std::cout << "Server started at port " << port
+		<< " with password: " << password << std::endl;
 }
 
 Server::~Server() {
@@ -126,7 +127,7 @@ void Server::CloseFds() {
 }
 
 void Server::ServerInit() {
-	this->port_ = 4444; // set port
+	this->port_ = 6667; // set port
 	ServerSocket(); // create server socket
 
 	std::cout << GREEN << "Server <" << server_socket_fd_ << "> is listening on port " << port_ << STOP << std::endl;
@@ -150,32 +151,32 @@ void Server::ServerInit() {
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-bool Server::IsChannel(std::string& name) {
-	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return true;
-	}
-	return false;
-}
+//bool Server::IsChannel(std::string& name) {
+//	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
+//	if(iter != this->channel_list_.end()){
+//		return true;
+//	}
+//	return false;
+//}
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-Channel Server::GetChannel(std::string& name)
-{
-	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return iter->second;
-	}
-	throw std::exception();
-}
+//Channel Server::GetChannel(std::string& name)
+//{
+//	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
+//	if(iter != this->channel_list_.end()){
+//		return iter->second;
+//	}
+//	throw std::exception();
+//}
 
 //チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-void Server::CreateChannel(std::string& name)
-{
-	if(name[0] != '#'){
-		// error plese create #channel name
-		return;
-	}
-	this->channel_list_.emplace(name, Channel(name));
-}
+//void Server::CreateChannel(std::string& name)
+//{
+//	if(name[0] != '#'){
+//		// error plese create #channel name
+//		return;
+//	}
+//	this->channel_list_.emplace(name, Channel(name));
+//}

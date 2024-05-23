@@ -20,6 +20,8 @@ class Client;
 class User;
 class Channel;
 
+bool validate_args(int argc, char **argv);
+
 class Server {
 private:
 	int port_; //server port
@@ -33,12 +35,11 @@ private:
 	//channelのリスト(検索高速化の為に一旦mapで設定)
 	// 1:channel namel -> チャンネル名の文字列
 	// 2: channel class -> チャンネルオブジェクト
-	std::map<std::string, Channel> channel_list_;
-
+//	std::map<std::string, Channel> channel_list_;
 
 
 public:
-	Server();
+	Server(char *port, char *password);
 	~Server();
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket

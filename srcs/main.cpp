@@ -7,10 +7,12 @@
 //}
 
 int main(int argc, char **argv){
-	(void)argc;
-	(void)argv;
 
-	Server server;
+	// 引数の数が正しいかをチェック
+	if (!validate_args(argc, argv))
+		return 1;
+
+	Server server(argv[1], argv[2]);
 	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
 	try {
 //		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)
