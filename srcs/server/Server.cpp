@@ -4,32 +4,46 @@ Server::Server() {}
 
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
-Server::~Server() {}
+Server::~Server() {
+	CloseFds();
+}
 
 /* サーバーを初期化する関数 */
 void Server::ServerInit() {
 	this->port_ = 6667;
-	// create server socket
+
+	// シグナルをsetup
+	SetupSignal();
+	// サーバーソケットをsetup
 	SetupServerSocket();
+	// クライアントを受け入れる
+	MakePoll(server_socket_fd_);
 
 	std::cout << GREEN << "Server <" << server_socket_fd_ << "> is listening on port " << port_ << STOP << std::endl;
 
-	while (Server::signal_ == false) {
+	while (true) {
 		if ((poll(&fds_[0], fds_.size(), -1) == -1) && Server::signal_ == false) // wait for an event
 			throw (std::runtime_error("poll() failed"));
 
-		for (size_t i = 0; i < fds_.size(); i++) { // check all file descriptors
-			if (fds_[i].revents & POLLIN) { // check if there is data to read
+		// 全てのファイルディスクリプタをチェック
+		for (size_t i = 0; i < fds_.size(); i++) {
+			// 読み込むデータがあるかどうかを確認
+			if (fds_[i].revents & POLLIN) {
+				// もし新しいクライアントが接続された場合
 				if (fds_[i].fd == server_socket_fd_)
 					AcceptNewClient();
 				else
-					ReceiveData(fds_[i].fd); // receive data from client
+					ReceiveData(fds_[i].fd);
 			}
 		}
 	}
-	CloseFds();
+	Shutdown();
 }
 
+/* Serverをシャットダウンする関数 */
+void Server::Shutdown() {
+	CloseFds();
+}
 
 /* クライアントからデータを受信する */
 void Server::ReceiveData(int fd) {
@@ -41,9 +55,8 @@ void Server::ReceiveData(int fd) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
 		ClearClients(fd);
 		close(fd);
-		return ;
-	}
-	else {
+		return;
+	} else {
 		buff[bytes] = '\0';
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
 
@@ -53,23 +66,24 @@ void Server::ReceiveData(int fd) {
 		const std::string message = user.GetMessage(); // get message from user message buffer
 		if (message.find("\r\n") != std::string::npos) {
 			if (!user.IsAuthenticated()) {
+				std::cout << "Client " << fd << " is not authenticated. Received password: " << message << std::endl;
 				if (message == password_ + "\r\n") {
 					user.Authenticate(); // authenticate user
 					user.SetNickname("Client" + std::to_string(fd)); // set nickname
 					std::string welcome_message = "Welcome to the chat room " + user.GetNickname() + "\n";
 					SendData(fd, welcome_message, welcome_message.size());
 					std::cout << GREEN << "New Client <" << fd << "> connected" << STOP << std::endl;
-				}
-				else {
+				} else {
 					std::string error_message = "Incorrect password. Please try again\n";
 					SendData(fd, error_message, error_message.size());
-					ClearClients(fd);
-					close(fd);
-					return ;
+					user.ClearMessage(); // メッセージバッファをクリアする
+					return;
 				}
 				user.ClearMessage();
-			} else
-				user.Parse(message);
+			} else {
+				std::cout << "Client " << fd << " is authenticated. Processing message: " << message << std::endl;
+				user.Parse(message); // 認証済みの場合のみメッセージをパースする
+			}
 		}
 	}
 }
@@ -111,6 +125,8 @@ void Server::CloseFds() {
 	if (server_socket_fd_ != -1) { // close server socket
 		std::cout << RED << "Server socket " << server_socket_fd_ << " Disconnected" << STOP << std::endl;
 		close(server_socket_fd_);
+		// socketが閉じられたことを記録
+		server_socket_fd_ = -1;
 	}
 }
 
@@ -222,10 +238,16 @@ void Server::SetupServerSocket() {
 		close(server_socket_fd_);
 		throw(std::runtime_error("Server socket listen failed"));
 	}
-	MakePoll(server_socket_fd_); // call MakePoll with server socket
 }
 
+/* getter関数 */
+std::map<int, Client> Server::GetUsers() {
+	return users_;
+}
 
+int Server::GetServerSocketFd() const {
+	return server_socket_fd_;
+}
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名

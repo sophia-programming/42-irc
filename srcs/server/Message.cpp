@@ -4,67 +4,84 @@ Message::Message() {}
 
 Message::~Message() {}
 
-/* parsePrefix : IRCメッセージのプレフィックス（例: :irc.example.com）を解析
- *　⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く*/
-void Message::ParsePrefix(const std::string &message, int &i){
-		i = 1; // skip ':'
-		while (message[i] != ' ' && message[i] != '\r' && message[i] != '\n')
-		{
-			prefix_.push_back(message[i]);
-			i++;
+/* IRCメッセージのプレフィックス（例: :irc.example.com）を解析する関数
+ *（⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く）
+ * 引数1 -> メッセージ
+ * 引数2 -> メッセージのインデックス*/
+void Message::ParsePrefix(const std::string &message, int &i) {
+	if (message[i] == ':') {
+		i++;
+		size_t pos = message.find(' ', i);
+		if (pos != std::string::npos) {
+			prefix_ = message.substr(i, pos - i);
+			i = pos + 1;
 		}
-		// skip space after prefix
-		while (message[i] == ' ')
+		// スペースをスキップ
+		while (i < message.size() && message[i] == ' ')
 			i++;
-}
-
-/*parseCommand : IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）*/
-void Message::ParseCommand(const std::string &message, int &i){
-	while (i < message.length() && message[i] != ' ' && message[i] != '\r' && message[i] != '\n') {
-		command_.push_back(message[i]);
-		i++;
 	}
-	// skip spaces after command
-	while (i < message.length() && message[i] == ' ')
+}
+
+
+/*IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）
+ * 引数1 -> メッセージ
+ * 引数2 -> メッセージのインデックス*/
+void Message::ParseCommand(const std::string &message, int &i) {
+	size_t pos = message.find(' ', i);
+	if (pos != std::string::npos) {
+		command_ = message.substr(i, pos - i);
+		i = pos + 1;
+	} else {
+		command_ = message.substr(i);
+		i = message.size();
+	}
+	// スペースをスキップ
+	while (i < message.size() && message[i] == ' ')
 		i++;
 }
 
-/*parseParams : IRCメッセージのパラメータを解析 */
-void Message::ParseParams(const std::string &message, int &i){
-	while (i < message.length() && message[i] != '\r' && message[i] != '\n') {
+
+/*IRCメッセージのパラメータを解析する関数
+ * 引数1 -> メッセージ
+ * 引数2 -> メッセージのインデックス*/
+void Message::ParseParams(const std::string &message, int &i) {
+	while (i < message.size() && message[i] != '\r' && message[i] != '\n') {
 		if (message[i] == ':') {
-			i++; //skip ':'
-			// add the rest of the line
+			i++; // skip ':'
 			params_.push_back(message.substr(i));
 			break;
 		}
-		std::string param;
-		while (i < message.length() && message[i] != ' ' && message[i] != '\r' && message[i] != '\n'){
-			param.push_back(message[i]);
-			i++;
+		size_t pos = message.find(' ', i);
+		if (pos != std::string::npos) {
+			params_.push_back(message.substr(i, pos - i));
+			i = pos + 1;
+		} else {
+			params_.push_back(message.substr(i));
+			break;
 		}
-		if (!param.empty())
-			params_.push_back(param);
-		while (i < message.length() && message[i] == ' ')
-			i++; // skip spaces between params
+		// スペースをスキップ
+		while (i < message.size() && message[i] == ' ')
+			i++;
 	}
 }
 
-std::string Message::GetPrefix() const {
-	return this->prefix_;
-}
-
-std::string Message::GetCommand() const {
-	return this->command_;
-}
-
-std::vector<std::string> Message::GetParams() const {
-	return this->params_;
-}
-
-// メッセージバッファをクリアする
+/* メッセージバッファをクリアする関数 */
 void Message::Clear() {
 	prefix_.clear();
 	command_.clear();
 	params_.clear();
+}
+
+
+/* getter関数 */
+std::string Message::GetPrefix() const {
+	return prefix_;
+}
+
+std::string Message::GetCommand() const {
+	return command_;
+}
+
+std::vector<std::string> Message::GetParams() const {
+	return params_;
 }
