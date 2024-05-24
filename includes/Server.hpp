@@ -68,6 +68,9 @@ public:
 	bool IsChannel(std::string& name);
 	Channel GetChannel(std::string& name);
 	void CreateChannel(std::string& name);
+
+	/* password検証 */
+	bool CheckPassword(const std::string &password) const;
 };
 
 #endif
