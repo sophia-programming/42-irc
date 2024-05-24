@@ -16,9 +16,10 @@
 #include "Color.hpp"
 #include "Message.hpp"
 #include "Channel.hpp"
+#include "Command.hpp"
 
-class Client;
 class Channel;
+class Client;
 
 bool validate_args(int argc, char **argv);
 
@@ -71,6 +72,9 @@ public:
 
 	/* password検証 */
 	bool CheckPassword(const std::string &password) const;
+
+	/* Command */
+	void Command(int fd);
 };
 
 #endif

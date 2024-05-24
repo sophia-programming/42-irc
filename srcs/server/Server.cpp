@@ -40,6 +40,19 @@ void Server::ServerInit() {
 	Shutdown();
 }
 
+/* Commandを処理する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+void Server::Command(int fd) {
+	Client &client = users_[fd];
+	Message message; //Message objectを作成
+	const std::string &cmd = message.GetCommand();
+	const std::vector<std::string> &params = message.GetParams();
+
+	if (cmd == "PASS")
+		PASS(client, password_, message);
+}
+
+
 /* Serverをシャットダウンする関数 */
 void Server::Shutdown() {
 	CloseFds();

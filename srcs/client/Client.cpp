@@ -1,8 +1,9 @@
 #include "Client.hpp"
 
-Client::Client() : fd_(-1), authenticated_(false) {}
+Client::Client() : fd_(-1), is_authenticated_(false) {}
 
-Client::Client(int fd_, const std::string &nick) : fd_(fd_), authenticated_(false), nickname_(nick) {}
+Client::Client(int fd_, const std::string &nick)
+	: fd_(fd_), is_authenticated_(false), is_nickname_(true) {}
 
 Client::~Client() {}
 
@@ -58,10 +59,6 @@ void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
 }
 
-void Client::Authenticate() {
-	this->authenticated_ = true;
-}
-
 
 /* ====== getter関数 ====== */
 int Client::GetFd() const {
@@ -76,12 +73,18 @@ std::string Client::GetIpAdress() const {
 	return this->ip_address_;
 }
 
-bool Client::IsAuthenticated() const {
-	return this->authenticated_;
-}
-
 const std::string &Client::GetMessage() const {
 	return (this->message_buffer_);
+}
+
+
+/* ====== 認証関数 ====== */
+void Client::Authenticate() {
+	this->is_authenticated_ = true;
+}
+
+bool Client::IsAuthenticated() const {
+	return this->is_authenticated_;
 }
 
 void Client::Debug_parser() {

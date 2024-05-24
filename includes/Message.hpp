@@ -18,6 +18,7 @@ public:
 	void ParseCommand(const std::string &message, int &i);
 	void ParseParams(const std::string &message, int &i);
 
+	/* getter関数 */
 	std::string GetPrefix() const;
 	std::string GetCommand() const;
 	std::vector<std::string> GetParams() const;

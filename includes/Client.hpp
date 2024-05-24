@@ -7,7 +7,7 @@
 class Client {
 private:
 	int fd_; //client file descriptor
-	bool authenticated_; //client authentication status
+	bool is_authenticated_; //client authentication status
 	bool is_nickname_; //client nickname status
 	bool is_connected_;
 	std::string ip_address_; //client IP address
@@ -25,13 +25,15 @@ public:
 	void ClearMessage();
 	void Debug_parser();
 
+	/* getter関数 */
 	int GetFd() const;
-	void SetFd(int fd);
-
 	std::string GetNickname() const;
 	std::string GetIpAdress() const;
 	const std::string &GetMessage() const;
 
+
+	/* setter関数 */
+	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
