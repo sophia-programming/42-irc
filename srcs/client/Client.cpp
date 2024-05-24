@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client() {}
+Client::Client() : fd_(-1), authenticated_(false) {}
 
 Client::Client(int fd_, const std::string &nick) : fd_(fd_), nickname_(nick) {}
 
@@ -55,12 +55,24 @@ std::string Client::GetIpAdress() const {
 	return this->ip_address_;
 }
 
+bool Client::IsAuthenticated() const {
+	return this->authenticated_;
+}
+
 void Client::SetFd(int fd) {
 	this->fd_ = fd;
 }
 
 void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
+}
+
+void Client::Authenticate() {
+	this->authenticated_ = true;
+}
+
+void Client::SetNickname(const std::string &nick) {
+	this->nickname_ = nick;
 }
 
 // メッセージバッファをクリアする

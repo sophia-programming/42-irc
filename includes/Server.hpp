@@ -26,6 +26,7 @@ class Server {
 private:
 	int port_; //server port
 	int server_socket_fd_; //server socket file descriptor
+	std::string password_; //server password
 	static bool signal_; //static boolean to handle signals
 	std::vector<Client> connected_clients; //vector of clients
 	std::vector<struct pollfd> fds_; //vector of pollfd structures
@@ -39,7 +40,8 @@ private:
 
 
 public:
-	Server(char *port, char *password);
+	Server();
+	Server(int port, const std::string &password);
 	~Server();
 	void ServerInit(); //initialize server
 	void ServerSocket(); //create server socket

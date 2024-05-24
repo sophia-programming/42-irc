@@ -1,12 +1,10 @@
 #include "Server.hpp"
 
-Server::Server(char *port, char *password) {
-	std::cout << "Server started at port " << port
-		<< " with password: " << password << std::endl;
-}
+Server::Server() {}
 
-Server::~Server() {
-}
+Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
+
+Server::~Server() {}
 
 void Server::MakePoll(int socketfd) {
 	struct pollfd NewPoll;
@@ -20,7 +18,7 @@ void Server::MakePoll(int socketfd) {
 		const std::string nick = "unknown" + std::to_string(socketfd); // set default nickname
 		Client user(socketfd, nick); // create new user
 		users_[socketfd] = user; // add user to map
-		std::string message = "Welcome to the chat room " + nickname_[socketfd] + "\n";
+		std::string message = std::string(YELLOW) +  "Please enter the password:\n" + std::string(STOP);
 		SendData(socketfd, message, message.size()); // send welcome message
 	}
 }
@@ -40,8 +38,8 @@ void Server::AcceptNewClient() {
 	client.SetFd(incomingfd); // set client file descriptor
 	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
 	connected_clients.push_back(client); // add client to vector
-	MakePoll(incomingfd); // call MakePoll with the new client's fd
 
+	MakePoll(incomingfd); // call MakePoll with the new client's fd
 	std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
 }
 
@@ -50,24 +48,43 @@ void Server::ReceiveData(int fd) {
 	memset(buff, 0, sizeof(buff)); // clear buffer
 
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // receive data from client
-
 	if (bytes <= 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
 		ClearClients(fd);
 		close(fd);
+		return ;
 	}
 	else {
 		buff[bytes] = '\0';
 		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
-	}
-	Client &user = users_[fd]; // get user from map
-	user.AddMessage(std::string(buff)); // add message to user message buffer
-	const std::string message = user.GetMessage(); // get message from user message buffer
 
-	//find CR LF (end point)
-	if (message.find("\r\n"))
-		user.Parse(message); // parse message
+		Client &user = users_[fd]; // get user from map
+		user.AddMessage(std::string(buff)); // add message to user message buffer
+
+		const std::string message = user.GetMessage(); // get message from user message buffer
+		if (message.find("\r\n") != std::string::npos) {
+			if (!user.IsAuthenticated()) {
+				if (message == password_ + "\r\n") {
+					user.Authenticate(); // authenticate user
+					user.SetNickname("Client" + std::to_string(fd)); // set nickname
+					std::string welcome_message = "Welcome to the chat room " + user.GetNickname() + "\n";
+					SendData(fd, welcome_message, welcome_message.size());
+					std::cout << GREEN << "New Client <" << fd << "> connected" << STOP << std::endl;
+				}
+				else {
+					std::string error_message = "Incorrect password. Please try again\n";
+					SendData(fd, error_message, error_message.size());
+					ClearClients(fd);
+					close(fd);
+					return ;
+				}
+				user.ClearMessage();
+			} else
+				user.Parse(message);
+		}
+	}
 }
+
 
 void Server::SendData(int fd, std::string message, int size) {
 	send(fd, message.c_str(), size, 0); // send data to client
@@ -91,6 +108,7 @@ void Server::ClearClients(int fd) {
 void Server::ServerSocket() {
 	struct sockaddr_in address; // server address
 	struct pollfd NewPoll; // pollfd structure
+
 	address.sin_family = AF_INET; // set address family to IPv4
 	address.sin_addr.s_addr = INADDR_ANY; // set address to any interface
 	address.sin_port = htons(this->port_); // set port

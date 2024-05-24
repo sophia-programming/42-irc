@@ -12,7 +12,7 @@ int main(int argc, char **argv){
 	if (!validate_args(argc, argv))
 		return 1;
 
-	Server server(argv[1], argv[2]);
+	Server server(std::atoi(argv[1]), argv[2]);
 	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
 	try {
 //		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)

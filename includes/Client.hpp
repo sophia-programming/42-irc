@@ -7,6 +7,7 @@
 class Client {
 private:
 	int fd_; //client file descriptor
+	bool authenticated_; //client authentication status
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
 	std::string message_buffer_; // max len 512
@@ -25,10 +26,14 @@ public:
 
 	std::string GetNickname() const;
 	std::string GetIpAdress() const;
+	const std::string &GetMessage() const;
 
+	void SetNickname(const std::string &nick);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
-	const std::string &GetMessage() const;
+
+	void Authenticate();
+	bool IsAuthenticated() const;
 };
 
 #endif
