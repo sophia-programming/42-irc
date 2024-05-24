@@ -44,7 +44,7 @@ public:
 	Server(int port, const std::string &password);
 	~Server();
 	void ServerInit(); //initialize server
-	void ServerSocket(); //create server socket
+	void SetupServerSocket(); //create server socket
 
 	void MakePoll(int socket);
 	void AcceptNewClient(); //accept new client
@@ -60,6 +60,8 @@ public:
 	bool IsChannel(std::string& name);
 	Channel GetChannel(std::string& name);
 	void CreateChannel(std::string& name);
+
+	void SetupClient(int socketfd);
 };
 
 #endif

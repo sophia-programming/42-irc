@@ -6,43 +6,32 @@ Server::Server(int port, const std::string &password) : port_(port), password_(p
 
 Server::~Server() {}
 
-void Server::MakePoll(int socketfd) {
-	struct pollfd NewPoll;
+/* サーバーを初期化する関数 */
+void Server::ServerInit() {
+	this->port_ = 6667;
+	// create server socket
+	SetupServerSocket();
 
-	NewPoll.fd = socketfd; // set pollfd file descriptor to socket
-	NewPoll.events = POLLIN; // set pollfd events to POLLIN
-	NewPoll.revents = 0; // set pollfd revents to 0
-	fds_.push_back(NewPoll); // add pollfd to vector
+	std::cout << GREEN << "Server <" << server_socket_fd_ << "> is listening on port " << port_ << STOP << std::endl;
 
-	if (socketfd != server_socket_fd_) { // check if the socket is not the server socket
-		const std::string nick = "unknown" + std::to_string(socketfd); // set default nickname
-		Client user(socketfd, nick); // create new user
-		users_[socketfd] = user; // add user to map
-		std::string message = std::string(YELLOW) +  "Please enter the password:\n" + std::string(STOP);
-		SendData(socketfd, message, message.size()); // send welcome message
+	while (Server::signal_ == false) {
+		if ((poll(&fds_[0], fds_.size(), -1) == -1) && Server::signal_ == false) // wait for an event
+			throw (std::runtime_error("poll() failed"));
+
+		for (size_t i = 0; i < fds_.size(); i++) { // check all file descriptors
+			if (fds_[i].revents & POLLIN) { // check if there is data to read
+				if (fds_[i].fd == server_socket_fd_)
+					AcceptNewClient();
+				else
+					ReceiveData(fds_[i].fd); // receive data from client
+			}
+		}
 	}
+	CloseFds();
 }
 
-void Server::AcceptNewClient() {
-	Client client; // create new client
-	struct sockaddr_in clientAddress;
-	socklen_t len = sizeof(clientAddress);
 
-	int incomingfd = accept(server_socket_fd_, (struct sockaddr *)&clientAddress, &len); // accept new client
-	if (incomingfd == -1)
-		std::cout << RED << "accept() failed" << STOP << std::endl;
-
-	if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) // set client socket to non-blocking
-		std::cout << RED << "fcntl() failed" << STOP << std::endl;
-
-	client.SetFd(incomingfd); // set client file descriptor
-	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
-	connected_clients.push_back(client); // add client to vector
-
-	MakePoll(incomingfd); // call MakePoll with the new client's fd
-	std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
-}
-
+/* クライアントからデータを受信する */
 void Server::ReceiveData(int fd) {
 	char buff[1024] = {0}; // buffer to received data
 	memset(buff, 0, sizeof(buff)); // clear buffer
@@ -86,10 +75,17 @@ void Server::ReceiveData(int fd) {
 }
 
 
+/* クライアントにデータを送信する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ
+ * 引数2 -> 送信するメッセージ
+ * 引数3 -> 送信するメッセージのサイズ*/
 void Server::SendData(int fd, std::string message, int size) {
-	send(fd, message.c_str(), size, 0); // send data to client
+	send(fd, message.c_str(), size, 0);
 }
 
+
+/* クライアントをクリアする関数
+ * 引数1 -> クリアするクライアントのソケットファイルディスクリプタ*/
 void Server::ClearClients(int fd) {
 	for (size_t i = 0; i < fds_.size(); i++) { // clear from the pollfd
 		if (fds_[i].fd == fd) {
@@ -105,34 +101,8 @@ void Server::ClearClients(int fd) {
 	}
 }
 
-void Server::ServerSocket() {
-	struct sockaddr_in address; // server address
-	struct pollfd NewPoll; // pollfd structure
 
-	address.sin_family = AF_INET; // set address family to IPv4
-	address.sin_addr.s_addr = INADDR_ANY; // set address to any interface
-	address.sin_port = htons(this->port_); // set port
-
-	server_socket_fd_ = socket(AF_INET, SOCK_STREAM, 0); // create server socket
-	if (server_socket_fd_ == -1)  // check if socket creation failed
-		throw (std::runtime_error("Server socket creation failed"));
-
-	int en = 1;
-	if (setsockopt(server_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1) // set socket options to reuse address
-		throw (std::runtime_error("Server socket options failed"));
-	if (fcntl(server_socket_fd_, F_SETFL, O_NONBLOCK) == -1) // set socket to non-blocking
-		throw (std::runtime_error("Server socket fcntl failed"));
-	if (bind(server_socket_fd_, (struct sockaddr *)&address, sizeof(address)) == -1) // bind server socket to address
-		throw (std::runtime_error("Server socket bind failed"));
-	if (listen(server_socket_fd_, SOMAXCONN) == -1) // listen on server socket
-		throw(std::runtime_error("Server socket listen failed"));
-
-	NewPoll.fd = server_socket_fd_; // set pollfd file descriptor to server socket
-	NewPoll.events = POLLIN; // set pollfd events to POLLIN
-	NewPoll.revents = 0; // set pollfd revents to 0
-	fds_.push_back(NewPoll); // add pollfd to vector
-}
-
+/*　全てのfdをcloseする関数　*/
 void Server::CloseFds() {
 	for (size_t i = 0; i < connected_clients.size(); i++) { // close all clients
 		std::cout << RED << "Client " << connected_clients[i].GetFd() << " disconnected" << STOP << std::endl;
@@ -144,27 +114,117 @@ void Server::CloseFds() {
 	}
 }
 
-void Server::ServerInit() {
-	this->port_ = 6667; // set port
-	ServerSocket(); // create server socket
 
-	std::cout << GREEN << "Server <" << server_socket_fd_ << "> is listening on port " << port_ << STOP << std::endl;
+/*========== Socket通信のための関数群 ==========*/
 
-	while (Server::signal_ == false) {
-		if ((poll(&fds_[0], fds_.size(), -1) == -1) && Server::signal_ == false) // wait for an event
-			throw (std::runtime_error("poll() failed"));
 
-		for (size_t i = 0; i < fds_.size(); i++) { // check all file descriptors
-			if (fds_[i].revents & POLLIN) { // check if there is data to read
-				if (fds_[i].fd == server_socket_fd_)
-					AcceptNewClient();
-				else
-					ReceiveData(fds_[i].fd); // receive data from client
-			}
-		}
-	}
-	CloseFds();
+/* Clientの初期設定
+ 1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
+void Server::SetupClient(int socketfd) {
+	const std::string nick = "unknown" + std::to_string(socketfd); // set default nickname
+	Client user(socketfd, nick); // create new user
+	users_[socketfd] = user; // add user to map
 }
+
+
+/* 新しいクライアントを受け入れる */
+void Server::AcceptNewClient() {
+	struct sockaddr_in clientAddress;
+	socklen_t len = sizeof(clientAddress);
+
+	// accept new client
+	int incomingfd = accept(server_socket_fd_, (struct sockaddr *)&clientAddress, &len);
+	if (incomingfd == -1){
+		std::cout << RED << "accept() failed" << STOP << std::endl;
+		return ;
+	}
+
+	// set client socket to non-blocking
+	if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) {
+		std::cout << RED << "fcntl() failed" << STOP << std::endl;
+		close(incomingfd);
+		return ;
+	}
+
+	// initialize client
+	SetupClient(incomingfd);
+
+	Client &client = users_[incomingfd];
+	// set client IP address
+	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
+	// add client to vector
+	connected_clients.push_back(client);
+
+	// call MakePoll with the new client's fd
+	MakePoll(incomingfd);
+	std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
+}
+
+
+/* pollシステムコールを使用するためのにpollfd構造体を作成する
+ 1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
+void Server::MakePoll(int socketfd) {
+	struct pollfd NewPoll;
+
+	// pollfd file descriptorをsocketに設定
+	NewPoll.fd = socketfd;
+
+	// pollfd eventsをPOLLINに設定
+	NewPoll.events = POLLIN;
+
+	// pollfd reventsを0に設定
+	NewPoll.revents = 0;
+
+	// pollfdをvectorに追加
+	fds_.push_back(NewPoll);
+}
+
+
+/* サーバーソケットを作成する */
+void Server::SetupServerSocket() {
+	/*=== create server socket ===*/
+	server_socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_socket_fd_ == -1)
+		throw (std::runtime_error("Server socket creation failed"));
+
+	/*=== set server address ===*/
+	// create server address
+	struct sockaddr_in address;
+	// set address family to IPv4
+	address.sin_family = AF_INET;
+	// set address to any interface
+	address.sin_addr.s_addr = INADDR_ANY;
+	// set port
+	address.sin_port = htons(this->port_);
+
+	/*=== set socket options ===*/
+	int en = 1;
+	// set socket options to reuse address
+	if (setsockopt(server_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1){
+		close(server_socket_fd_);
+		throw (std::runtime_error("Server socket options failed"));
+	}
+
+	// set socket to non-blocking
+	if (fcntl(server_socket_fd_, F_SETFL, O_NONBLOCK) == -1) {
+		close(server_socket_fd_);
+		throw (std::runtime_error("Server socket fcntl failed"));
+	}
+
+	/*=== bind server socket to address ===*/
+	if (bind(server_socket_fd_, (struct sockaddr *)&address, sizeof(address)) == -1){
+		close(server_socket_fd_);
+		throw (std::runtime_error("Server socket bind failed"));
+	}
+
+	/*=== listen on server socket ===*/
+	if (listen(server_socket_fd_, SOMAXCONN) == -1){
+		close(server_socket_fd_);
+		throw(std::runtime_error("Server socket listen failed"));
+	}
+	MakePoll(server_socket_fd_); // call MakePoll with server socket
+}
+
 
 
 // 既存のチャンネルか確認する
