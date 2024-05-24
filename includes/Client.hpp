@@ -8,18 +8,22 @@ class Client {
 private:
 	int fd_; //client file descriptor
 	bool authenticated_; //client authentication status
+	bool is_nickname_; //client nickname status
+	bool is_connected_;
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
+
 
 public:
 	Client();
 	Client(int fd_, const std::string &nick);
 	~Client();
 
-	void ClearMessage();
 	void Parse(const std::string &message);
+	void ClearMessage();
+	void Debug_parser();
 
 	int GetFd() const;
 	void SetFd(int fd);

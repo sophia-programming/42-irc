@@ -13,7 +13,8 @@ void Message::ParsePrefix(const std::string &message, int &i){
 			prefix_.push_back(message[i]);
 			i++;
 		}
-		while (message[i] == ' ') // skip space after prefix
+		// skip space after prefix
+		while (message[i] == ' ')
 			i++;
 }
 
@@ -23,7 +24,8 @@ void Message::ParseCommand(const std::string &message, int &i){
 		command_.push_back(message[i]);
 		i++;
 	}
-	while (i < message.length() && message[i] == ' ') // skip spaces after command
+	// skip spaces after command
+	while (i < message.length() && message[i] == ' ')
 		i++;
 }
 
@@ -32,7 +34,8 @@ void Message::ParseParams(const std::string &message, int &i){
 	while (i < message.length() && message[i] != '\r' && message[i] != '\n') {
 		if (message[i] == ':') {
 			i++; //skip ':'
-			params_.push_back(message.substr(i)); // add the rest of the line
+			// add the rest of the line
+			params_.push_back(message.substr(i));
 			break;
 		}
 		std::string param;
@@ -57,4 +60,11 @@ std::string Message::GetCommand() const {
 
 std::vector<std::string> Message::GetParams() const {
 	return this->params_;
+}
+
+// メッセージバッファをクリアする
+void Message::Clear() {
+	prefix_.clear();
+	command_.clear();
+	params_.clear();
 }

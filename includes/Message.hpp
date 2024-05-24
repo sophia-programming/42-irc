@@ -21,6 +21,8 @@ public:
 	std::string GetPrefix() const;
 	std::string GetCommand() const;
 	std::vector<std::string> GetParams() const;
+
+	void Clear();
 };
 
 #endif
