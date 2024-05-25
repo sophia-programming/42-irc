@@ -13,18 +13,12 @@ void Server::SetupSignal() {
 /* サーバーをクリーンアップする関数
  * 引数1 -> 終了ステータス */
 void Server::Cleanup(int exitStatus) {
-	if (server) {
-		std::map<int, Client>::iterator iter = server->GetUsers().begin();
-
-		for(; iter != server->GetUsers().end(); iter++) {
-			std::cout << "close: " << iter->second.GetNickname() << " [" << iter->second.GetFd() << "]" << std::endl;
-			close(iter->first);
-		}
-		close(server->GetServerSocketFd());
-		std::cerr << "Server closed" << std::endl;
-		std::exit(exitStatus);
-	}
+	// サーバーをシャットダウン
+	Shutdown();
+	std::cerr << YELLOW << "Server closed" << STOP << std::endl;
+	std::exit(exitStatus);
 }
+
 
 /* シグナルハンドラ
  * 引数1 -> シグナル */

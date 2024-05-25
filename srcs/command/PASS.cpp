@@ -14,11 +14,18 @@ void PASS(Client &client, const std::string &server_password, const Message &mes
 		return ;
 	}
 
-	// パスワードが正しい場合
+	// パスワードを取得
 	std::string const &password = message.GetParams()[0];
 
-	if (password == server_password)
-		client.IsAuthenticated();
+	// パスワードが正しい場合
+	if (password == server_password) {
+		client.Authenticate(); // 認証する
+		SendMessage(fd, "Welcome! You are now authenticated.\r\n", 0);
+	} else {
+		// パスワードが正しくない場合
+		SendMessage(fd, "Password is incorrect.\r\n", 0);
+		close(fd);
+	}
 }
 
 void SendMessage(int fd, const std::string &message, int flag) {

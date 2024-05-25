@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 // ./ircserv [port] [password]の形式かをチェックする関数
-bool validate_args(int argc, char **argv) {
+bool ValidateArgs(int argc, char **argv) {
 
 	// 引数が3つでない場合はエラー(./ircserv [port] [password]の形式)
 	if (argc != 3) {

@@ -18,10 +18,12 @@
 #include "Channel.hpp"
 #include "Command.hpp"
 
+const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
+
 class Channel;
 class Client;
 
-bool validate_args(int argc, char **argv);
+bool ValidateArgs(int argc, char **argv);
 
 class Server {
 private:
@@ -54,7 +56,8 @@ public:
 	Server(int port, const std::string &password);
 	~Server();
 
-	void ServerInit(); //initialize server
+	void ServerInit(int port); //initialize server
+	void ServerStart(); //start server
 	void Shutdown(); //shutdown server
 
 	/* Signal */
@@ -74,7 +77,7 @@ public:
 	bool CheckPassword(const std::string &password) const;
 
 	/* Command */
-	void Command(int fd);
+	void ExecuteCommand(int fd);
 };
 
 #endif

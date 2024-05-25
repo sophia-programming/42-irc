@@ -8,7 +8,7 @@
 int main(int argc, char **argv){
 
 	// 引数の数が正しいかをチェック
-	if (!validate_args(argc, argv))
+	if (!ValidateArgs(argc, argv))
 		return 1;
 
 	int port = std::atoi(argv[1]);
@@ -16,10 +16,10 @@ int main(int argc, char **argv){
 
 	Server server(port, password);
 	try {
-		server.ServerInit();
+		server.ServerInit(port);
+		server.ServerStart();
 	}
 	catch (const std::exception &e) {
-		server.Shutdown();
 		std::cerr << e.what() << std::endl;
 		server.Cleanup(1);
 	}
