@@ -38,7 +38,7 @@ private:
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
-	void ReceiveData(int fd); //receive data from client
+	void ChatFlow(int fd); //receive data from client
 	void SendData(int fd, std::string message, int size); //send data to client
 	void ClearClients(int fd); //clear clients
 	void CloseFds(); //close file descriptor

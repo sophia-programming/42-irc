@@ -38,7 +38,7 @@ void Server::ServerStart() {
 				if (fds_[i].fd == server_socket_fd_)
 					AcceptNewClient();
 				else
-					ReceiveData(fds_[i].fd);
+					ChatFlow(fds_[i].fd);
 			}
 		}
 	}
@@ -46,33 +46,16 @@ void Server::ServerStart() {
 }
 
 
-/* Commandを処理する関数
- * 引数1 -> クライアントのソケットファイルディスクリプタ*/
-void Server::ExecuteCommand(int fd) {
-	Client &client = users_[fd];
-	Message message; //Message objectを作成
-	const std::string &cmd = message.GetCommand();
-	const std::vector<std::string> &params = message.GetParams();
-
-	std::cout << BLUE << "GetPassword: " << GetPassword() << STOP << std::endl;
-	if (cmd == "PASS")
-		PASS(client, GetPassword(), message);
-	else
-		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
-}
-
-
-/* Serverをシャットダウンする関数 */
-void Server::Shutdown() {
-	CloseFds();
-}
-
-/* クライアントからデータを受信する */
-void Server::ReceiveData(int fd) {
+/* Chatの流れを管理する関数
+ * 1. クライアントからデータを受信
+ * 2. 受信したデータをクライアントのメッセージバッファに追加 AddMessage()
+ * 3. メッセージバッファ内のメッセージをパース Parse()
+ * 4. コマンドを処理 ExecuteCommand() */
+void Server::ChatFlow(int fd) {
 	// 受け取ったデータを格納するバッファ
 	char buffer[1024] = {0};
 
-	// 受け取るデータのサイズを取得
+	// データを受信
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
@@ -88,10 +71,6 @@ void Server::ReceiveData(int fd) {
 	// メッセージを処理
 	std::string &message = user.GetMessage(); // ここをstd::string &に変更して直接操作する
 
-	// デバッグメッセージを追加
-	std::cout << "Received message: " << message << std::endl;
-
-	// Process each command separated by \r\n, \r, or \n
 	size_t pos;
 	while ((pos = message.find_first_of("\r\n")) != std::string::npos) {
 		std::string cmd_line;
@@ -111,6 +90,22 @@ void Server::ReceiveData(int fd) {
 		// コマンドを処理
 		ExecuteCommand(fd);
 	}
+}
+
+
+/* Commandを処理する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+void Server::ExecuteCommand(int fd) {
+	Client &client = users_[fd];
+	Message message; //Message objectを作成
+	const std::string &cmd = message.GetCommand();
+	const std::vector<std::string> &params = message.GetParams();
+
+	std::cout << BLUE << "GetPassword: " << GetPassword() << STOP << std::endl;
+	if (cmd == "PASS")
+		PASS(client, GetPassword(), message);
+	else
+		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
 }
 
 
@@ -141,6 +136,12 @@ void Server::ReceiveData(int fd) {
 			}
 		}
 	}
+
+
+/* Serverをシャットダウンする関数 */
+void Server::Shutdown() {
+	CloseFds();
+}
 
 
 /*　全てのfdをcloseする関数　*/

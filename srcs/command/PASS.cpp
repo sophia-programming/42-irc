@@ -30,5 +30,4 @@ void PASS(Client &client, const std::string &server_password, const Message &mes
 
 void SendMessage(int fd, const std::string &message, int flag) {
 	send(fd, message.c_str(), message.size(), flag);
-	std::cout << YELLOW << "Sent: " << message << STOP << std::endl;
 }
