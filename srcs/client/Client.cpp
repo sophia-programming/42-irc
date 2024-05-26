@@ -13,28 +13,17 @@ Client::~Client() {}
  * 引数1 -> メッセージ */
 void Client::AddMessage(const std::string &message) {
 	this->message_buffer_ += message;
-	size_t pos = 0;
-
-	// メッセージ終端を探す
-	while ((pos = this->message_buffer_.find("\r\n")) != std::string::npos) {
-		std::string single_message = this->message_buffer_.substr(0, pos);
-		this->Parse(single_message);
-		// メッセージをバッファから削除
-		this->message_buffer_.erase(0, pos + 2);
-	}
 }
 
 /* メッセージをパースする関数
  * 引数1 -> メッセージ */
 void Client::Parse(const std::string &message) {
 	int i = 0;
-
 	/* parsePrefix : IRCメッセージのプレフィックス（例: :irc.example.com）を解析
  *　(⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く)
  * parseCommand : IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）
  * parseParams : IRCメッセージのパラメータを解析 */
-	if (message[i] == ':')
-		parsed_msg_.ParsePrefix(message, i);
+	parsed_msg_.ParsePrefix(message, i);
 	parsed_msg_.ParseCommand(message, i);
 	parsed_msg_.ParseParams(message, i);
 	Debug_parser();

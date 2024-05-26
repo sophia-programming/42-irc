@@ -46,17 +46,18 @@ void Server::ServerStart() {
 }
 
 
-/* Chatの流れを管理する関数
+/* クライアンドからのメッセージを受信し、処理する関数
  * 1. クライアントからデータを受信
  * 2. 受信したデータをクライアントのメッセージバッファに追加 AddMessage()
  * 3. メッセージバッファ内のメッセージをパース Parse()
- * 4. コマンドを処理 ExecuteCommand() */
+ * 4. コマンドを処理 ExecuteCommand()
+ * 引数1 -> クライアントのソケットファイルディスクリプタ */
 void Server::ChatFlow(int fd) {
 	// 受け取ったデータを格納するバッファ
-	char buffer[1024] = {0};
+	char received_data[1024] = {0};
 
 	// データを受信
-	ssize_t bytes = recv(fd, buffer, sizeof(buffer), 0);
+	ssize_t bytes = recv(fd, received_data, sizeof(received_data), 0);
 	if (bytes <= 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
 		ClearClients(fd);
@@ -67,26 +68,26 @@ void Server::ChatFlow(int fd) {
 	// マップからクライアントを取得
 	Client &user = users_[fd];
 	// 受け取ったデータをクライアントのメッセージバッファに追加
-	user.AddMessage(std::string(buffer));
-	// メッセージを処理
-	std::string &message = user.GetMessage(); // ここをstd::string &に変更して直接操作する
+	user.AddMessage(std::string(received_data));
+	//　クライアントのメッセージバッファを取得
+	std::string &message_buffer = user.GetMessage(); // ここをstd::string &に変更して直接操作する
 
-	size_t pos;
-	while ((pos = message.find_first_of("\r\n")) != std::string::npos) {
-		std::string cmd_line;
+	size_t pos = 0;
+	while ((pos = message_buffer.find_first_of("\r\n")) != std::string::npos) {
+		std::string parsed_message;
 
 		// \r\n, \r, \n のいずれかの終端文字に対応
-		if (message[pos] == '\r' && pos + 1 < message.size() && message[pos + 1] == '\n') {
+		if (message_buffer[pos] == '\r' && pos + 1 < message_buffer.size() && message_buffer[pos + 1] == '\n') {
 			// \r\n
-			cmd_line = message.substr(0, pos + 2);
-			message.erase(0, pos + 2);
+			parsed_message = message_buffer.substr(0, pos + 2);
+			message_buffer.erase(0, pos + 2);
 		} else {
 			// \r または \n
-			cmd_line = message.substr(0, pos + 1);
-			message.erase(0, pos + 1);
+			parsed_message = message_buffer.substr(0, pos + 1);
+			message_buffer.erase(0, pos + 1);
 		}
 		// 受け取ったコマンドをパース
-		user.Parse(cmd_line);
+		user.Parse(parsed_message);
 		// コマンドを処理
 		ExecuteCommand(fd);
 	}
