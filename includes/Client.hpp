@@ -29,7 +29,7 @@ public:
 	int GetFd() const;
 	std::string GetNickname() const;
 	std::string GetIpAdress() const;
-	const std::string &GetMessage() const;
+	std::string &GetMessage() ;
 
 
 	/* setter関数 */

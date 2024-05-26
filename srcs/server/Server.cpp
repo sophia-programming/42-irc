@@ -54,8 +54,11 @@ void Server::ExecuteCommand(int fd) {
 	const std::string &cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
+	std::cout << BLUE << "GetPassword: " << GetPassword() << STOP << std::endl;
 	if (cmd == "PASS")
-		PASS(client, password_, message);
+		PASS(client, GetPassword(), message);
+	else
+		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
 }
 
 
@@ -80,23 +83,33 @@ void Server::ReceiveData(int fd) {
 
 	// マップからクライアントを取得
 	Client &user = users_[fd];
-	//　受け取ったデータをクライアントのメッセージバッファに追加
+	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(buffer));
 	// メッセージを処理
-	const std::string &message = user.GetMessage();
+	std::string &message = user.GetMessage(); // ここをstd::string &に変更して直接操作する
 
-	// Process each command separated by \r\n
-	size_t pos = 0;
-	while ((pos = message.find("\r\n")) != std::string::npos) {
-		std::string cmd_line = message.substr(0, pos + 2);
+	// デバッグメッセージを追加
+	std::cout << "Received message: " << message << std::endl;
+
+	// Process each command separated by \r\n, \r, or \n
+	size_t pos;
+	while ((pos = message.find_first_of("\r\n")) != std::string::npos) {
+		std::string cmd_line;
+
+		// \r\n, \r, \n のいずれかの終端文字に対応
+		if (message[pos] == '\r' && pos + 1 < message.size() && message[pos + 1] == '\n') {
+			// \r\n
+			cmd_line = message.substr(0, pos + 2);
+			message.erase(0, pos + 2);
+		} else {
+			// \r または \n
+			cmd_line = message.substr(0, pos + 1);
+			message.erase(0, pos + 1);
+		}
 		// 受け取ったコマンドをパース
 		user.Parse(cmd_line);
 		// コマンドを処理
 		ExecuteCommand(fd);
-		// メッセージをクリア
-		user.ClearMessage();
-		// バッファから処理したコマンドを削除
-		pos += 2;
 	}
 }
 
@@ -113,13 +126,15 @@ void Server::ReceiveData(int fd) {
 /* クライアントをクリアする関数
  * 引数1 -> クリアするクライアントのソケットファイルディスクリプタ*/
 	void Server::ClearClients(int fd) {
-		for (size_t i = 0; i < fds_.size(); i++) { // clear from the pollfd
+		// clear from the pollfd
+		for (size_t i = 0; i < fds_.size(); i++) {
 			if (fds_[i].fd == fd) {
 				fds_.erase(fds_.begin() + i);
 				break;
 			}
 		}
-		for (size_t i = 0; i < connected_clients.size(); i++) { // clear clients from  the vector
+		// clear clients from the map
+		for (size_t i = 0; i < connected_clients.size(); i++) {
 			if (connected_clients[i].GetFd() == fd) {
 				connected_clients.erase(connected_clients.begin() + i);
 				break;
@@ -266,13 +281,23 @@ bool Server::CheckPassword(const std::string &password) const {
 	}
 
 /* getter関数 */
-	std::map<int, Client> Server::GetUsers() {
-		return users_;
-	}
+std::string Server::GetPassword() const {
+	return password_;
+}
 
-	int Server::GetServerSocketFd() const {
-		return server_socket_fd_;
-	}
+std::map<int, Client> Server::GetUsers() {
+	return users_;
+}
+
+int Server::GetServerSocketFd() const {
+	return server_socket_fd_;
+}
+
+
+/* setter関数 */
+std::string Server::SetPassword(const std::string &password) {
+	this->password_ = password;
+}
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名

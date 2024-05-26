@@ -73,7 +73,7 @@ std::string Client::GetIpAdress() const {
 	return this->ip_address_;
 }
 
-const std::string &Client::GetMessage() const {
+std::string &Client::GetMessage() {
 	return (this->message_buffer_);
 }
 

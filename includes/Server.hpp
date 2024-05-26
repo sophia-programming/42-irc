@@ -66,12 +66,16 @@ public:
 	void Cleanup(int exitStatus); //cleanup server
 
 	/* getter */
+	int GetPort() const;
+	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	int GetPort() const;
 	bool IsChannel(std::string& name);
 	Channel GetChannel(std::string& name);
 	void CreateChannel(std::string& name);
+
+	/* setter */
+	std::string SetPassword(const std::string &password);
 
 	/* password検証 */
 	bool CheckPassword(const std::string &password) const;
