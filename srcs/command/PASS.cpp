@@ -10,7 +10,7 @@ void PASS(Client &client, const std::string &server_password, const Message &mes
 
 	// パラメータが1つでない場合
 	if (message.GetParams().size() != 1) {
-		SendMessage(fd, ERR_NEEDMOREPARAMS(nick, "PASS"), 0);
+		SendMessage(fd, ERR_PARAMS(nick, "PASS"), 0);
 		return ;
 	}
 

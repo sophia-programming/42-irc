@@ -86,23 +86,26 @@ void Server::ChatFlow(int fd) {
 			parsed_message = message_buffer.substr(0, pos + 1);
 			message_buffer.erase(0, pos + 1);
 		}
+
 		// 受け取ったコマンドをパース
-		user.Parse(parsed_message);
+		int i = 0;
+		Message parsed_msg;
+		parsed_msg.ParseCommand(parsed_message, i);
 		// コマンドを処理
-		ExecuteCommand(fd);
+		ExecuteCommand(fd, parsed_msg);
 	}
 }
 
 
 /* Commandを処理する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ*/
-void Server::ExecuteCommand(int fd) {
+void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
-	Message message; //Message objectを作成
 	const std::string &cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
 	std::cout << BLUE << "GetPassword: " << GetPassword() << STOP << std::endl;
+	std::cout << BLUE << "GetCommand: " << cmd << STOP << std::endl;
 	if (cmd == "PASS")
 		PASS(client, GetPassword(), message);
 	else

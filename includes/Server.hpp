@@ -81,7 +81,7 @@ public:
 	bool CheckPassword(const std::string &password) const;
 
 	/* Command */
-	void ExecuteCommand(int fd);
+	void ExecuteCommand(int fd, const Message &message);
 };
 
 #endif
