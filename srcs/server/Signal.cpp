@@ -13,8 +13,7 @@ void Server::SetupSignal() {
 /* サーバーをクリーンアップする関数
  * 引数1 -> 終了ステータス */
 void Server::Cleanup(int exitStatus) {
-	// サーバーをシャットダウン
-	Shutdown();
+	CloseFds();
 	std::cerr << YELLOW << "Server closed" << STOP << std::endl;
 	std::exit(exitStatus);
 }

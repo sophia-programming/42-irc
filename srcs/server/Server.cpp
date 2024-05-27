@@ -42,7 +42,7 @@ void Server::ServerStart() {
 			}
 		}
 	}
-	Shutdown();
+	CloseFds();
 }
 
 
@@ -139,12 +139,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 			}
 		}
 	}
-
-
-/* Serverをシャットダウンする関数 */
-void Server::Shutdown() {
-	CloseFds();
-}
 
 
 /*　全てのfdをcloseする関数　*/
