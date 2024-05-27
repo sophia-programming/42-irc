@@ -4,6 +4,13 @@ Message::Message() {}
 
 Message::~Message() {}
 
+Message::Message(const std::string &message) : original_message_(message) {
+	int i = 0;
+	ParsePrefix(original_message_, i);
+	ParseCommand(original_message_, i);
+	ParseParams(original_message_, i);
+}
+
 /* IRCメッセージのプレフィックス（例: :irc.example.com）を解析する関数
  *（⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く）
  * 引数1 -> メッセージ
@@ -82,6 +89,10 @@ std::string Message::GetCommand() const {
 	return command_;
 }
 
-std::vector<std::string> Message::GetParams() const {
+const std::vector<std::string> &Message::GetParams() const {
+	if (!params_.empty())
+		std::cout << "params_[0]: " << params_[0] << std::endl;
+	else
+		std::cout << "params_ is empty" << std::endl;
 	return params_;
 }

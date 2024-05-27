@@ -88,9 +88,7 @@ void Server::ChatFlow(int fd) {
 		}
 
 		// 受け取ったコマンドをパース
-		int i = 0;
-		Message parsed_msg;
-		parsed_msg.ParseCommand(parsed_message, i);
+		Message parsed_msg(parsed_message);
 		// コマンドを処理
 		ExecuteCommand(fd, parsed_msg);
 	}
@@ -101,11 +99,21 @@ void Server::ChatFlow(int fd) {
  * 引数1 -> クライアントのソケットファイルディスクリプタ*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
-	const std::string &cmd = message.GetCommand();
+	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
-	std::cout << BLUE << "GetPassword: " << GetPassword() << STOP << std::endl;
-	std::cout << BLUE << "GetCommand: " << cmd << STOP << std::endl;
+	/* コマンドの前後の空白を取り除く
+	 * find_last_not_of() -> 末尾の空白を削除
+	 * find_first_not_of() -> 先頭の空白を削除*/
+	cmd.erase(cmd.find_last_not_of(" \n\r\t") + 1);
+	cmd.erase(0, cmd.find_first_not_of(" \n\r\t"));
+
+	if (!params.empty()) {
+		std::cout << BLUE << "GetParams: " << params[0] << STOP << std::endl;
+	} else {
+		std::cout << RED << "No parameters found!" << STOP << std::endl;
+	}
+
 	if (cmd == "PASS")
 		PASS(client, GetPassword(), message);
 	else

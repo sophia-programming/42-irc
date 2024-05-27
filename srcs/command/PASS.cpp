@@ -10,12 +10,13 @@ void PASS(Client &client, const std::string &server_password, const Message &mes
 
 	// パラメータが1つでない場合
 	if (message.GetParams().size() != 1) {
-		SendMessage(fd, ERR_PARAMS(nick, "PASS"), 0);
+		SendMessage(fd, std::string(YELLOW) + ERR_NEEDMOREPARAMS(nick, "PASS") + std::string(STOP), 0);
 		return ;
 	}
 
 	// パスワードを取得
 	std::string const &password = message.GetParams()[0];
+	std::cout << RED << "password: " << password << STOP << std::endl;
 
 	// パスワードが正しい場合
 	if (password == server_password) {
@@ -24,7 +25,6 @@ void PASS(Client &client, const std::string &server_password, const Message &mes
 	} else {
 		// パスワードが正しくない場合
 		SendMessage(fd, "Password is incorrect.\r\n", 0);
-		close(fd);
 	}
 }
 

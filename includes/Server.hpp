@@ -11,6 +11,7 @@
 #include <arpa/inet.h> // for inet_ntoa()
 #include <map> // for std::map
 #include <stdlib.h> // for exit()
+#include <string> // for std::string
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
