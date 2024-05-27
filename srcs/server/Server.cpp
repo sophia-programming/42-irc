@@ -102,20 +102,11 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
-	/* コマンドの前後の空白を取り除く
-	 * find_last_not_of() -> 末尾の空白を削除
-	 * find_first_not_of() -> 先頭の空白を削除*/
-	cmd.erase(cmd.find_last_not_of(" \n\r\t") + 1);
-	cmd.erase(0, cmd.find_first_not_of(" \n\r\t"));
-
-	if (!params.empty()) {
-		std::cout << BLUE << "GetParams: " << params[0] << STOP << std::endl;
-	} else {
-		std::cout << RED << "No parameters found!" << STOP << std::endl;
-	}
+	/* コマンドの前後の空白を取り除く */
+	cmd = Trim(cmd);
 
 	if (cmd == "PASS")
-		PASS(client, GetPassword(), message);
+		PASS(client, this, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
 }

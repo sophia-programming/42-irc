@@ -25,6 +25,7 @@ class Channel;
 class Client;
 
 bool ValidateArgs(int argc, char **argv);
+std::string Trim(const std::string &str);
 
 class Server {
 private:

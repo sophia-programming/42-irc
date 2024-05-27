@@ -90,9 +90,5 @@ std::string Message::GetCommand() const {
 }
 
 const std::vector<std::string> &Message::GetParams() const {
-	if (!params_.empty())
-		std::cout << "params_[0]: " << params_[0] << std::endl;
-	else
-		std::cout << "params_ is empty" << std::endl;
 	return params_;
 }
