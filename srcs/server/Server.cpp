@@ -173,7 +173,9 @@ bool Server::CheckPassword(const std::string &password) const {
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 	void Server::SetupClient(int socketfd) {
 		// set client nickname
-		const std::string nick = "unknown" + std::to_string(socketfd);
+		std::stringstream ss;
+		ss << "unknown" << socketfd;
+		const std::string nick = ss.str();
 		// create new user
 		Client user(socketfd, nick);
 		// add user to map
