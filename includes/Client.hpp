@@ -30,6 +30,7 @@ public:
 	std::string GetNickname() const;
 	std::string GetIpAdress() const;
 	std::string &GetMessage() ;
+	bool GetIsAuthenticated() const;
 
 
 	/* setter関数 */
@@ -37,9 +38,7 @@ public:
 	void SetNickname(const std::string &nick);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
-
-	void Authenticate();
-	bool IsAuthenticated() const;
+	void SetIsAuthenticated();
 };
 
 #endif

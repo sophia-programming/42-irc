@@ -107,6 +107,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 
 	if (cmd == "PASS")
 		PASS(client, this, message);
+	else if (cmd == "NICK")
+		NICK(client, this, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
 }

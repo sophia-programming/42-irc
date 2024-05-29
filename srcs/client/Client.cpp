@@ -35,20 +35,6 @@ void Client::ClearMessage() {
 }
 
 
-/* ====== setter関数 ====== */
-void Client::SetFd(int fd) {
-	this->fd_ = fd;
-}
-
-void Client::SetNickname(const std::string &nick) {
-	this->nickname_ = nick;
-}
-
-void Client::SetIPAddress(const std::string &ipaddress) {
-	this->ip_address_ = ipaddress;
-}
-
-
 /* ====== getter関数 ====== */
 int Client::GetFd() const {
 	return this->fd_;
@@ -66,15 +52,30 @@ std::string &Client::GetMessage() {
 	return (this->message_buffer_);
 }
 
+bool Client::GetIsAuthenticated() const {
+	return this->is_authenticated_;
+}
 
-/* ====== 認証関数 ====== */
-void Client::Authenticate() {
+
+/* ====== setter関数 ====== */
+void Client::SetFd(int fd) {
+	this->fd_ = fd;
+}
+
+void Client::SetNickname(const std::string &nick) {
+	this->nickname_ = nick;
+}
+
+void Client::SetIPAddress(const std::string &ipaddress) {
+	this->ip_address_ = ipaddress;
+}
+
+void Client::SetIsAuthenticated() {
 	this->is_authenticated_ = true;
 }
 
-bool Client::IsAuthenticated() const {
-	return this->is_authenticated_;
-}
+
+/* ====== 認証関数 ====== */
 
 void Client::Debug_parser() {
 	std::cout << "======= [parsed message] ========" << std::endl;
