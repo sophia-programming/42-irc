@@ -85,6 +85,12 @@ class Channel{
 				virtual ~ChannelException () throw() {};
 				virtual const char* what (void) const throw();
 		};
+
 };
+
+
+void JOIN(std::string channel_name){
+
+}
 
 #endif

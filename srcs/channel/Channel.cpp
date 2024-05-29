@@ -69,6 +69,7 @@ bool Channel::CheckMode(ChannelMode mode)
     return false;
 }
 
+
 //User名からClientオブジェクトを取得する関数
 // 1: ->取得したいユーザー名
 Client Channel::GetUser(std::string user_name)

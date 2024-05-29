@@ -177,5 +177,5 @@ void Server::CreateChannel(std::string& name)
 		// error plese create #channel name
 		return;
 	}
-	this->channel_list_.emplace(name, Channel(name));
+	this->channel_list_.insert(std::pair{name, Channel(name)});
 }
