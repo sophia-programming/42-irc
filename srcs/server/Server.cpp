@@ -101,6 +101,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
+	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
+	std::map<std::string, int> map_nick_fd;
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
@@ -108,9 +110,9 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	if (cmd == "PASS")
 		PASS(client, this, message);
 	else if (cmd == "NICK")
-		NICK(client, this, message);
+		NICK(client, map_nick_fd, message);
 	else
-		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
+		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
 
 
