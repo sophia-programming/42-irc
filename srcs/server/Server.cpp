@@ -102,15 +102,20 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-	std::map<std::string, int> map_nick_fd;
+
+	if (!client.GetIsAuthenticated()) {
+		if (cmd == "PASS")
+			PASS(client, this, message);
+		else
+			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		return ;
+	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "PASS")
-		PASS(client, this, message);
-	else if (cmd == "NICK")
-		NICK(client, map_nick_fd, message);
+	if (cmd == "NICK")
+		NICK(client, map_nick_fd_, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }

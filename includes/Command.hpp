@@ -9,6 +9,7 @@ class Server;
 #define ERR_UNKNOWNCOMMAND(nick, command) "421 " + nick + " " + command + " :Unknown command\r\n"
 #define ERR_ERRONEUSNICKNAME(nick, nickname) "432 " + nick + " " + nickname + " :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, nickname) "433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
+#define ERR_NOTREGISTERED(nick) "451 " + nick + " :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS(nick, command) "461 " + nick + " " + command + " :Not enough parameters\r\n"
 
 void PASS(Client &client, Server *server, const Message &message);
