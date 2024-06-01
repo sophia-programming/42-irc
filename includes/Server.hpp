@@ -37,6 +37,7 @@ private:
 	std::vector<struct pollfd> fds_; //vector of pollfd structures
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
+	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client

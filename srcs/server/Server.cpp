@@ -101,14 +101,23 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
+	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
+
+	if (!client.GetIsAuthenticated()) {
+		if (cmd == "PASS")
+			PASS(client, this, message);
+		else
+			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		return ;
+	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "PASS")
-		PASS(client, this, message);
+	if (cmd == "NICK")
+		NICK(client, map_nick_fd_, message);
 	else
-		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
+		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
 
 
@@ -173,7 +182,9 @@ bool Server::CheckPassword(const std::string &password) const {
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 	void Server::SetupClient(int socketfd) {
 		// set client nickname
-		const std::string nick = "unknown" + std::to_string(socketfd);
+		std::stringstream ss;
+		ss << "unknown" << socketfd;
+		const std::string nick = ss.str();
 		// create new user
 		Client user(socketfd, nick);
 		// add user to map

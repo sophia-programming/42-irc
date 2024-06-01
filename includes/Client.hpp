@@ -9,7 +9,8 @@ private:
 	int fd_; //client file descriptor
 	bool is_authenticated_; //client authentication status
 	bool is_nickname_; //client nickname status
-	bool is_connected_;
+	bool is_welcome_; //client welcome message status
+	bool is_connected_; //client connection status
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
 	std::string message_buffer_; // max len 512
@@ -27,7 +28,10 @@ public:
 
 	/* getter関数 */
 	int GetFd() const;
+	bool GetIsAuthenticated() const;
 	std::string GetNickname() const;
+	bool GetIsWelcome() const;
+	bool GetIsConnected() const;
 	std::string GetIpAdress() const;
 	std::string &GetMessage() ;
 
@@ -35,11 +39,11 @@ public:
 	/* setter関数 */
 	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
+	void SetIsAuthenticated();
+	void SetIsWelcome();
+	void SetIsConnected();
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
-
-	void Authenticate();
-	bool IsAuthenticated() const;
 };
 
 #endif
