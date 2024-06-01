@@ -78,6 +78,17 @@ bool Channel::CheckMode(ChannelMode mode)
     return false;
 }
 
+bool Channel::IsInvited(std::string user_name){
+
+    std::vector<std::string>::iterator iter;
+    iter = find(this->invate_users_.begin(), this->invate_users_.end(), user_name);
+    if(iter != this->invate_users_.end()){
+        return true;
+    }
+    return false;
+}
+
+
 void Channel::RmMode(ChannelMode mode)
 {
     std::vector<ChannelMode>::iterator iter;
@@ -86,7 +97,7 @@ void Channel::RmMode(ChannelMode mode)
     if(iter != this->mode_.end()){
         this->mode_.erase(iter);
     }
-    
+
 }
 
 //User名からClientオブジェクトを取得する関数

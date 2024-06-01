@@ -78,6 +78,7 @@ class Channel{
 		Client GetUser(std::string user_name);
 		const User_Priv GetPriv(Client& user);
 		bool CheckMode(ChannelMode mode);
+		bool IsInvited(std::string user_name);
 		void RmMode(ChannelMode mode);
 
 		class ChannelException : public std::exception{
