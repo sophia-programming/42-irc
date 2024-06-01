@@ -1,25 +1,27 @@
 #include "Server.hpp"
 
-#include "stdlib.h"
 //__attribute__((destructor))
 //static void destructor() {
 //	system("leaks -q ircserv");
 //}
 
 int main(int argc, char **argv){
-	(void)argc;
-	(void)argv;
 
-	Server server;
-	std::cout << YELLOW << "====== Server ======" << STOP << std::endl;
+	// 引数の数が正しいかをチェック
+	if (!ValidateArgs(argc, argv))
+		return 1;
+
+	int port = std::atoi(argv[1]);
+	std::string password = argv[2];
+
+	Server server(port, password);
 	try {
-//		signal(SIGINT, Server::SignalHandler); // catch the signal(ctrl + c)
-		signal(SIGQUIT, Server::SignalHandler); // catch the signal(ctrl + \)
-		server.ServerInit(); // initialize server
+		server.ServerInit(port);
+		server.ServerStart();
 	}
 	catch (const std::exception &e) {
-		server.CloseFds();
 		std::cerr << e.what() << std::endl;
+		server.Cleanup(1);
 	}
 	std::cout << "The Server Closed" << std::endl;
 }

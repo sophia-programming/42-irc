@@ -7,28 +7,39 @@
 class Client {
 private:
 	int fd_; //client file descriptor
+	bool is_authenticated_; //client authentication status
+	bool is_nickname_; //client nickname status
+	bool is_connected_;
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
+
 
 public:
 	Client();
 	Client(int fd_, const std::string &nick);
 	~Client();
 
-	void ClearMessage();
 	void Parse(const std::string &message);
+	void ClearMessage();
+	void Debug_parser();
 
+	/* getter関数 */
 	int GetFd() const;
-	void SetFd(int fd);
-
 	std::string GetNickname() const;
 	std::string GetIpAdress() const;
+	std::string &GetMessage() ;
 
+
+	/* setter関数 */
+	void SetFd(int fd);
+	void SetNickname(const std::string &nick);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
-	const std::string &GetMessage() const;
+
+	void Authenticate();
+	bool IsAuthenticated() const;
 };
 
 #endif

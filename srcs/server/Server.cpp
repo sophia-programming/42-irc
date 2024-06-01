@@ -1,146 +1,44 @@
 #include "Server.hpp"
 
-Server::Server() {
-	server_socket_fd_ = -1;
-}
+Server::Server() {}
+
+Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
 Server::~Server() {
+	CloseFds();
 }
 
-void Server::MakePoll(int socketfd) {
-	struct pollfd NewPoll;
 
-	NewPoll.fd = socketfd; // set pollfd file descriptor to socket
-	NewPoll.events = POLLIN; // set pollfd events to POLLIN
-	NewPoll.revents = 0; // set pollfd revents to 0
-	fds_.push_back(NewPoll); // add pollfd to vector
+/* Serverを初期化する関数
+ * 引数　1 -> ポート番号*/
+void Server::ServerInit(int port) {
+	this->port_ = port;
 
-	if (socketfd != server_socket_fd_) { // check if the socket is not the server socket
-		const std::string nick = "unknown" + std::to_string(socketfd); // set default nickname
-		Client user(socketfd, nick); // create new user
-		users_[socketfd] = user; // add user to map
-		std::string message = "Welcome to the chat room " + nickname_[socketfd] + "\n";
-		SendData(socketfd, message, message.size()); // send welcome message
-	}
+	// シグナルをsetup
+	SetupSignal();
+	// サーバーソケットをsetup
+	SetupServerSocket();
+	// クライアントを受け入れる
+	MakePoll(server_socket_fd_);
 }
 
-void Server::AcceptNewClient() {
-	Client client; // create new client
-	struct sockaddr_in clientAddress;
-	socklen_t len = sizeof(clientAddress);
 
-	int incomingfd = accept(server_socket_fd_, (struct sockaddr *)&clientAddress, &len); // accept new client
-	if (incomingfd == -1)
-		std::cout << RED << "accept() failed" << STOP << std::endl;
-
-	if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) // set client socket to non-blocking
-		std::cout << RED << "fcntl() failed" << STOP << std::endl;
-
-	client.SetFd(incomingfd); // set client file descriptor
-	client.SetIPAddress(inet_ntoa(clientAddress.sin_addr)); // set client IP address
-	connected_clients.push_back(client); // add client to vector
-	MakePoll(incomingfd); // call MakePoll with the new client's fd
-
-	std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
-}
-
-void Server::ReceiveData(int fd) {
-	char buff[1024] = {0}; // buffer to received data
-	memset(buff, 0, sizeof(buff)); // clear buffer
-
-	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // receive data from client
-
-	if (bytes <= 0) {
-		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
-		ClearClients(fd);
-		close(fd);
-	}
-	else {
-		buff[bytes] = '\0';
-		std::cout << YELLOW << "Client <" << fd << "> : " << buff << STOP;
-	}
-	Client &user = users_[fd]; // get user from map
-	user.AddMessage(std::string(buff)); // add message to user message buffer
-	const std::string message = user.GetMessage(); // get message from user message buffer
-
-	//find CR LF (end point)
-	if (message.find("\r\n"))
-		user.Parse(message); // parse message
-}
-
-void Server::SendData(int fd, std::string message, int size) {
-	send(fd, message.c_str(), size, 0); // send data to client
-}
-
-void Server::ClearClients(int fd) {
-	for (size_t i = 0; i < fds_.size(); i++) { // clear from the pollfd
-		if (fds_[i].fd == fd) {
-			fds_.erase(fds_.begin() + i);
-			break;
-		}
-	}
-	for (size_t i = 0; i < connected_clients.size(); i++) { // clear clients from  the vector
-		if (connected_clients[i].GetFd() == fd) {
-			connected_clients.erase(connected_clients.begin() + i);
-			break;
-		}
-	}
-}
-
-void Server::ServerSocket() {
-	struct sockaddr_in address; // server address
-	struct pollfd NewPoll; // pollfd structure
-	address.sin_family = AF_INET; // set address family to IPv4
-	address.sin_addr.s_addr = INADDR_ANY; // set address to any interface
-	address.sin_port = htons(this->port_); // set port
-
-	server_socket_fd_ = socket(AF_INET, SOCK_STREAM, 0); // create server socket
-	if (server_socket_fd_ == -1)  // check if socket creation failed
-		throw (std::runtime_error("Server socket creation failed"));
-
-	int en = 1;
-	if (setsockopt(server_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1) // set socket options to reuse address
-		throw (std::runtime_error("Server socket options failed"));
-	if (fcntl(server_socket_fd_, F_SETFL, O_NONBLOCK) == -1) // set socket to non-blocking
-		throw (std::runtime_error("Server socket fcntl failed"));
-	if (bind(server_socket_fd_, (struct sockaddr *)&address, sizeof(address)) == -1) // bind server socket to address
-		throw (std::runtime_error("Server socket bind failed"));
-	if (listen(server_socket_fd_, SOMAXCONN) == -1) // listen on server socket
-		throw(std::runtime_error("Server socket listen failed"));
-
-	NewPoll.fd = server_socket_fd_; // set pollfd file descriptor to server socket
-	NewPoll.events = POLLIN; // set pollfd events to POLLIN
-	NewPoll.revents = 0; // set pollfd revents to 0
-	fds_.push_back(NewPoll); // add pollfd to vector
-}
-
-void Server::CloseFds() {
-	for (size_t i = 0; i < connected_clients.size(); i++) { // close all clients
-		std::cout << RED << "Client " << connected_clients[i].GetFd() << " disconnected" << STOP << std::endl;
-		close(connected_clients[i].GetFd());
-	}
-	if (server_socket_fd_ != -1) { // close server socket
-		std::cout << RED << "Server socket " << server_socket_fd_ << " Disconnected" << STOP << std::endl;
-		close(server_socket_fd_);
-	}
-}
-
-void Server::ServerInit() {
-	this->port_ = 4444; // set port
-	ServerSocket(); // create server socket
-
-	std::cout << GREEN << "Server <" << server_socket_fd_ << "> is listening on port " << port_ << STOP << std::endl;
-
-	while (Server::signal_ == false) {
-		if ((poll(&fds_[0], fds_.size(), -1) == -1) && Server::signal_ == false) // wait for an event
+/* サーバーを開始する関数 */
+void Server::ServerStart() {
+	while (true) {
+		// poll()でデータを待機
+		if ((poll(&fds_[0], fds_.size(), TIMEOUT) == -1) && Server::signal_ == false)
 			throw (std::runtime_error("poll() failed"));
 
-		for (size_t i = 0; i < fds_.size(); i++) { // check all file descriptors
-			if (fds_[i].revents & POLLIN) { // check if there is data to read
+		// 全てのファイルディスクリプタをチェック
+		for (size_t i = 0; i < fds_.size(); i++) {
+			// 読み込むデータがあるかどうかを確認
+			if (fds_[i].revents & POLLIN) {
+				// もし新しいクライアントが接続された場合
 				if (fds_[i].fd == server_socket_fd_)
 					AcceptNewClient();
 				else
-					ReceiveData(fds_[i].fd); // receive data from client
+					ChatFlow(fds_[i].fd);
 			}
 		}
 	}
@@ -148,9 +46,260 @@ void Server::ServerInit() {
 }
 
 
+/* クライアンドからのメッセージを受信し、処理する関数
+ * 1. クライアントからデータを受信
+ * 2. 受信したデータをクライアントのメッセージバッファに追加 AddMessage()
+ * 3. メッセージバッファ内のメッセージをパース Parse()
+ * 4. コマンドを処理 ExecuteCommand()
+ * 引数1 -> クライアントのソケットファイルディスクリプタ */
+void Server::ChatFlow(int fd) {
+	// 受け取ったデータを格納するバッファ
+	char received_data[1024] = {0};
+
+	// データを受信
+	ssize_t bytes = recv(fd, received_data, sizeof(received_data), 0);
+	if (bytes <= 0) {
+		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
+		ClearClients(fd);
+		close(fd);
+		return;
+	}
+
+	// マップからクライアントを取得
+	Client &user = users_[fd];
+	// 受け取ったデータをクライアントのメッセージバッファに追加
+	user.AddMessage(std::string(received_data));
+	//　クライアントのメッセージバッファを取得
+	std::string &message_buffer = user.GetMessage(); // ここをstd::string &に変更して直接操作する
+
+	size_t pos = 0;
+	while ((pos = message_buffer.find_first_of("\r\n")) != std::string::npos) {
+		std::string parsed_message;
+
+		// \r\n, \r, \n のいずれかの終端文字に対応
+		if (message_buffer[pos] == '\r' && pos + 1 < message_buffer.size() && message_buffer[pos + 1] == '\n') {
+			// \r\n
+			parsed_message = message_buffer.substr(0, pos + 2);
+			message_buffer.erase(0, pos + 2);
+		} else {
+			// \r または \n
+			parsed_message = message_buffer.substr(0, pos + 1);
+			message_buffer.erase(0, pos + 1);
+		}
+
+		// 受け取ったコマンドをパース
+		Message parsed_msg(parsed_message);
+		// コマンドを処理
+		ExecuteCommand(fd, parsed_msg);
+	}
+}
+
+
+/* Commandを処理する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+void Server::ExecuteCommand(int fd, const Message &message) {
+	Client &client = users_[fd];
+	std::string cmd = message.GetCommand();
+	const std::vector<std::string> &params = message.GetParams();
+
+	/* コマンドの前後の空白を取り除く */
+	cmd = Trim(cmd);
+
+	if (cmd == "PASS")
+		Command::PASS(client, this, message);
+	else
+		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
+}
+
+
+/* クライアントにデータを送信する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ
+ * 引数2 -> 送信するメッセージ
+ * 引数3 -> 送信するメッセージのサイズ*/
+	void Server::SendData(int fd, std::string message, int size) {
+		send(fd, message.c_str(), size, 0);
+	}
+
+
+/* クライアントをクリアする関数
+ * 引数1 -> クリアするクライアントのソケットファイルディスクリプタ*/
+	void Server::ClearClients(int fd) {
+		// clear from the pollfd
+		for (size_t i = 0; i < fds_.size(); i++) {
+			if (fds_[i].fd == fd) {
+				fds_.erase(fds_.begin() + i);
+				break;
+			}
+		}
+		// clear clients from the map
+		for (size_t i = 0; i < connected_clients.size(); i++) {
+			if (connected_clients[i].GetFd() == fd) {
+				connected_clients.erase(connected_clients.begin() + i);
+				break;
+			}
+		}
+	}
+
+
+/*　全てのfdをcloseする関数　*/
+void Server::CloseFds() {
+	// close all clients
+	for (std::map<int, Client>::iterator iter = users_.begin(); iter != users_.end(); iter++) {
+		std::cout << "close: " << iter->second.GetNickname() << " [" << iter->second.GetFd() << "]" << std::endl;
+		close(iter->first);
+	}
+	// close server socket
+	if (server_socket_fd_ != -1) {
+		std::cout << RED << "Server socket " << server_socket_fd_ << " Disconnected" << STOP << std::endl;
+		close(server_socket_fd_);
+		// socketが閉じられたことを記録
+		server_socket_fd_ = -1;
+	}
+}
+
+
+/* passwordを検証する関数
+ * 引数1 -> 入力されたパスワード
+ * 戻り値 -> パスワードが正しい場合はtrue、それ以外はfalse*/
+bool Server::CheckPassword(const std::string &password) const {
+	return password == this->password_;
+}
+
+
+/*========== Socket通信のための関数群 ==========*/
+
+
+/* Clientの初期設定
+ 1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
+	void Server::SetupClient(int socketfd) {
+		// set client nickname
+		const std::string nick = "unknown" + std::to_string(socketfd);
+		// create new user
+		Client user(socketfd, nick);
+		// add user to map
+		users_[socketfd] = user;
+	}
+
+
+/* 新しいクライアントを受け入れる */
+	void Server::AcceptNewClient() {
+		struct sockaddr_in clientAddress;
+		socklen_t len = sizeof(clientAddress);
+
+		// accept new client
+		int incomingfd = accept(server_socket_fd_, (struct sockaddr *) &clientAddress, &len);
+		if (incomingfd == -1) {
+			std::cout << RED << "accept() failed" << STOP << std::endl;
+			return;
+		}
+
+		// set client socket to non-blocking
+		if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) {
+			std::cout << RED << "fcntl() failed" << STOP << std::endl;
+			close(incomingfd);
+			return;
+		}
+
+		// initialize client
+		SetupClient(incomingfd);
+
+		Client &client = users_[incomingfd];
+		// set client IP address
+		client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
+		// add client to vector
+		connected_clients.push_back(client);
+
+		// call MakePoll with the new client's fd
+		MakePoll(incomingfd);
+		std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
+	}
+
+
+/* pollシステムコールを使用するためのにpollfd構造体を作成する
+ 1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
+	void Server::MakePoll(int socketfd) {
+		struct pollfd NewPoll;
+
+		// pollfd file descriptorをsocketに設定
+		NewPoll.fd = socketfd;
+
+		// pollfd eventsをPOLLINに設定
+		NewPoll.events = POLLIN;
+
+		// pollfd reventsを0に設定
+		NewPoll.revents = 0;
+
+		// pollfdをvectorに追加
+		fds_.push_back(NewPoll);
+	}
+
+
+/* サーバーソケットを作成する */
+	void Server::SetupServerSocket() {
+		/*=== create server socket ===*/
+		server_socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_socket_fd_ == -1)
+			throw (std::runtime_error("Server socket creation failed"));
+
+		/*=== set server address ===*/
+		// create server address
+		struct sockaddr_in address;
+		// set address family to IPv4
+		address.sin_family = AF_INET;
+		// set address to any interface
+		address.sin_addr.s_addr = INADDR_ANY;
+		// set port
+		address.sin_port = htons(this->port_);
+
+		/*=== set socket options ===*/
+		int en = 1;
+		// set socket options to reuse address
+		if (setsockopt(server_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1) {
+			close(server_socket_fd_);
+			throw (std::runtime_error("Server socket options failed"));
+		}
+
+		// set socket to non-blocking
+		if (fcntl(server_socket_fd_, F_SETFL, O_NONBLOCK) == -1) {
+			close(server_socket_fd_);
+			throw (std::runtime_error("Server socket fcntl failed"));
+		}
+
+		/*=== bind server socket to address ===*/
+		if (bind(server_socket_fd_, (struct sockaddr *) &address, sizeof(address)) == -1) {
+			close(server_socket_fd_);
+			throw (std::runtime_error("Server socket bind failed"));
+		}
+
+		/*=== listen on server socket ===*/
+		if (listen(server_socket_fd_, SOMAXCONN) == -1) {
+			close(server_socket_fd_);
+			throw (std::runtime_error("Server socket listen failed"));
+		}
+	}
+
+/* getter関数 */
+std::string Server::GetPassword() const {
+	return password_;
+}
+
+std::map<int, Client> Server::GetUsers() {
+	return users_;
+}
+
+int Server::GetServerSocketFd() const {
+	return server_socket_fd_;
+}
+
+
+/* setter関数 */
+std::string Server::SetPassword(const std::string &password) {
+	this->password_ = password;
+}
+
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-bool Server::IsChannel(std::string& name) {
+bool Server::ChannelExist(const std::string& name) {
 	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return true;
@@ -160,7 +309,7 @@ bool Server::IsChannel(std::string& name) {
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-Channel Server::GetChannel(std::string& name)
+Channel Server::GetChannel(const std::string& name)
 {
 	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
@@ -171,7 +320,7 @@ Channel Server::GetChannel(std::string& name)
 
 //チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-void Server::CreateChannel(std::string& name)
+void Server::CreateChannel(const std::string& name)
 {
 	if(name[0] != '#'){
 		// error plese create #channel name

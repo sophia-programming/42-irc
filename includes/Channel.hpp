@@ -63,6 +63,7 @@ class Channel{
 		// void SetMode(const std::string& mode);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
+		void SetMode(ChannelMode mode);
 
 		// ユーザー権限をOPに設定
 		void SetOperator(const std::string& username);
@@ -71,6 +72,8 @@ class Channel{
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
+		int GetLimit() const;
+
 
 		Client GetUser(std::string user_name);
 		const User_Priv GetPriv(Client& user);
@@ -87,10 +90,5 @@ class Channel{
 		};
 
 };
-
-
-void JOIN(std::string channel_name){
-
-}
 
 #endif

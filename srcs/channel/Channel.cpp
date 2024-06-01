@@ -41,6 +41,10 @@ void Channel::SetLimit(long int user_limit)
     this->limit_ = user_limit;
 }
 
+void Channel::SetMode(ChannelMode mode)
+{
+    this->mode_.push_back(mode);
+}
 
 //getter
 const std::string &Channel::GetName() const
@@ -58,6 +62,11 @@ const std::string &Channel::GetKey() const
     return this->key_;
 }
 
+int Channel::GetLimit() const
+{
+    return this->limit_;
+}
+
 // 引数のモードが現在設定されているかどうか確認する関数
 // 1:std::string& name -> 確認したいモード
 bool Channel::CheckMode(ChannelMode mode)
@@ -69,6 +78,16 @@ bool Channel::CheckMode(ChannelMode mode)
     return false;
 }
 
+void Channel::RmMode(ChannelMode mode)
+{
+    std::vector<ChannelMode>::iterator iter;
+
+    iter = find(this->mode_.begin(), this->mode_.end(), mode);
+    if(iter != this->mode_.end()){
+        this->mode_.erase(iter);
+    }
+    
+}
 
 //User名からClientオブジェクトを取得する関数
 // 1: ->取得したいユーザー名
