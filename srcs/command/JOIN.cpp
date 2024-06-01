@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include "Message.hpp"
 
-#define JOIN_SCCESS_MSG ""
+
 
 // JOIN コマンドの処理をする関数
 void Command::JOIN(Client &client, Server *server, const Message &message)
@@ -22,17 +22,17 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             Channel ch = server->GetChannel(ch_name);
             //チャンネルが存在するとき
             if(ch.GetLimit() <= ch.users_.size()){
-                msg_to_c = "ERR_CHANNELISFULL (471) - " + ch.GetName() + " :Cannot join channel (+l)\n";
+                msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch.GetName());
             }
             else if(ch.CheckMode(CM_Key)){
-                msg_to_c = "ERR_BADCHANNELKEY (475) - " + ch.GetName() + " :Cannot join channel (+k)\n";
+                msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch.GetName());
             }
             else if(ch.CheckMode(CM_Invite)){
                 if(ch.IsInvited(client.GetNickname()) == false){
-                    msg_to_c = "ERR_INVITEONLYCHAN (473) - " + ch.GetName() + " :Cannot join channel (+l)\n";
+                    msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch.GetName());
                 }
                 else{
-                    msg_to_c = client.GetNickname() +"! JOIN :" + ch.GetName();
+                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(), ch.GetName());
                     ch.AddUserAsN(client);
                 }
             }
