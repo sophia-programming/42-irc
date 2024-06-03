@@ -34,16 +34,18 @@ public:
 	bool GetIsConnected() const;
 	std::string GetIpAdress() const;
 	std::string &GetMessage() ;
+	bool GetIsNick() ;
 
 
 	/* setter関数 */
 	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
 	void SetIsAuthenticated();
-	void SetIsWelcome();
+	void SetIsWelcome(bool iswelcome);
 	void SetIsConnected();
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
+	void SetIsNick();
 };
 
 #endif
