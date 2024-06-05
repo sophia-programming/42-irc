@@ -43,9 +43,11 @@ class Channel{
 		// 招待リスト
 		std::vector<std::string> invate_users_;
 
+		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
+
 	public:
 		// ユーザーリスト
-		std::map<Client, User_Priv> users_;
+		std::map<Client*, User_Priv> users_;
 
 	public:
 		Channel(std::string channel_name);
@@ -55,8 +57,10 @@ class Channel{
 		void AddUserAsN(Client& user);
 		// OPユーザーの追加
 		void AddUserAsO(Client& user);
+		void AddUserinInvite(const std::string& name);
 		// ユーザーの削除
-		void RmUser(const std::string& username);
+		void RmUser(Client *user);
+		void RmUserFromInvite(const std::string& user);
 
 		// setter
 		void SetToic(const std::string& topic);
@@ -65,17 +69,19 @@ class Channel{
 		void SetLimit(long int limit);
 
 		// ユーザー権限をOPに設定
-		void SetOperator(const std::string& username);
+		void SetOperator(const std::string& user_name);
 
 		// getter
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
 
-		Client GetUser(std::string user_name);
-		const User_Priv GetPriv(Client& user);
+		Client* GetUser(std::string user_name);
+		const User_Priv GetPriv(std::string user_name);
 		bool CheckMode(ChannelMode mode);
 		void RmMode(ChannelMode mode);
+
+		void SendMsgToAll(const std::string& msg);
 
 		class ChannelException : public std::exception{
 			private:
@@ -85,6 +91,8 @@ class Channel{
 				virtual ~ChannelException () throw() {};
 				virtual const char* what (void) const throw();
 		};
+
+		bool operator<(const Channel& other)const;
 };
 
 #endif

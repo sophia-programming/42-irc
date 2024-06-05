@@ -8,7 +8,6 @@ Server::~Server() {
 	CloseFds();
 }
 
-
 /* Serverを初期化する関数
  * 引数　1 -> ポート番号*/
 void Server::ServerInit(int port) {
@@ -21,7 +20,6 @@ void Server::ServerInit(int port) {
 	// クライアントを受け入れる
 	MakePoll(server_socket_fd_);
 }
-
 
 /* サーバーを開始する関数 */
 void Server::ServerStart() {
@@ -105,7 +103,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 
 	if (!client.GetIsAuthenticated()) {
 		if (cmd == "PASS")
-			PASS(client, this, message);
+			Command::PASS(client, this, message);
 		else
 			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		return ;
@@ -115,7 +113,13 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	cmd = Trim(cmd);
 
 	if (cmd == "NICK")
-		NICK(client, map_nick_fd_, message);
+		Command::NICK(client, map_nick_fd_, message);
+	else
+		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
+	
+	
+	if (cmd == "KICK")
+		Command::KICK(client, this, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
@@ -304,38 +308,40 @@ int Server::GetServerSocketFd() const {
 
 
 /* setter関数 */
-std::string Server::SetPassword(const std::string &password) {
+void Server::SetPassword(const std::string &password) {
 	this->password_ = password;
 }
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-//bool Server::IsChannel(std::string& name) {
-//	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
-//	if(iter != this->channel_list_.end()){
-//		return true;
-//	}
-//	return false;
-//}
+bool Server::IsChannel(std::string& name) {
+	Server::channel_iterator iter = this->channel_list_.find(name);
+	if(iter != this->channel_list_.end()){
+		return true;
+	}
+	return false;
+}
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-//Channel Server::GetChannel(std::string& name)
-//{
-//	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
-//	if(iter != this->channel_list_.end()){
-//		return iter->second;
-//	}
-//	throw std::exception();
-//}
+Channel* Server::GetChannel(std::string& name)
+{
+	Server::channel_iterator iter = this->channel_list_.find(name);
+	if(iter != this->channel_list_.end()){
+		return iter->second;
+	}
+	throw std::exception();
+}
 
-//チャンネルを作成してリストに登録する
+// チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-//void Server::CreateChannel(std::string& name)
-//{
-//	if(name[0] != '#'){
-//		// error plese create #channel name
-//		return;
-//	}
-//	this->channel_list_.emplace(name, Channel(name));
-//}
+Channel* Server::CreateChannel(std::string& name)
+{
+	if(name[0] != '#'){
+		// error plese create #channel name
+		return NULL;
+	}
+	Channel ch_tmp(name);
+	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
+	return this->GetChannel(name);
+}

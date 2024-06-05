@@ -4,7 +4,7 @@
  * 引数1 -> クライアント
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
-void PASS(Client &client, Server *server, const Message &message) {
+void Command::PASS(Client &client, Server *server, const Message &message) {
 	int fd = client.GetFd();
 	const std::string &nick = client.GetNickname();
 

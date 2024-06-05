@@ -44,6 +44,8 @@ public:
 	void SetIsConnected();
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
+
+	bool operator<(const Client& other) const;
 };
 
 #endif

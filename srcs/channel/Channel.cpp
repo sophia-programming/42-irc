@@ -3,25 +3,40 @@
 Channel::Channel(std::string channel_name):name_(channel_name), limit_(__LONG_MAX__),topic_("non"){
 }
 
+Channel::~Channel()
+{
+}
+
 void Channel::AddUserAsN(Client& user)
 {
-    this->users_.insert(std::pair{user,P_Nomal});
+    this->users_.insert(std::make_pair(&user,P_Nomal));
 }
 
 void Channel::AddUserAsO(Client& user)
 {
-    this->users_.insert(std::pair{user, P_Operator});
+    this->users_.insert(std::make_pair(&user, P_Operator));
 }
 
-void Channel::RmUser(const std::string& username)
+void Channel::AddUserinInvite(const std::string& user_name)
 {
-    std::map<Client, User_Priv>::iterator iter = this->users_.begin();
-    while(iter != this->users_.end()){
-        if(iter->first.GetNickname() == username){
-            this->users_.erase(iter);
-            break;
-        }
-        iter++;
+    this->invate_users_.push_back(user_name);
+}
+
+void Channel::RmUser(Client * user)
+{
+    if(this->users_.size() < 1){
+        return ;
+    }
+    this->users_.erase(user);
+
+}
+
+void Channel::RmUserFromInvite(const std::string &user_name)
+{
+    std::vector<std::string>::iterator iter;
+    iter = std::find(this->invate_users_.begin(), this->invate_users_.end(), user_name);
+    if(iter != this->invate_users_.end()){
+        this->invate_users_.erase(iter);
     }
 }
 
@@ -69,25 +84,42 @@ bool Channel::CheckMode(ChannelMode mode)
     return false;
 }
 
+void Channel::SendMsgToAll(const std::string& msg)
+{
+    user_list_iter iter = this->users_.begin();
+    while(iter != this->users_.end()){
+        send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+        iter++;
+    }
+}
+
+bool Channel::operator<(const Channel &other) const
+{
+    return this->name_ < other.name_;
+}
+
 //User名からClientオブジェクトを取得する関数
 // 1: ->取得したいユーザー名
-Client Channel::GetUser(std::string user_name)
+Client* Channel::GetUser(std::string user_name)
 {
-    std::map<Client, User_Priv>::iterator iter = this->users_.begin();
+    std::map<Client*, User_Priv>::iterator iter = this->users_.begin();
     while(iter != this->users_.end()){
-        if(iter->first.GetNickname() == user_name){
+        if(iter->first->GetNickname() == user_name){
             return iter->first;
         }
         iter++;
     }
-    throw ChannelException("user err");
+    return NULL;
 }
 
 //指定したユーザーの権限を取得する
 //1:->権限を知りたいユーザー名
-const User_Priv Channel::GetPriv(Client &user)
+const User_Priv Channel::GetPriv(std::string user_name)
 {
-    return this->users_.find(user)->second;
+    Client* cl = this->GetUser(user_name);
+    if(cl != NULL)
+        return this->users_.find(cl)->second;
+    throw ChannelException("Erroe: user dosent exist");
 }
 
 const char *Channel::ChannelException::what(void) const throw()

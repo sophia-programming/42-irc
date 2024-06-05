@@ -15,6 +15,12 @@ void Client::AddMessage(const std::string &message) {
 	this->message_buffer_ += message;
 }
 
+// mapに格納するために必要な比較演算子のオーバーロード
+bool Client::operator<(const Client &other) const
+{
+    return this->nickname_ < this->nickname_;
+}
+
 /* メッセージをパースする関数
  * 引数1 -> メッセージ */
 void Client::Parse(const std::string &message) {
