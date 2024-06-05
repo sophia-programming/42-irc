@@ -330,7 +330,7 @@ Channel* Server::GetChannel(std::string& name)
 	if(iter != this->channel_list_.end()){
 		return iter->second;
 	}
-	throw std::exception();
+	return NULL;
 }
 
 // チャンネルを作成してリストに登録する
