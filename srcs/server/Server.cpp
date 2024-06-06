@@ -117,7 +117,12 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	if (cmd == "NICK")
 		NICK(client, map_nick_fd_, message);
 	else if (cmd == "USER")
-		USER(client, message);
+		if (client.GetIsUserSet())
+			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		else {
+			USER(client, message);
+			client.SetIsUserSet(true);
+		}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }

@@ -3,7 +3,7 @@
 Client::Client() : fd_(-1), is_authenticated_(false) {}
 
 Client::Client(int fd_, const std::string &nick)
-	: fd_(fd_), is_authenticated_(false), is_nickname_(true) {}
+	: fd_(fd_), is_authenticated_(false), is_nickname_(true), is_user_set_(false) {}
 
 Client::~Client() {}
 
@@ -84,6 +84,10 @@ const std::string &Client::GetRealname() const {
 	return this->realname_;
 }
 
+bool Client::GetIsUserSet() const {
+	return this->is_user_set_;
+}
+
 
 /* ====== setter関数 ====== */
 void Client::SetFd(int fd) {
@@ -128,6 +132,10 @@ void Client::SetServername(const std::string &servername) {
 
 void Client::SetRealname(const std::string &realname) {
 	this->realname_ = realname;
+}
+
+void Client::SetIsUserSet(bool flag) {
+	this->is_user_set_ = flag;
 }
 
 

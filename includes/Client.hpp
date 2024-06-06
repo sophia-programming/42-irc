@@ -17,6 +17,7 @@ private:
 	std::string hostname_;
 	std::string servername_;
 	std::string realname_;
+	bool is_user_set_;
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
 
@@ -43,6 +44,7 @@ public:
 	const std::string &GetHostname() const;
 	const std::string &GetServername() const;
 	const std::string &GetRealname() const;
+	bool GetIsUserSet() const;
 
 
 	/* setter関数 */
@@ -58,6 +60,7 @@ public:
 	void SetHostname(const std::string &hostname);
 	void SetServername(const std::string &servername);
 	void SetRealname(const std::string &realname);
+	void SetIsUserSet(bool flag);
 };
 
 #endif
