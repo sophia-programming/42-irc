@@ -33,8 +33,8 @@ public:
 	bool GetIsWelcome() const;
 	bool GetIsConnected() const;
 	std::string GetIpAdress() const;
-	std::string &GetMessage() ;
-	bool GetIsNick() ;
+	std::string &GetMessage();
+	bool GetIsNick() const;
 
 
 	/* setter関数 */

@@ -70,7 +70,7 @@ void Server::ChatFlow(int fd) {
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
-	std::string &message_buffer = user.GetMessage(); // ここをstd::string &に変更して直接操作する
+	std::string &message_buffer = user.GetMessage();
 
 	size_t pos = 0;
 	while ((pos = message_buffer.find_first_of("\r\n")) != std::string::npos) {

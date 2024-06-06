@@ -60,11 +60,11 @@ std::string Client::GetIpAdress() const {
 	return this->ip_address_;
 }
 
-std::string &Client::GetMessage() {
-	return (this->message_buffer_);
+std::string &Client::GetMessage(){
+	return this->message_buffer_;
 }
 
-bool Client::GetIsNick() {
+bool Client::GetIsNick() const{
 	return this->is_nickname_;
 }
 
