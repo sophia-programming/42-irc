@@ -44,7 +44,7 @@ bool Client::GetIsAuthenticated() const {
 	return this->is_authenticated_;
 }
 
-std::string Client::GetNickname() const {
+const std::string &Client::GetNickname() const {
 	return this->nickname_;
 }
 
@@ -66,6 +66,18 @@ std::string &Client::GetMessage(){
 
 bool Client::GetIsNick() const{
 	return this->is_nickname_;
+}
+
+const std::string &Client::GetUsername() const {
+	return this->username_;
+}
+
+const std::string &Client::GetHostname() const {
+	return this->hostname_;
+}
+
+const std::string &Client::GetRealname() const {
+	return this->realname_;
 }
 
 
@@ -96,6 +108,18 @@ void Client::SetIPAddress(const std::string &ipaddress) {
 
 void Client::SetIsNick() {
 	this->is_nickname_ = true;
+}
+
+void Client::SetUsername(const std::string &username) {
+	this->username_ = username;
+}
+
+void Client::SetHostname(const std::string &hostname) {
+	this->hostname_ = hostname;
+}
+
+void Client::SetRealname(const std::string &realname) {
+	this->realname_ = realname;
 }
 
 
