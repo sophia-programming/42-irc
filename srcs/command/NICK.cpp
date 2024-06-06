@@ -21,17 +21,28 @@ void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message
 
 	// ニックネームのサイズが9文字以下かどうかを確認
 	if (NickSize(NewNick) == false)
-		SendMessage(fd, ERR_ERRONEUSNICKNAME(OldNick, NewNick), 0);
+		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
 
 	// ニックネームがすでに設定されているかどうかを確認
-	else if (NickAlreadySet(NewNick, map_nick_fd) == true)
+	else if (NickAlreadySet(NewNick, map_nick_fd) == true){
+		client.SetIsWelcome(false);
 		SendMessage(fd, ERR_NICKNAMEINUSE(OldNick, NewNick), 0);
+	}
 
-	// ニックネームを変更
+	// 古いニックネームを削除し、新しいニックネームを追加
 	else {
 		map_nick_fd.erase(OldNick);
 		map_nick_fd[NewNick] = fd;
+
+		// ニックネームを設定
+		client.SetIsNick();
+		// Welcomeメッセージを送信
+		client.SetIsWelcome(true);
+		// ニックネームを設定
 		client.SetNickname(NewNick);
+		// もしクライアントが認証済みの場合
+		if (client.GetIsAuthenticated())
+			SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
 	}
 }
 

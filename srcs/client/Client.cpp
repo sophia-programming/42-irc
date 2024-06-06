@@ -64,6 +64,10 @@ std::string &Client::GetMessage() {
 	return (this->message_buffer_);
 }
 
+bool Client::GetIsNick() {
+	return this->is_nickname_;
+}
+
 
 /* ====== setter関数 ====== */
 void Client::SetFd(int fd) {
@@ -78,8 +82,8 @@ void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
 }
 
-void Client::SetIsWelcome() {
-	this->is_welcome_ = true;
+void Client::SetIsWelcome(bool iswelcome) {
+	this->is_welcome_ = iswelcome;
 }
 
 void Client::SetIsConnected() {
@@ -88,6 +92,10 @@ void Client::SetIsConnected() {
 
 void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
+}
+
+void Client::SetIsNick() {
+	this->is_nickname_ = true;
 }
 
 
