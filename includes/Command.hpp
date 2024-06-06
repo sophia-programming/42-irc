@@ -24,6 +24,7 @@ class Server;
 
 void PASS(Client &client, Server *server, const Message &message);
 void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
+void USER(Client &client, const Message &message);
 void SendMessage(int fd, const std::string &message, int flag);
 void SendWelcomeMessage(const Client &client);
 

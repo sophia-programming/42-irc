@@ -15,6 +15,7 @@ private:
 	std::string nickname_; // max len 9
 	std::string username_;
 	std::string hostname_;
+	std::string servername_;
 	std::string realname_;
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
@@ -40,6 +41,7 @@ public:
 	const std::string &GetNickname() const;
 	const std::string &GetUsername() const;
 	const std::string &GetHostname() const;
+	const std::string &GetServername() const;
 	const std::string &GetRealname() const;
 
 
@@ -54,6 +56,7 @@ public:
 	void SetIsNick();
 	void SetUsername(const std::string &username);
 	void SetHostname(const std::string &hostname);
+	void SetServername(const std::string &servername);
 	void SetRealname(const std::string &realname);
 };
 

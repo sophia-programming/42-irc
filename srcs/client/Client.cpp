@@ -76,6 +76,10 @@ const std::string &Client::GetHostname() const {
 	return this->hostname_;
 }
 
+const std::string &Client::GetServername() const {
+	return this->servername_;
+}
+
 const std::string &Client::GetRealname() const {
 	return this->realname_;
 }
@@ -116,6 +120,10 @@ void Client::SetUsername(const std::string &username) {
 
 void Client::SetHostname(const std::string &hostname) {
 	this->hostname_ = hostname;
+}
+
+void Client::SetServername(const std::string &servername) {
+	this->servername_ = servername;
 }
 
 void Client::SetRealname(const std::string &realname) {

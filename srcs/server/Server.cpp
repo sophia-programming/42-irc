@@ -116,6 +116,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 
 	if (cmd == "NICK")
 		NICK(client, map_nick_fd_, message);
+	else if (cmd == "USER")
+		USER(client, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
