@@ -70,7 +70,7 @@ void Server::ChatFlow(int fd) {
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
-	std::string &message_buffer = user.GetMessage(); // ここをstd::string &に変更して直接操作する
+	std::string &message_buffer = user.GetMessage();
 
 	size_t pos = 0;
 	while ((pos = message_buffer.find_first_of("\r\n")) != std::string::npos) {
@@ -116,6 +116,13 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 
 	if (cmd == "NICK")
 		NICK(client, map_nick_fd_, message);
+	else if (cmd == "USER")
+		if (client.GetIsUserSet())
+			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		else {
+			USER(client, message);
+			client.SetIsUserSet(true);
+		}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }

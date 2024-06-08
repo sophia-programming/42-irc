@@ -21,9 +21,11 @@ class Server;
 #define ERR_NICKNAMEINUSE(nick, nickname) ":ft_irc 433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
 #define ERR_NOTREGISTERED(nick) ":ft_irc 451 " + nick + " :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
+#define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
 
 void PASS(Client &client, Server *server, const Message &message);
 void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
+void USER(Client &client, const Message &message);
 void SendMessage(int fd, const std::string &message, int flag);
 void SendWelcomeMessage(const Client &client);
 
