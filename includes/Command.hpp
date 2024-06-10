@@ -3,8 +3,11 @@
 
 #include "Server.hpp"
 #include "Message.hpp"
+#include "Client.hpp"
 
 class Server;
+class Client;
+class Message;
 
 // Welcomeメッセージ(001 ~ 004)
 #define RPL_WELCOME(nick) ":ft_irc 001 " + nick + " :Welcome to the Internet Relay Chat Network " + nick + "\r\n"
@@ -23,9 +26,20 @@ class Server;
 #define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
 
-void PASS(Client &client, Server *server, const Message &message);
-void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
-void USER(Client &client, const Message &message);
+#define ERR_CHANOPRIVSNEEDED(nick, ch_name) "482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
+#define ERR_NOSUCHCHANNEL(nick) "403 " + nick + "#nonexistent :No such channel\r\n"
+#define ERR_NOTONCHANNEL(nick, ch_name) "442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
+#define ERR_USERNOTINCHANNEL(nick, ch_name) "441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
+
+namespace Command{
+    void PASS(Client &client, Server *server, const Message &message);
+    void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
+    void KICK(Client &client, Server *server, const Message &message);
+    void USER(Client &client, const Message &message);
+};
+
+// void PASS(Client &client, Server *server, const Message &message);
+// void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
 void SendMessage(int fd, const std::string &message, int flag);
 void SendWelcomeMessage(const Client &client);
 

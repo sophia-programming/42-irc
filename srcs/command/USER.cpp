@@ -6,7 +6,7 @@
  * Command: USER
  * Parameters: <username> <hostname> <servername> <realname>*/
 
-void USER(Client &client, const Message &message) {
+void Command::USER(Client &client, const Message &message) {
 	int fd = client.GetFd();
 	std::string nickname = client.GetNickname();
 

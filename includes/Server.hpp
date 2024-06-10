@@ -18,6 +18,8 @@
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
+#include <signal.h> // for SIGINT in linux
+
 
 const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
 
@@ -51,7 +53,8 @@ private:
 	//channelのリスト(検索高速化の為に一旦mapで設定)
 	// 1:channel namel -> チャンネル名の文字列
 	// 2: channel class -> チャンネルオブジェクト
-//	std::map<std::string, Channel> channel_list_;
+	typedef std::map<std::string, Channel*>::iterator channel_iterator;
+	std::map<std::string, Channel*> channel_list_;
 
 
 public:
@@ -74,11 +77,11 @@ public:
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
 	bool IsChannel(std::string& name);
-	Channel GetChannel(std::string& name);
-	void CreateChannel(std::string& name);
+	Channel* GetChannel(std::string& name);
+	Channel* CreateChannel(std::string& name);
 
 	/* setter */
-	std::string SetPassword(const std::string &password);
+	void SetPassword(const std::string &password);
 
 	/* password検証 */
 	bool CheckPassword(const std::string &password) const;

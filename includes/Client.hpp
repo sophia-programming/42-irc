@@ -55,12 +55,15 @@ public:
 	void SetIsConnected();
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
+
 	void SetIsNick();
 	void SetUsername(const std::string &username);
 	void SetHostname(const std::string &hostname);
 	void SetServername(const std::string &servername);
 	void SetRealname(const std::string &realname);
 	void SetIsUserSet(bool flag);
+	
+	bool operator<(const Client& other) const;
 };
 
 #endif

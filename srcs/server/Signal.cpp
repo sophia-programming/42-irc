@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 bool Server::signal_ = false;
-Server* server = nullptr; // グローバルサーバーインスタンス
+Server* server = NULL; // グローバルサーバーインスタンス
 
 /* シグナルハンドラ */
 void Server::SetupSignal() {
