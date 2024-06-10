@@ -23,8 +23,8 @@ enum ChannelMode{
 
 // Priviledge 権限
 enum User_Priv{
-	P_Nomal,
-	P_Operator
+	P_Nomal, // 一般ユーザー
+	P_Operator //オペレーター権限ユーザー
 };
 
 class Channel{
@@ -40,44 +40,42 @@ class Channel{
 		// チャンネルの人数制限
 		long int limit_;
 
-		// 招待リスト
+		// 招待リスト（nick_nameの配列）
 		std::vector<std::string> invate_users_;
 
 		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
 
 	public:
-		// ユーザーリスト
+		// ユーザーリスト（clientポインタと、そのユーザーの権限）
 		std::map<Client*, User_Priv> users_;
 
 	public:
 		Channel(std::string channel_name);
 		~Channel();
 
-		// 一般ユーザーの追加
 		void AddUserAsN(Client& user);
-		// OPユーザーの追加
 		void AddUserAsO(Client& user);
 		void AddUserinInvite(const std::string& name);
-		// ユーザーの削除
+
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
 
 		// setter
 		void SetToic(const std::string& topic);
-		// void SetMode(const std::string& mode);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
+		// void SetMode(const std::string& mode);
 
-		// ユーザー権限をOPに設定
-		void SetOperator(const std::string& user_name);
+		void SetPrivAsOperator(const std::string& user_name);
+		void SetPrivAsNomal(const std::string& user_name);
 
 		// getter
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
 
-		Client* GetUser(std::string user_name);
-		const User_Priv GetPriv(std::string user_name);
+		Client* GetUser(const std::string& user_name) ;
+		const User_Priv GetPriv(const std::string& user_name);
 		bool CheckMode(ChannelMode mode);
 		void RmMode(ChannelMode mode);
 

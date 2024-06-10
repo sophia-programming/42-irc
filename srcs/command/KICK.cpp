@@ -21,7 +21,7 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         return ;
         // doesn't exist
     }
-    else if(ch->GetPriv(client.GetNickname())  != P_Operator){
+    else if(ch->GetPriv(client.GetUsername())  != P_Operator){
         msg_to_c = ERR_CHANOPRIVSNEEDED(client.GetNickname(), ch_name);
         SendMessage(client.GetFd(), msg_to_c, 0);
         return ;

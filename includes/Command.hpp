@@ -8,12 +8,23 @@
 class Server;
 class Client;
 class Message;
+
+// Welcomeメッセージ(001 ~ 004)
+#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + " :Welcome to the Internet Relay Chat Network " + nick + "\r\n"
+#define RPL_YOURHOST(nick) ":ft_irc 002 " + nick + " :Your host is ft_irc, running version 1.0\r\n"
+#define RPL_CREATED(nick) ":ft_irc 003 " + nick + " :This server was created in C++ [Sunday, June 16, 2024]\r\n"
+#define RPL_MYINFO(nick) ":ft_irc 004 " + nick + " :FT_IRC 1.0 contributes: oaoba yushimom stakimot \r\n"
+
+// ニックネーム変更メッセージ
+#define RPL_NICK(oldnick, newnick) ":" + oldnick + " NICK :" + newnick + "\r\n"
+
 // エラーメッセージ
-#define ERR_UNKNOWNCOMMAND(nick, command) "421 " + nick + " " + command + " :Unknown command\r\n"
-#define ERR_ERRONEUSNICKNAME(nick, nickname) "432 " + nick + " " + nickname + " :Erroneus nickname\r\n"
-#define ERR_NICKNAMEINUSE(nick, nickname) "433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
-#define ERR_NOTREGISTERED(nick) "451 " + nick + " :You have not registered\r\n"
-#define ERR_NEEDMOREPARAMS(nick, command) "461 " + nick + " " + command + " :Not enough parameters\r\n"
+#define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
+#define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
+#define ERR_NICKNAMEINUSE(nick, nickname) ":ft_irc 433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
+#define ERR_NOTREGISTERED(nick) ":ft_irc 451 " + nick + " :You have not registered\r\n"
+#define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
+#define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
 
 #define ERR_CHANOPRIVSNEEDED(nick, ch_name) "482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
 #define ERR_NOSUCHCHANNEL(nick) "403 " + nick + "#nonexistent :No such channel\r\n"
@@ -23,10 +34,13 @@ class Message;
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
     void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
-    
     void KICK(Client &client, Server *server, const Message &message);
+    void USER(Client &client, const Message &message);
 };
 
+// void PASS(Client &client, Server *server, const Message &message);
+// void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
 void SendMessage(int fd, const std::string &message, int flag);
+void SendWelcomeMessage(const Client &client);
 
 #endif

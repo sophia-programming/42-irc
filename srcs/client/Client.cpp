@@ -3,7 +3,7 @@
 Client::Client() : fd_(-1), is_authenticated_(false) {}
 
 Client::Client(int fd_, const std::string &nick)
-	: fd_(fd_), is_authenticated_(false), is_nickname_(true) {}
+	: fd_(fd_), is_authenticated_(false), is_nickname_(true), is_user_set_(false) {}
 
 Client::~Client() {}
 
@@ -50,7 +50,7 @@ bool Client::GetIsAuthenticated() const {
 	return this->is_authenticated_;
 }
 
-std::string Client::GetNickname() const {
+const std::string &Client::GetNickname() const {
 	return this->nickname_;
 }
 
@@ -66,8 +66,32 @@ std::string Client::GetIpAdress() const {
 	return this->ip_address_;
 }
 
-std::string &Client::GetMessage() {
-	return (this->message_buffer_);
+std::string &Client::GetMessage(){
+	return this->message_buffer_;
+}
+
+bool Client::GetIsNick() const{
+	return this->is_nickname_;
+}
+
+const std::string &Client::GetUsername() const {
+	return this->username_;
+}
+
+const std::string &Client::GetHostname() const {
+	return this->hostname_;
+}
+
+const std::string &Client::GetServername() const {
+	return this->servername_;
+}
+
+const std::string &Client::GetRealname() const {
+	return this->realname_;
+}
+
+bool Client::GetIsUserSet() const {
+	return this->is_user_set_;
 }
 
 
@@ -84,8 +108,8 @@ void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
 }
 
-void Client::SetIsWelcome() {
-	this->is_welcome_ = true;
+void Client::SetIsWelcome(bool iswelcome) {
+	this->is_welcome_ = iswelcome;
 }
 
 void Client::SetIsConnected() {
@@ -94,6 +118,30 @@ void Client::SetIsConnected() {
 
 void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
+}
+
+void Client::SetIsNick() {
+	this->is_nickname_ = true;
+}
+
+void Client::SetUsername(const std::string &username) {
+	this->username_ = username;
+}
+
+void Client::SetHostname(const std::string &hostname) {
+	this->hostname_ = hostname;
+}
+
+void Client::SetServername(const std::string &servername) {
+	this->servername_ = servername;
+}
+
+void Client::SetRealname(const std::string &realname) {
+	this->realname_ = realname;
+}
+
+void Client::SetIsUserSet(bool flag) {
+	this->is_user_set_ = flag;
 }
 
 
