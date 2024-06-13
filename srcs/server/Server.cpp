@@ -98,24 +98,34 @@ void Server::ChatFlow(int fd) {
 
 
 /* Commandを処理する関数
- * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+ * 引数1 -> クライアントのソケットファイルディスクリプタ
+ * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-	if (!client.GetIsAuthenticated()) {
-		if (cmd == "PASS")
-			Command::PASS(client, this, message);
-		else
-			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
-		return ;
+
+	if (client.GetIsWelcome() == false && client.GetIsConnected() == false &&
+			cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
+//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
+// 		⇧　ERROR: AddressSanitizer: heap-use-after-free on addressが出てしまうので一旦コメントアウト
+		return;
+	}
+	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd == "NICK") {
+		Command::NICK(client, map_nick_fd_, message);
+		if (client.GetIsNick())
+			SendWelcomeMessage(client);
+		return;
+	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_);
+	else if (cmd == "PASS")
+		Command::PASS(client, this, password_);
 	else if (cmd == "NICK")
 		Command::NICK(client, map_nick_fd_, message);
 	else if (cmd == "USER")
@@ -127,9 +137,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
-	}
 }
-
 
 /* クライアントにデータを送信する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
@@ -174,14 +182,6 @@ void Server::CloseFds() {
 		// socketが閉じられたことを記録
 		server_socket_fd_ = -1;
 	}
-}
-
-
-/* passwordを検証する関数
- * 引数1 -> 入力されたパスワード
- * 戻り値 -> パスワードが正しい場合はtrue、それ以外はfalse*/
-bool Server::CheckPassword(const std::string &password) const {
-	return password == this->password_;
 }
 
 

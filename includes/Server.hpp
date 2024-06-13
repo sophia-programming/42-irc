@@ -83,9 +83,6 @@ public:
 	/* setter */
 	void SetPassword(const std::string &password);
 
-	/* password検証 */
-	bool CheckPassword(const std::string &password) const;
-
 	/* Command */
 	void ExecuteCommand(int fd, const Message &message);
 };
