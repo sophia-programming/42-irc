@@ -1,6 +1,6 @@
 #include "Command.hpp"
 
-void clearClientInfo(
+void ClearClientInfo(
 		Client &client,
 		std::vector<struct pollfd> &pollfds,
 		std::map<int, Client> &users,
@@ -12,7 +12,7 @@ void clearClientInfo(
  * 引数2 -> pollfd構造体のvector
  * 引数3 -> ユーザーのmap
  * 引数4 -> ニックネームとファイルディスクリプタのmap */
-void CAP(Client &client, std::vector<struct pollfd> &pollfds,
+void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
 		std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
 	const Message &message = client.GetMessage();
 	const std::string nick = client.GetNickname();
@@ -24,7 +24,7 @@ void CAP(Client &client, std::vector<struct pollfd> &pollfds,
 		if (client.GetIsAuthenticated() == false) {
 			SendMessage(fd, ERR_PASSWDMISMATCH(nick), 0);
 			SendMessage(fd, PASS_ERROR(client.GetHostname()), 0);
-			clearClientInfo(client, pollfds, users, nick_to_fd);
+			ClearClientInfo(client, pollfds, users, nick_to_fd);
 			return;
 		}
 		SendMessage(fd, RPL_NONE((std::string) "Authenticated ..."), 0);
@@ -41,7 +41,7 @@ void CAP(Client &client, std::vector<struct pollfd> &pollfds,
  * 引数1 -> クライアントのソケットファイルディスクリプタ
  * 引数2 -> 送信するメッセージ
  * 引数3 -> 送信するメッセージのサイズ */
-void clearClientInfo(
+void ClearClientInfo(
 		Client &client,
 		std::vector<struct pollfd> &pollfds,
 		std::map<int, Client> &users,
@@ -49,10 +49,8 @@ void clearClientInfo(
 ) {
 	const std::string nick = client.GetNickname();
 
-	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++)
-	{
-		if (client.GetFd() == it->fd)
-		{
+	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++) {
+		if (client.GetFd() == it->fd) {
 			pollfds.erase(it);
 			break;
 		}

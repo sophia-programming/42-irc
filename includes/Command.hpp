@@ -46,12 +46,13 @@ namespace Command{
     void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
-	void CAP(Client &client, std::vector<struct pollfd> &pollfds, std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd);
+	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
+			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);
 void SendWelcomeMessage(const Client &client);
-void clearClientInfo(
+void ClearClientInfo(
 		Client &client,
 		std::vector<struct pollfd> &pollfds,
 		std::map<int, Client> &users,

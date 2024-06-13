@@ -65,6 +65,10 @@ void Server::ChatFlow(int fd) {
 
 	// マップからクライアントを取得
 	Client &user = users_[fd];
+	std::cout << "-------------Client Message-------------" << std::endl;
+	std::cout << "client fd: [" << fd << "]" << std::endl;
+	std::cout << "client : " << received_data << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
@@ -100,19 +104,19 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-
 	if (!client.GetIsAuthenticated()) {
 		if (cmd == "PASS")
 			Command::PASS(client, this, message);
 		else
 			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		return ;
-	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "NICK")
+	if (cmd == "CAP")
+		Command::CAP(client, fds_, users_, map_nick_fd_);
+	else if (cmd == "NICK")
 		Command::NICK(client, map_nick_fd_, message);
 	else if (cmd == "USER")
 		if (client.GetIsUserSet())
@@ -123,6 +127,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
+	}
 }
 
 
