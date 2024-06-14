@@ -47,7 +47,8 @@ namespace Command{
     void KICK(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
 	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
-			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd);
+			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
+			 const Message &message);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);

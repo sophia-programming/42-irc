@@ -11,25 +11,33 @@ void ClearClientInfo(
  * 引数1 -> クライアント
  * 引数2 -> pollfd構造体のvector
  * 引数3 -> ユーザーのmap
- * 引数4 -> ニックネームとファイルディスクリプタのmap */
+ * 引数4 -> ニックネームとファイルディスクリプタのmap
+ * 引数5 -> メッセージ */
 void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
-		std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
-	const Message &message = client.GetMessage();
+				   std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
+				   const Message &message) {
+	const std::vector<std::string> &params = message.GetParams();
 	const std::string nick = client.GetNickname();
 	const int &fd = client.GetFd();
 
-	if (message.GetParams()[0] == "LS")
+	if (params.empty()) {
+		SendMessage(fd, std::string(YELLOW) + "CAP command requires parameters." + std::string(STOP), 0);
+		return;
+	}
+
+	if (params[0] == "LS") {
 		SendMessage(fd, CAP_LS, 0);
-	else if (message.GetParams()[0] == "END") {
-		if (client.GetIsAuthenticated() == false) {
+	}
+	else if (params[0] == "END") {
+		if (!client.GetIsAuthenticated()) {
 			SendMessage(fd, ERR_PASSWDMISMATCH(nick), 0);
 			SendMessage(fd, PASS_ERROR(client.GetHostname()), 0);
 			ClearClientInfo(client, pollfds, users, nick_to_fd);
 			return;
 		}
 		SendMessage(fd, RPL_NONE((std::string) "Authenticated ..."), 0);
-		if (client.GetIsNick())
-		{
+
+		if (client.GetIsNick()) {
 			client.SetIsConnected(true);
 			SendWelcomeMessage(client);
 		}
