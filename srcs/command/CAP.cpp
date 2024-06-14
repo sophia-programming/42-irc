@@ -20,14 +20,8 @@ void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
 	const std::string nick = client.GetNickname();
 	const int &fd = client.GetFd();
 
-	if (params.empty()) {
-		SendMessage(fd, std::string(YELLOW) + "CAP command requires parameters." + std::string(STOP), 0);
-		return;
-	}
-
-	if (params[0] == "LS") {
+	if (params[0] == "LS")
 		SendMessage(fd, CAP_LS, 0);
-	}
 	else if (params[0] == "END") {
 		if (!client.GetIsAuthenticated()) {
 			SendMessage(fd, ERR_PASSWDMISMATCH(nick), 0);

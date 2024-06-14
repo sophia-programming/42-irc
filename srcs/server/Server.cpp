@@ -110,7 +110,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
 		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
 //		ClearClientInfo(client, fds_, users_, map_nick_fd_);
-// 		⇧　ERROR: AddressSanitizer: heap-use-after-free on addressが出てしまうので一旦コメントアウト
 		return;
 	}
 
