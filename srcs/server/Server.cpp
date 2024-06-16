@@ -346,3 +346,8 @@ Channel* Server::CreateChannel(std::string& name)
 	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
 	return this->GetChannel(name);
 }
+
+bool Server::IsUser(const std::string &name)
+{
+	return false;
+}

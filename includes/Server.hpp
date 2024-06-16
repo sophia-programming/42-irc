@@ -76,9 +76,6 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	bool IsChannel(std::string& name);
-	Channel* GetChannel(std::string& name);
-	Channel* CreateChannel(std::string& name);
 
 	/* setter */
 	void SetPassword(const std::string &password);
@@ -88,6 +85,13 @@ public:
 
 	/* Command */
 	void ExecuteCommand(int fd, const Message &message);
+
+	/*Cannel function*/
+	bool IsChannel(std::string& name);
+	Channel* GetChannel(std::string& name);
+	Channel* CreateChannel(std::string& name);
+
+	bool IsUser(const std::string& name);
 };
 
 #endif

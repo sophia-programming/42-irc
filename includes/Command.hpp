@@ -26,16 +26,27 @@ class Message;
 #define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
 
-#define ERR_CHANOPRIVSNEEDED(nick, ch_name) "482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
-#define ERR_NOSUCHCHANNEL(nick) "403 " + nick + "#nonexistent :No such channel\r\n"
-#define ERR_NOTONCHANNEL(nick, ch_name) "442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
-#define ERR_USERNOTINCHANNEL(nick, ch_name) "441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
+#define ERR_CHANOPRIVSNEEDED(nick, ch_name) ":ft_irc 482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
+#define ERR_NOSUCHCHANNEL(nick) ":ft_irc 403 " + nick + "#nonexistent :No such channel\r\n"
+#define ERR_NOTONCHANNEL(nick, ch_name) ":ft_irc 442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
+#define ERR_USERNOTINCHANNEL(nick, ch_name) ":ft_irc 441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
+
+#define INVITE_SUCCESS(nick,user,ip, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE invitedNick :" + ch_name+ "\r\n"
+#define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
+#define ERR_NEEDMOREPARAMS(nick) ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n"
+#define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
+#define ERR_NOTONCHANNEL(inviter, ch_name) ":ft_irc 442 "+inviter+" "+ch_name+" :You're not on that channel\r\n"
+#define ERR_USERONCHANNEL(inviter, invited, ch_name) ":ft_irc 443 "+inviter+" "+invited+ " "+ch_name+" :is already on channel\r\n"
+
+
+
 
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
     void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
+    void INVITE(Client &client, Server *server, const Message &message);
 };
 
 // void PASS(Client &client, Server *server, const Message &message);

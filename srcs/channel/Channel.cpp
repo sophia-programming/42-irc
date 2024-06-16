@@ -73,7 +73,7 @@ void Channel::SetPrivAsOperator(const std::string &user_name)
     user_list_iter iter = this->users_.find(this->GetUser(user_name));
     if(iter != this->users_.end()){
         iter->second = P_Operator;
-    }   
+    }
 }
 
 //getter
@@ -116,7 +116,7 @@ void Channel::SendMsgToAll(const std::string& msg)
 
 //User名からClientオブジェクトを取得する関数
 // 1:std::string user_name ->取得したいユーザー名
-Client* Channel::GetUser(const std::string& user_name) 
+Client* Channel::GetUser(const std::string& user_name)
 {
     std::map<Client*, User_Priv>::iterator iter = this->users_.begin();
     while(iter != this->users_.end()){
@@ -130,7 +130,7 @@ Client* Channel::GetUser(const std::string& user_name)
 
 //指定したユーザーの権限を取得する
 //1:std::string user_name->権限を知りたいユーザー名
-const User_Priv Channel::GetPriv(const std::string& user_name) 
+const User_Priv Channel::GetPriv(const std::string& user_name)
 {
     Client* cl = this->GetUser(user_name);
     if(cl != NULL)
