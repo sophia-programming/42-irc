@@ -36,6 +36,7 @@ namespace Command{
     void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
+    void TOPIC(Client &client, Server *server, const Message &message);
 };
 
 // void PASS(Client &client, Server *server, const Message &message);
