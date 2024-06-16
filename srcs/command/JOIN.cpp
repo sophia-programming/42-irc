@@ -44,8 +44,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 }
             }
             else{ // チャンネルが存在しないとき
-                server->CreateChannel(ch_name);
-                Channel* ch =server->GetChannel(ch_name);
+                Channel* ch = server->CreateChannel(ch_name);
                 if(!ch){
                     return;
                 }else{
@@ -89,16 +88,16 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             }
         }
         else{
-            Channel* ch = server->GetChannel(ch_name);
+            Channel* ch = server->CreateChannel(ch_name);
             msg_to_c = client.GetNickname() +"! JOIN :" + ch->GetName();
             if(!ch){
                 return ;
             }else{
                 ch->AddUserAsO(client);
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
-                    ch->SetKey(key);
+                ch->SetKey(key);
+                // ch->SetMode(CM_Key);
             }
-            // ch->SetMode(CM_Key);
         }
     }
     SendMessage(client.GetFd(), msg_to_c, 0);
