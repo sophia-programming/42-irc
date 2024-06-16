@@ -1,6 +1,8 @@
 #include "Command.hpp"
 
-/* PONG <server1> [ <server2> ]
+/* PONG <server1> [ <server2> ] */
+
+/* PONGコマンド(クライアントに対してPONGメッセージを返す)
  * 引数1 -> クライアント
  * 引数2 -> params	*/
 void Command::PONG(Client &client, const std::vector <std::string> &params) {
