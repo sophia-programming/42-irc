@@ -121,6 +121,13 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 			Command::USER(client, message);
 			client.SetIsUserSet(true);
 		}
+	else if (cmd == "JOIN"){
+		std::cout << "JOIN" << std::endl;
+		Command::JOIN(client, this, message);
+	}
+	else if (cmd == "KICK"){
+		Command::KICK(client, this, message);
+	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
@@ -315,7 +322,10 @@ void Server::SetPassword(const std::string &password) {
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-bool Server::IsChannel(std::string& name) {
+bool Server::IsChannel(const std::string& name) {
+	if (this->channel_list_.size() < 1){
+		return false;
+	}
 	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return true;
@@ -325,7 +335,7 @@ bool Server::IsChannel(std::string& name) {
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(std::string& name)
+Channel* Server::GetChannel(const std::string& name)
 {
 	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
@@ -336,13 +346,17 @@ Channel* Server::GetChannel(std::string& name)
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-Channel* Server::CreateChannel(std::string& name)
+Channel* Server::CreateChannel(const std::string& name)
 {
 	if(name[0] != '#'){
-		// error plese create #channel name
-		return NULL;
+		throw ServerException("channel name should start from #\n");
 	}
-	Channel ch_tmp(name);
-	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
+	Channel* ch_tmp = new Channel(name);
+	this->channel_list_.insert(std::make_pair(name, ch_tmp));
 	return this->GetChannel(name);
+}
+
+const char *Server::ServerException::what(void) const throw()
+{
+	return this->msg_.c_str();
 }

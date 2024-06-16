@@ -8,53 +8,50 @@
 void Command::JOIN(Client &client, Server *server, const Message &message)
 {
     const std::vector<std::string> msg = message.GetParams();
-    // クライアントに送信するメッセージ
-    std::string msg_to_c;
-    std::cout << "1 " << msg[0] << "\n" << "2 " << msg[1] << std::endl;
-
     if(msg.size() < 1){
         return ;
     }
+    // クライアントに送信するメッセージ
+    std::string msg_to_c;
+    std::cout <<"msg size " << msg.size() << " [1] " << msg[0] << "\n" << "2 " << msg[1] << std::endl;
+
     // チャンネル名
     const std::string ch_name = msg[0];
 
     if(msg.size() == 1){
         try{
-            std::cout << "AAAAAAAAA" << std::endl;
-            if(server->ChannelExist(ch_name)){ //チャンネルが存在するとき
+            if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
-                std::cout << "aaaa 1" << std::endl;
-                Channel ch = server->GetChannel(ch_name);
-                std::cout << "aaaa 2" << std::endl;
-                if(ch.GetLimit() <= ch.users_.size()){ // エラー１すでに満員
-                    msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch.GetName());
-                    std::cout << "bbbb2" << std::endl;
+                Channel* ch = server->GetChannel(ch_name);
+                if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
+                    msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
                 }
-                else if(ch.CheckMode(CM_Key)){ //エラー２keyが必要
-                    msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch.GetName());
-                    std::cout << "cccc" << std::endl;
+                else if(ch->CheckMode(CM_Key)){ //エラー２keyが必要
+                    msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
                 }
-                else if(ch.CheckMode(CM_Invite)){
-                    std::cout << "dddd" << std::endl;
-                    if(ch.IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
-                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch.GetName());
-                    std::cout << "eeee" << std::endl;
+                else if(ch->CheckMode(CM_Invite)){
+                    if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
                     }
                     else{
-                        msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(), ch.GetName());
-                        ch.AddUserAsN(client);
-                    std::cout << "ffff" << std::endl;
+                        msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                        ch->AddUserAsN(client);
                     }
                 }
                 else{
-                    msg_to_c = client.GetNickname() +"! JOIN :" + ch.GetName();
-                    ch.AddUserAsN(client);
+                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    ch->AddUserAsN(client);
                 }
             }
-            else{
-                // チャンネルが存在しないとき
+            else{ // チャンネルが存在しないとき
                 server->CreateChannel(ch_name);
-                server->GetChannel(ch_name).AddUserAsO(client);
+                Channel* ch =server->GetChannel(ch_name);
+                if(!ch){
+                    return;
+                }else{
+                    ch->AddUserAsO(client);
+                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                }
             }
         }catch(const std::exception& e){
             std::cerr << "Exception caught: " << e.what() << std::endl;
@@ -64,40 +61,44 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     }
     else if (msg.size() == 2){ //チャンネルkeyが指定されているとき
         const std::string key = msg[1];
-        if(server->ChannelExist(ch_name)){ //チャンネルが存在するとき
+        if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
             // 指定されているチャンネルの取得
-            Channel ch = server->GetChannel(ch_name);
-            if(ch.GetLimit() <= ch.users_.size()){ // エラー１すでに満員
-                msg_to_c = "ERR_CHANNELISFULL (471) - " + ch.GetName() + " :Cannot join channel (+l)\n";
+            Channel* ch = server->GetChannel(ch_name);
+            if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
+                msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
             }
-            else if(ch.CheckMode(CM_Key)){
-                if(ch.GetKey() != key){ //エラー２keyが一致しない
-                    msg_to_c = "ERR_BADCHANNELKEY (475) - " + ch.GetName() + " :Cannot join channel (+k)\n";
+            else if(ch->CheckMode(CM_Key)){
+                if(ch->GetKey() != key){ //エラー２keyが一致しない
+                    msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
                 }else{
-                    ch.AddUserAsN(client);
+                    ch->AddUserAsN(client);
                 }
             }
-            else if(ch.CheckMode(CM_Invite)){
-                if(ch.IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
-                    msg_to_c = "ERR_INVITEONLYCHAN (473) - " + ch.GetName() + " :Cannot join channel (+l)\n";
+            else if(ch->CheckMode(CM_Invite)){
+                if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+                    msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
                 }
                 else{
-                    msg_to_c = client.GetNickname() +"! JOIN :" + ch.GetName();
-                    ch.AddUserAsN(client);
+                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    ch->AddUserAsN(client);
                 }
             }
             else{
-                msg_to_c = client.GetNickname() +"! JOIN :" + ch.GetName();
-                ch.AddUserAsN(client);
+                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    ch->AddUserAsN(client);
             }
         }
         else{
-            server->CreateChannel(ch_name);
-            Channel ch = server->GetChannel(ch_name);
-            msg_to_c = client.GetNickname() +"! JOIN :" + ch.GetName();
-            ch.AddUserAsO(client);
-            ch.SetKey(key);
-            ch.SetMode(CM_Key);
+            Channel* ch = server->GetChannel(ch_name);
+            msg_to_c = client.GetNickname() +"! JOIN :" + ch->GetName();
+            if(!ch){
+                return ;
+            }else{
+                ch->AddUserAsO(client);
+                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    ch->SetKey(key);
+            }
+            // ch->SetMode(CM_Key);
         }
     }
     SendMessage(client.GetFd(), msg_to_c, 0);

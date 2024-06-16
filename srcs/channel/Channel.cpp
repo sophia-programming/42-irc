@@ -66,11 +66,6 @@ void Channel::SetLimit(long int user_limit)
     this->limit_ = user_limit;
 }
 
-<<<<<<< HEAD
-void Channel::SetMode(ChannelMode mode)
-{
-    this->mode_.push_back(mode);
-=======
 // ユーザーの権限をオペレーターに設定する
 // 1:const std::string &user_name -> オペレーターにしたいユーザーのニックネーム
 void Channel::SetPrivAsOperator(const std::string &user_name)
@@ -79,7 +74,6 @@ void Channel::SetPrivAsOperator(const std::string &user_name)
     if(iter != this->users_.end()){
         iter->second = P_Operator;
     }
->>>>>>> 395e2fa829145569587c9a4b8068eb013ec15e91
 }
 
 //getter
@@ -114,7 +108,6 @@ bool Channel::CheckMode(ChannelMode mode)
     return false;
 }
 
-<<<<<<< HEAD
 bool Channel::IsInvited(std::string user_name){
 
     std::vector<std::string>::iterator iter;
@@ -134,8 +127,8 @@ void Channel::RmMode(ChannelMode mode)
     if(iter != this->mode_.end()){
         this->mode_.erase(iter);
     }
+}
 
-=======
 // メッセージをこのチャンネルメンバー全員に送信する関数
 // 1:const std::string& msg -> 送信したいメッセージ
 void Channel::SendMsgToAll(const std::string& msg)
@@ -145,7 +138,6 @@ void Channel::SendMsgToAll(const std::string& msg)
         send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
         iter++;
     }
->>>>>>> 395e2fa829145569587c9a4b8068eb013ec15e91
 }
 
 //User名からClientオブジェクトを取得する関数
@@ -163,10 +155,6 @@ Client* Channel::GetUser(const std::string& user_name)
 }
 
 //指定したユーザーの権限を取得する
-<<<<<<< HEAD
-//1:->権限を知りたいユーザー名
-const User_Priv Channel::GetPriv(Client &user) const
-=======
 //1:std::string user_name->権限を知りたいユーザー名
 const User_Priv Channel::GetPriv(const std::string& user_name)
 {
@@ -178,7 +166,6 @@ const User_Priv Channel::GetPriv(const std::string& user_name)
 
 // mapの要素としてChannel classを扱うための比較演算子オーバーロード
 bool Channel::operator<(const Channel &other) const
->>>>>>> 395e2fa829145569587c9a4b8068eb013ec15e91
 {
     return this->name_ < other.name_;
 }
