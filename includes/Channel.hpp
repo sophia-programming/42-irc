@@ -66,8 +66,8 @@ class Channel{
 		void SetLimit(long int limit);
 		// void SetMode(const std::string& mode);
 
-		void SetPrivAsOperator(const std::string& user_name);
-		void SetPrivAsNomal(const std::string& user_name);
+		void SetPrivAsOperator(const std::string& nick_name);
+		void SetPrivAsNomal(const std::string& nick_name);
 
 		// getter
 		const std::string& GetName() const;
@@ -76,11 +76,11 @@ class Channel{
 		int GetLimit() const;
 
 
-		Client* GetUser(const std::string& user_name) ;
-		const User_Priv GetPriv(const std::string& user_name);
+		Client* GetUser(const std::string& nick_name);
+		const User_Priv GetPriv(const std::string& nick_name);
 		bool CheckMode(ChannelMode mode);
-		bool IsInvited(std::string user_name);
-		void RmMode(ChannelMode mode);
+		bool IsInvited(const std::string& nick_name);
+
 
 		void SendMsgToAll(const std::string& msg);
 
