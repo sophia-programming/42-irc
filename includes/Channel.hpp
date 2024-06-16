@@ -23,8 +23,8 @@ enum ChannelMode{
 
 // Priviledge 権限
 enum User_Priv{
-	P_Nomal,
-	P_Operator
+	P_Nomal, // 一般ユーザー
+	P_Operator //オペレーター権限ユーザー
 };
 
 class Channel{
@@ -40,33 +40,34 @@ class Channel{
 		// チャンネルの人数制限
 		long int limit_;
 
-		// 招待リスト
+		// 招待リスト（nick_nameの配列）
 		std::vector<std::string> invate_users_;
 
+		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
+
 	public:
-		// ユーザーリスト
-		std::map<Client, User_Priv> users_;
+		// ユーザーリスト（clientポインタと、そのユーザーの権限）
+		std::map<Client*, User_Priv> users_;
 
 	public:
 		Channel(std::string channel_name);
 		~Channel();
 
-		// 一般ユーザーの追加
 		void AddUserAsN(Client& user);
-		// OPユーザーの追加
 		void AddUserAsO(Client& user);
-		// ユーザーの削除
-		void RmUser(const std::string& username);
+		void AddUserinInvite(const std::string& name);
+
+		void RmUser(Client *user);
+		void RmUserFromInvite(const std::string& user);
 
 		// setter
 		void SetToic(const std::string& topic);
-		// void SetMode(const std::string& mode);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
-		void SetMode(ChannelMode mode);
+		// void SetMode(const std::string& mode);
 
-		// ユーザー権限をOPに設定
-		void SetOperator(const std::string& username);
+		void SetPrivAsOperator(const std::string& user_name);
+		void SetPrivAsNomal(const std::string& user_name);
 
 		// getter
 		const std::string& GetName() const;
@@ -75,11 +76,13 @@ class Channel{
 		int GetLimit() const;
 
 
-		Client GetUser(std::string user_name);
-		const User_Priv GetPriv(Client& user) const;
+		Client* GetUser(const std::string& user_name) ;
+		const User_Priv GetPriv(const std::string& user_name);
 		bool CheckMode(ChannelMode mode);
 		bool IsInvited(std::string user_name);
 		void RmMode(ChannelMode mode);
+
+		void SendMsgToAll(const std::string& msg);
 
 		class ChannelException : public std::exception{
 			private:
@@ -90,9 +93,7 @@ class Channel{
 				virtual const char* what (void) const throw();
 		};
 
-		bool operator<(const Channel& other) const {
-        return this->name_ < other.GetName();  // 例として username を比較基準にしています
-	}
+		bool operator<(const Channel& other)const;
 };
 
 #endif

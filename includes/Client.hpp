@@ -9,9 +9,15 @@ private:
 	int fd_; //client file descriptor
 	bool is_authenticated_; //client authentication status
 	bool is_nickname_; //client nickname status
-	bool is_connected_;
+	bool is_welcome_; //client welcome message status
+	bool is_connected_; //client connection status
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
+	std::string username_;
+	std::string hostname_;
+	std::string servername_;
+	std::string realname_;
+	bool is_user_set_;
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
 
@@ -27,24 +33,37 @@ public:
 
 	/* getter関数 */
 	int GetFd() const;
-	std::string GetNickname() const;
+	bool GetIsNick() const;
+	bool GetIsAuthenticated() const;
+	bool GetIsWelcome() const;
+	bool GetIsConnected() const;
 	std::string GetIpAdress() const;
-	std::string &GetMessage() ;
+	std::string &GetMessage();
+	const std::string &GetNickname() const;
+	const std::string &GetUsername() const;
+	const std::string &GetHostname() const;
+	const std::string &GetServername() const;
+	const std::string &GetRealname() const;
+	bool GetIsUserSet() const;
 
 
 	/* setter関数 */
 	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
+	void SetIsAuthenticated();
+	void SetIsWelcome(bool iswelcome);
+	void SetIsConnected();
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 
-	void Authenticate();
-	bool IsAuthenticated() const;
+	void SetIsNick();
+	void SetUsername(const std::string &username);
+	void SetHostname(const std::string &hostname);
+	void SetServername(const std::string &servername);
+	void SetRealname(const std::string &realname);
+	void SetIsUserSet(bool flag);
 
-	// ===== mapに使うには比較可能な型である必要があるのでそのためのオーバーロード =====
-	bool operator<(const Client& other) const {
-        return this->nickname_ < other.GetNickname();  // 例として username を比較基準にしています
-	}
+	bool operator<(const Client& other) const;
 };
 
 #endif

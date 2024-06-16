@@ -18,6 +18,8 @@
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
+#include <signal.h> // for SIGINT in linux
+
 
 const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
 
@@ -37,6 +39,7 @@ private:
 	std::vector<struct pollfd> fds_; //vector of pollfd structures
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
+	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
@@ -50,7 +53,8 @@ private:
 	//channelのリスト(検索高速化の為に一旦mapで設定)
 	// 1:channel namel -> チャンネル名の文字列
 	// 2: channel class -> チャンネルオブジェクト
-	std::map<std::string, Channel> channel_list_;
+	typedef std::map<std::string, Channel*>::iterator channel_iterator;
+	std::map<std::string, Channel*> channel_list_;
 
 
 public:
@@ -72,9 +76,9 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	bool ChannelExist(const std::string& name);
-	Channel GetChannel(const std::string& name);
-	void CreateChannel(const std::string& name);
+	bool IsChannel(std::string& name);
+	Channel* GetChannel(std::string& name);
+	Channel* CreateChannel(std::string& name);
 
 	/* setter */
 	void SetPassword(const std::string &password);

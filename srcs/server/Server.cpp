@@ -8,7 +8,6 @@ Server::~Server() {
 	CloseFds();
 }
 
-
 /* Serverを初期化する関数
  * 引数　1 -> ポート番号*/
 void Server::ServerInit(int port) {
@@ -21,7 +20,6 @@ void Server::ServerInit(int port) {
 	// クライアントを受け入れる
 	MakePoll(server_socket_fd_);
 }
-
 
 /* サーバーを開始する関数 */
 void Server::ServerStart() {
@@ -70,7 +68,7 @@ void Server::ChatFlow(int fd) {
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
-	std::string &message_buffer = user.GetMessage(); // ここをstd::string &に変更して直接操作する
+	std::string &message_buffer = user.GetMessage();
 
 	size_t pos = 0;
 	while ((pos = message_buffer.find_first_of("\r\n")) != std::string::npos) {
@@ -101,16 +99,30 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
+	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
+
+	if (!client.GetIsAuthenticated()) {
+		if (cmd == "PASS")
+			Command::PASS(client, this, message);
+		else
+			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		return ;
+	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "PASS")
-		Command::PASS(client, this, message);
-	else if (cmd == "JOIN")
-		Command::JOIN(client, this, message);
+	if (cmd == "NICK")
+		Command::NICK(client, map_nick_fd_, message);
+	else if (cmd == "USER")
+		if (client.GetIsUserSet())
+			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
+		else {
+			Command::USER(client, message);
+			client.SetIsUserSet(true);
+		}
 	else
-		SendMessage(fd, std::string(YELLOW) + "Invalid command. Please enter a <PASS password>\r\n" + std::string(STOP), 0);
+		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
 
 
@@ -175,7 +187,9 @@ bool Server::CheckPassword(const std::string &password) const {
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 	void Server::SetupClient(int socketfd) {
 		// set client nickname
-		const std::string nick = "unknown" + std::to_string(socketfd);
+		std::stringstream ss;
+		ss << "unknown" << socketfd;
+		const std::string nick = ss.str();
 		// create new user
 		Client user(socketfd, nick);
 		// add user to map
@@ -301,11 +315,8 @@ void Server::SetPassword(const std::string &password) {
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-bool Server::ChannelExist(const std::string& name) {
-	if(this->channel_list_.size() < 1){
-		return false;
-	}
-	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
+bool Server::IsChannel(std::string& name) {
+	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return true;
 	}
@@ -314,22 +325,24 @@ bool Server::ChannelExist(const std::string& name) {
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-Channel Server::GetChannel(const std::string& name)
+Channel* Server::GetChannel(std::string& name)
 {
-	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
+	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return iter->second;
 	}
-	throw std::exception();
+	return NULL;
 }
 
-//チャンネルを作成してリストに登録する
+// チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-void Server::CreateChannel(const std::string& name)
+Channel* Server::CreateChannel(std::string& name)
 {
 	if(name[0] != '#'){
 		// error plese create #channel name
-		return;
+		return NULL;
 	}
-	this->channel_list_.insert(std::make_pair(name, Channel(name)));
+	Channel ch_tmp(name);
+	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
+	return this->GetChannel(name);
 }
