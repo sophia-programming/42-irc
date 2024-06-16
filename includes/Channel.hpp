@@ -76,7 +76,7 @@ class Channel{
 
 
 		Client GetUser(std::string user_name);
-		const User_Priv GetPriv(Client& user);
+		const User_Priv GetPriv(Client& user) const;
 		bool CheckMode(ChannelMode mode);
 		bool IsInvited(std::string user_name);
 		void RmMode(ChannelMode mode);
@@ -90,6 +90,9 @@ class Channel{
 				virtual const char* what (void) const throw();
 		};
 
+		bool operator<(const Channel& other) const {
+        return this->name_ < other.GetName();  // 例として username を比較基準にしています
+	}
 };
 
 #endif

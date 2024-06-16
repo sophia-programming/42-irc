@@ -77,7 +77,7 @@ public:
 	void CreateChannel(const std::string& name);
 
 	/* setter */
-	std::string SetPassword(const std::string &password);
+	void SetPassword(const std::string &password);
 
 	/* password検証 */
 	bool CheckPassword(const std::string &password) const;

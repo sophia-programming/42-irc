@@ -40,6 +40,11 @@ public:
 
 	void Authenticate();
 	bool IsAuthenticated() const;
+
+	// ===== mapに使うには比較可能な型である必要があるのでそのためのオーバーロード =====
+	bool operator<(const Client& other) const {
+        return this->nickname_ < other.GetNickname();  // 例として username を比較基準にしています
+	}
 };
 
 #endif

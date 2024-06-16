@@ -3,14 +3,18 @@
 Channel::Channel(std::string channel_name):name_(channel_name), limit_(__LONG_MAX__),topic_("non"){
 }
 
+Channel::~Channel()
+{
+}
+
 void Channel::AddUserAsN(Client& user)
 {
-    this->users_.insert(std::pair{user,P_Nomal});
+    this->users_.insert(std::make_pair(user,P_Nomal));
 }
 
 void Channel::AddUserAsO(Client& user)
 {
-    this->users_.insert(std::pair{user, P_Operator});
+    this->users_.insert(std::make_pair(user, P_Operator));
 }
 
 void Channel::RmUser(const std::string& username)
@@ -116,7 +120,7 @@ Client Channel::GetUser(std::string user_name)
 
 //指定したユーザーの権限を取得する
 //1:->権限を知りたいユーザー名
-const User_Priv Channel::GetPriv(Client &user)
+const User_Priv Channel::GetPriv(Client &user) const
 {
     return this->users_.find(user)->second;
 }

@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server() {}
+Server::Server(): channel_list_(){}
 
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
@@ -295,13 +295,16 @@ int Server::GetServerSocketFd() const {
 
 
 /* setter関数 */
-std::string Server::SetPassword(const std::string &password) {
+void Server::SetPassword(const std::string &password) {
 	this->password_ = password;
 }
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
 bool Server::ChannelExist(const std::string& name) {
+	if(this->channel_list_.size() < 1){
+		return false;
+	}
 	std::map<std::string, Channel>::iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return true;
@@ -328,5 +331,5 @@ void Server::CreateChannel(const std::string& name)
 		// error plese create #channel name
 		return;
 	}
-	this->channel_list_.insert(std::pair{name, Channel(name)});
+	this->channel_list_.insert(std::make_pair(name, Channel(name)));
 }
