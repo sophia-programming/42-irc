@@ -91,6 +91,9 @@ public:
 
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname);
+
+	/* Channel */
+	Channel* FindChannelByName(const std::string &name);
 };
 
 #endif

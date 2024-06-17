@@ -141,6 +141,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PASS(client, this, password_);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
+	else if (cmd == "PRIVMSG")
+		Command::PRIVMSG(client, params, *this);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
@@ -366,6 +368,19 @@ Client* Server::FindClientByNickname(const std::string &nickname) {
 
 	// クライアントが見つかった場合、クライアントオブジェクトを返す
 	if (it != clients_.end())
+		return it->second;
+	else
+		return NULL;
+}
+
+/* チャンネル名からチャンネルオブジェクトを取得する関数
+ * 引数1 -> チャンネル名
+ * 戻り値 -> チャンネルオブジェクト またはNULL */
+Channel* Server::FindChannelByName(const std::string &name) {
+	std::map<std::string, Channel*>::iterator it = channel_list_.find(name);
+
+	// channelが見つかった場合、channelオブジェクトを返す
+	if (it != channel_list_.end())
 		return it->second;
 	else
 		return NULL;

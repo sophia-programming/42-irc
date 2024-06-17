@@ -3,7 +3,7 @@
 /* PRIVMSG <target> :<message> */
 
 bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
-void SendToChannel(Client &client, const std::string &channel, const std::string &message);
+void SendToChannel(Client &client, const std::string &channel, const std::string &message, Server &server);
 void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server);
 
 
@@ -25,7 +25,7 @@ void Command::PRIVMSG(Client &client, const std::vector<std::string> &params, Se
 
 	// channelは#から始まる
 	if (target[0] == '#')
-		SendToChannel(client, target, message);
+		SendToChannel(client, target, message, server);
 	else
 		SendToUser(client, target, message, server);
 }
@@ -51,7 +51,17 @@ bool IsCorrectFormat(std::vector<std::string> const &params, Client &client) {
  * 引数1 -> クライアント
  * 引数2 -> チャンネル名
  * 引数3 -> メッセージ */
-void SendToChannel(Client &client, const std::string &channel, const std::string &message) {
+void SendToChannel(Client &client, const std::string &channel, const std::string &message, Server &server) {
+	int fd = client.GetFd();
+
+	//channel名からチャンネルオブジェクトを取得
+	Channel* targetChannel = server.FindChannelByName(channel);
+
+	//チャンネルオブジェクトが存在する場合、メッセージを送信
+	if (targetChannel)
+		SendMessage(fd, PRIVMSG_MESSAGE(channel, message), 0);
+	else
+		SendMessage(fd, ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
 }
 
 
