@@ -26,6 +26,7 @@ class Message;
 #define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
 
 // エラーメッセージ
+#define ERR_NOTEXTTOSEND(nick) "412 " + nick + " :No text to send\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
 #define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, nickname) ":ft_irc 433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
@@ -51,6 +52,7 @@ namespace Command{
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
 	void PONG(Client &client, const std::vector<std::string> &params);
+	void PRIVMSG(Client &client, const std::vector<std::string> &params);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);
