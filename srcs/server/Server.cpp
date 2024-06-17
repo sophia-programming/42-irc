@@ -357,3 +357,16 @@ Channel* Server::CreateChannel(std::string& name)
 	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
 	return this->GetChannel(name);
 }
+
+/* ニックネームからクライアントオブジェクトを取得する関数
+ * 引数1 -> ニックネーム
+ * 戻り値 -> クライアントオブジェクト またはNULL */
+Client* Server::FindClientByNickname(const std::string &nickname) {
+	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
+
+	// クライアントが見つかった場合、クライアントオブジェクトを返す
+	if (it != clients_.end())
+		return it->second;
+	else
+		return NULL;
+}

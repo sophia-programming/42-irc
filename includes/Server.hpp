@@ -56,6 +56,9 @@ private:
 	typedef std::map<std::string, Channel*>::iterator channel_iterator;
 	std::map<std::string, Channel*> channel_list_;
 
+	//clientのリスト(nicknameをキーにして検索)
+	std::map<std::string, Client *> clients_;
+
 
 public:
 	Server();
@@ -85,6 +88,9 @@ public:
 
 	/* Command */
 	void ExecuteCommand(int fd, const Message &message);
+
+	/* Client */
+	Client* FindClientByNickname(const std::string &nickname);
 };
 
 #endif

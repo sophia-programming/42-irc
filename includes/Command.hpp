@@ -24,8 +24,10 @@ class Message;
 // CAP LSメッセージ (CAPコマンドのレスポンス)
 #define CAP_LS ":ft_irc CAP * LS\r\n"
 #define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
+#define PRIVMSG_MESSAGE(nick, message) ":ft_irc PRIVMSG " + nick + " :" + message + "\r\n"
 
 // エラーメッセージ
+#define ERR_NOSUCHNICK(nick) "401 " + nick + " :No such nick/channel\r\n"
 #define ERR_NOTEXTTOSEND(nick) "412 " + nick + " :No text to send\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
 #define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
@@ -52,7 +54,7 @@ namespace Command{
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
 	void PONG(Client &client, const std::vector<std::string> &params);
-	void PRIVMSG(Client &client, const std::vector<std::string> &params);
+	void PRIVMSG(Client &client, const std::vector<std::string> &params, Server &server);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);

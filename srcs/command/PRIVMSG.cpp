@@ -1,16 +1,16 @@
 #include "Command.hpp"
 
-/* PRIVMSG <receiver> :<message> */
+/* PRIVMSG <target> :<message> */
 
 bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
 void SendToChannel(Client &client, const std::string &channel, const std::string &message);
-void SendToUser(Client &client, const std::string &target, const std::string &message);
+void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server);
 
 
 /* PRIVMSGコマンド(メッセージを送信する)
  * 引数1 -> クライアント
  * 引数2 -> パラメータのvector */
-void Command::PRIVMSG(Client &client, const std::vector<std::string> &params) {
+void Command::PRIVMSG(Client &client, const std::vector<std::string> &params, Server &server) {
 	if (!IsCorrectFormat(params, client))
 		return;
 
@@ -27,7 +27,7 @@ void Command::PRIVMSG(Client &client, const std::vector<std::string> &params) {
 	if (target[0] == '#')
 		SendToChannel(client, target, message);
 	else
-		SendToUser(client, target, message);
+		SendToUser(client, target, message, server);
 }
 
 /* 正しいフォーマットかどうかを確認する関数
@@ -58,6 +58,17 @@ void SendToChannel(Client &client, const std::string &channel, const std::string
 /* ユーザーへのメッセージ送信
  * 引数1 -> クライアント
  * 引数2 -> ユーザー名
- * 引数3 -> メッセージ */
-void SendToUser(Client &client, const std::string &target, const std::string &message) {
+ * 引数3 -> メッセージ
+ * 引数4 -> サーバー */
+void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server) {
+	int fd = client.GetFd();
+
+	//nicknameからクライアントオブジェクトを取得
+	Client* targetClient = server.FindClientByNickname(target);
+
+	//クライアントオブジェクトが存在する場合、メッセージを送信
+	if (targetClient)
+		SendMessage(targetClient->GetFd(), PRIVMSG_MESSAGE(client.GetNickname(), message), 0);
+	else
+		SendMessage(fd, ERR_NOSUCHNICK(client.GetNickname()), 0);
 }
