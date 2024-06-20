@@ -333,6 +333,7 @@ bool Server::IsChannel(const std::string& name) {
 	return false;
 }
 
+
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
 Channel* Server::GetChannel(const std::string& name)
