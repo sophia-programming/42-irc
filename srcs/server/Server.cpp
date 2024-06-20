@@ -5,6 +5,9 @@ Server::Server() {}
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
 Server::~Server() {
+	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		delete it->second;
+	}
 	CloseFds();
 }
 
@@ -123,7 +126,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 			client.SetIsConnected(true);
 		}
 	} else if (cmd == "USER") {
-		if (client.GetIsUserSet())
+		if (!client.GetIsUserSet())
 			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		else {
 			Command::USER(client, message);
@@ -364,15 +367,25 @@ Channel* Server::CreateChannel(std::string& name)
  * 引数1 -> ニックネーム
  * 戻り値 -> クライアントオブジェクト またはNULL */
 Client* Server::FindClientByNickname(const std::string &nickname) {
+
+	AddClient("test", new Client(1, "test"));
+	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
 
-	// クライアントが見つかった場合、クライアントオブジェクトを返す
-	if (it != clients_.end()){
+	// デバッグ用にclients_の内容を表示
+	std::cout << "Total clients: " << clients_.size() << std::endl;
+	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		std::cout << "Client nickname: " << it->first << std::endl;
+	}
+
+	// クライアントが見つかった場合、そのクライアントのニックネームを取得
+	if (it != clients_.end()) {
 		std::cout << "Client found = " << it->second->GetNickname() << std::endl;
 		return it->second;
-	}
-	else
+	} else {
+		std::cout << "Client not found for nickname: " << nickname << std::endl;
 		return NULL;
+	}
 }
 
 /* チャンネル名からチャンネルオブジェクトを取得する関数
@@ -386,4 +399,21 @@ Channel* Server::FindChannelByName(const std::string &name) {
 		return it->second;
 	else
 		return NULL;
+}
+
+/* クライアントを追加する関数
+ * 引数1 -> ニックネーム
+ * 引数2 -> クライアントオブジェクト */
+void Server::AddClient(const std::string &nickname, Client* client) {
+	clients_[nickname] = client;
+	std::cout << "Added client with nickname: " << nickname << std::endl;
+}
+
+/* デバッグ用関数 */
+std::vector<Client*> Server::GetAllClients() const {
+	std::vector<Client*> result;
+	for (std::map<std::string, Client*>::const_iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		result.push_back(it->second);
+	}
+	return result;
 }

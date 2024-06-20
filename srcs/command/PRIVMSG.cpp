@@ -5,6 +5,7 @@
 bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
 void SendToChannel(Client &client, const std::string &channel, const std::string &message, Server &server);
 void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server);
+void PrintAllClients(Server &server);
 
 
 /* PRIVMSGコマンド(メッセージを送信する)
@@ -73,8 +74,14 @@ void SendToChannel(Client &client, const std::string &channel, const std::string
 void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server) {
 	int fd = client.GetFd();
 
+	// デバッグ: サーバーに接続しているクライアントを表示
+	PrintAllClients(server);
+
 	//nicknameからクライアントオブジェクトを取得
+	std::cout << "target = " << target << std::endl;
+	std::cout << "message = " << message << std::endl;
 	Client* targetClient = server.FindClientByNickname(target);
+	std::cout << "targetClient: " << targetClient << std::endl;
 
 	//クライアントオブジェクトが存在する場合、メッセージを送信
 	if (targetClient)
@@ -82,3 +89,16 @@ void SendToUser(Client &client, const std::string &target, const std::string &me
 	else
 		SendMessage(fd, ERR_NOSUCHNICK(client.GetNickname()), 0);
 }
+
+/* serverに接続しているクライアントの一覧を出力するdebug cord*/
+void PrintAllClients(Server &server) {
+	std::cout << "Connected clients:" << std::endl;
+	std::vector<Client*> clients = server.GetAllClients();
+	for (size_t i = 0; i < clients.size(); ++i) {
+		if (clients[i] != NULL)
+			std::cout << "Nickname: " << clients[i]->GetNickname() << ", FD: " << clients[i]->GetFd() << std::endl;
+		else
+			std::cout << "Error: NULL client detected!" << std::endl;
+	}
+}
+

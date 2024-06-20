@@ -3,7 +3,7 @@
 Client::Client() : fd_(-1), is_authenticated_(false) {}
 
 Client::Client(int fd_, const std::string &nick)
-	: fd_(fd_), is_authenticated_(false), is_nickname_(true), is_user_set_(false) {}
+	: fd_(fd_), nickname_(nick), is_authenticated_(false), is_nickname_(true), is_user_set_(false) {}
 
 Client::~Client() {}
 

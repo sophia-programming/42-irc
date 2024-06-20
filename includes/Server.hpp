@@ -91,9 +91,13 @@ public:
 
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname);
+	void AddClient(const std::string &nickname, Client* client);
 
 	/* Channel */
 	Channel* FindChannelByName(const std::string &name);
+
+	/* debug */
+	std::vector<Client*> GetAllClients() const;
 };
 
 #endif
