@@ -367,8 +367,10 @@ Client* Server::FindClientByNickname(const std::string &nickname) {
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
 
 	// クライアントが見つかった場合、クライアントオブジェクトを返す
-	if (it != clients_.end())
+	if (it != clients_.end()){
+		std::cout << "Client found = " << it->second->GetNickname() << std::endl;
 		return it->second;
+	}
 	else
 		return NULL;
 }

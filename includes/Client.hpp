@@ -17,7 +17,7 @@ private:
 	std::string hostname_;
 	std::string servername_;
 	std::string realname_;
-	bool is_user_set_;
+	bool is_user_set_; //user情報がセットされているかどうか
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
 

@@ -91,6 +91,7 @@ const std::string &Client::GetRealname() const {
 }
 
 bool Client::GetIsUserSet() const {
+	std::cout << "is_user_set_ : " << this->is_user_set_ << std::endl;
 	return this->is_user_set_;
 }
 
@@ -106,6 +107,7 @@ void Client::SetIsAuthenticated() {
 
 void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
+	this->is_user_set_ = true;
 }
 
 void Client::SetIsWelcome(bool is_welcome) {
