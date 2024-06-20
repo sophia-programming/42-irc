@@ -366,9 +366,9 @@ Channel* Server::CreateChannel(std::string& name)
 /* ニックネームからクライアントオブジェクトを取得する関数
  * 引数1 -> ニックネーム
  * 戻り値 -> クライアントオブジェクト またはNULL */
-Client* Server::FindClientByNickname(const std::string &nickname) {
+Client* Server::FindClientByNickname(const std::string &nickname, Client &client) {
 
-	AddClient("test", new Client(1, "test"));
+	AddClient(client.GetNickname(), &client);
 	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
 
@@ -406,7 +406,6 @@ Channel* Server::FindChannelByName(const std::string &name) {
  * 引数2 -> クライアントオブジェクト */
 void Server::AddClient(const std::string &nickname, Client* client) {
 	clients_[nickname] = client;
-	std::cout << "Added client with nickname: " << nickname << std::endl;
 }
 
 /* デバッグ用関数 */

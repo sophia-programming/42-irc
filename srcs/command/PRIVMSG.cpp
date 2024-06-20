@@ -80,7 +80,7 @@ void SendToUser(Client &client, const std::string &target, const std::string &me
 	//nicknameからクライアントオブジェクトを取得
 	std::cout << "target = " << target << std::endl;
 	std::cout << "message = " << message << std::endl;
-	Client* targetClient = server.FindClientByNickname(target);
+	Client* targetClient = server.FindClientByNickname(target, client);
 	std::cout << "targetClient: " << targetClient << std::endl;
 
 	//クライアントオブジェクトが存在する場合、メッセージを送信
@@ -96,7 +96,7 @@ void PrintAllClients(Server &server) {
 	std::vector<Client*> clients = server.GetAllClients();
 	for (size_t i = 0; i < clients.size(); ++i) {
 		if (clients[i] != NULL)
-			std::cout << "Nickname: " << clients[i]->GetNickname() << ", FD: " << clients[i]->GetFd() << std::endl;
+			std::cout << "Nickname: " << clients[i]->GetNickname() << std::endl;
 		else
 			std::cout << "Error: NULL client detected!" << std::endl;
 	}
