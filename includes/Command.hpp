@@ -2,6 +2,7 @@
 #define COMMAND_HPP
 
 #include "Server.hpp"
+#include "Client.hpp"
 #include "Message.hpp"
 #include "Client.hpp"
 
@@ -31,10 +32,16 @@ class Message;
 #define ERR_NOTONCHANNEL(nick, ch_name) "442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
 #define ERR_USERNOTINCHANNEL(nick, ch_name) "441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 
+#define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
+#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
+#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
+
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
     void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
+    void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
 };
 
