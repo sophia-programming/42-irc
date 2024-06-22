@@ -1,4 +1,9 @@
 #include "Command.hpp"
+// INVITE コマンドの処理をする関数
+// 1: クライアント情報
+// 2: Server情報
+// 3: 受け取ったメッセージ
+
 
 void Command::INVITE(Client &client, Server *server, const Message &message)
 {
