@@ -108,12 +108,12 @@ void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
 }
 
-void Client::SetIsWelcome(bool iswelcome) {
-	this->is_welcome_ = iswelcome;
+void Client::SetIsWelcome(bool is_welcome) {
+	this->is_welcome_ = is_welcome;
 }
 
-void Client::SetIsConnected() {
-	this->is_connected_ = true;
+void Client::SetIsConnected(bool is_connected) {
+	this->is_connected_ = is_connected;
 }
 
 void Client::SetIPAddress(const std::string &ipaddress) {
