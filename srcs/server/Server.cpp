@@ -372,7 +372,7 @@ Client* Server::FindClientByNickname(const std::string &nickname, Client &client
 	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
 
-	// デバッグ用にclients_の内容を表示
+	// デバッグ: 全クライアントの情報を表示
 	std::cout << "Total clients: " << clients_.size() << std::endl;
 	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
 		std::cout << "Client nickname: " << it->first << std::endl;
@@ -405,6 +405,12 @@ Channel* Server::FindChannelByName(const std::string &name) {
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
 void Server::AddClient(const std::string &nickname, Client* client) {
+	//古いニックネームが存在する場合、削除
+	std::map<std::string, Client*>::iterator it = clients_.find(client->GetNickname());
+	if (it != clients_.end())
+		clients_.erase(it);
+
+	// 新しいニックネームを追加
 	clients_[nickname] = client;
 }
 

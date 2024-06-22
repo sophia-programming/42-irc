@@ -47,6 +47,16 @@ bool IsCorrectFormat(std::vector<std::string> const &params, Client &client) {
 		return true;
 }
 
+/* メンバーに含まれているかどうかを確認する関数
+ * 引数1 -> メンバーのvector
+ * 引数2 -> 名前 */
+bool IsInMember(std::vector<Client *> const &members, std::string const &name) {
+	for (std::vector<Client *>::const_iterator it = members.begin(); it != members.end(); ++it) {
+		if ((*it)->GetNickname() == name)
+			return true;
+	}
+	return false;
+}
 
 /* チャンネルへのメッセージ送信
  * 引数1 -> クライアント
