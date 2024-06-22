@@ -62,7 +62,7 @@ public:
 	void SetServername(const std::string &servername);
 	void SetRealname(const std::string &realname);
 	void SetIsUserSet(bool flag);
-	
+
 	bool operator<(const Client& other) const;
 };
 
