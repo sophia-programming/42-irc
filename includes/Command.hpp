@@ -24,6 +24,7 @@ class Message;
 
 // CAP LSメッセージ (CAPコマンドのレスポンス)
 #define CAP_LS ":ft_irc CAP * LS\r\n"
+#define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
 
 // エラーメッセージ
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
@@ -56,6 +57,7 @@ namespace Command{
 	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
+	void PONG(Client &client, const std::vector<std::string> &params);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);

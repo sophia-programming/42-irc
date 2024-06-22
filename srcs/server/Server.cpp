@@ -139,6 +139,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	else if (cmd == "PASS")
 		Command::PASS(client, this, password_);
+	else if (cmd == "PING")
+		Command::PONG(client, params);
 	else if (cmd == "JOIN"){
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
