@@ -65,6 +65,10 @@ void Server::ChatFlow(int fd) {
 
 	// マップからクライアントを取得
 	Client &user = users_[fd];
+	std::cout << "-------------Client Message-------------" << std::endl;
+	std::cout << "client fd: [" << fd << "]" << std::endl;
+	std::cout << "client : " << received_data << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
@@ -94,33 +98,47 @@ void Server::ChatFlow(int fd) {
 
 
 /* Commandを処理する関数
- * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+ * 引数1 -> クライアントのソケットファイルディスクリプタ
+ * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
 
-	if (!client.GetIsAuthenticated()) {
-		if (cmd == "PASS")
-			Command::PASS(client, this, message);
-		else
-			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
-		return ;
+	// 初期接続時に許可されるコマンドの制限
+	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
+		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
+//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
+		return;
 	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "NICK")
+	if (cmd == "NICK") {
 		Command::NICK(client, map_nick_fd_, message);
-	else if (cmd == "USER")
+		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
+			SendWelcomeMessage(client);
+			client.SetIsConnected(true);
+		}
+	} else if (cmd == "USER") {
 		if (client.GetIsUserSet())
 			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		else {
 			Command::USER(client, message);
 			client.SetIsUserSet(true);
+			if (client.GetIsNick() && !client.GetIsWelcome()) {
+				SendWelcomeMessage(client);
+				client.SetIsConnected(true);
+				client.SetIsWelcome(true);
+			}
 		}
+	}
+	else if (cmd == "CAP")
+		Command::CAP(client, fds_, users_, map_nick_fd_, message);
+	else if (cmd == "PASS")
+		Command::PASS(client, this, password_);
 	else if (cmd == "JOIN"){
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
@@ -131,7 +149,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
-
 
 /* クライアントにデータを送信する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
@@ -176,14 +193,6 @@ void Server::CloseFds() {
 		// socketが閉じられたことを記録
 		server_socket_fd_ = -1;
 	}
-}
-
-
-/* passwordを検証する関数
- * 引数1 -> 入力されたパスワード
- * 戻り値 -> パスワードが正しい場合はtrue、それ以外はfalse*/
-bool Server::CheckPassword(const std::string &password) const {
-	return password == this->password_;
 }
 
 

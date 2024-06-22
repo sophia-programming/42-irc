@@ -51,8 +51,8 @@ public:
 	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
 	void SetIsAuthenticated();
-	void SetIsWelcome(bool iswelcome);
-	void SetIsConnected();
+	void SetIsWelcome(bool is_welcome);
+	void SetIsConnected(bool is_connected);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 
