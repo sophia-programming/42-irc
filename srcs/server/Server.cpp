@@ -368,15 +368,12 @@ Channel* Server::CreateChannel(std::string& name)
  * 戻り値 -> クライアントオブジェクト またはNULL */
 Client* Server::FindClientByNickname(const std::string &nickname, Client &client) {
 
-	AddClient(client.GetNickname(), &client);
 	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
 
-	// デバッグ: 全クライアントの情報を表示
-	std::cout << "Total clients: " << clients_.size() << std::endl;
-	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
-		std::cout << "Client nickname: " << it->first << std::endl;
-	}
+	// clientが新規の場合のみ追加する
+	if (clients_.find(client.GetNickname()) == clients_.end())
+		AddClient(client.GetNickname(), &client);
 
 	// クライアントが見つかった場合、そのクライアントのニックネームを取得
 	if (it != clients_.end()) {
@@ -401,7 +398,7 @@ Channel* Server::FindChannelByName(const std::string &name) {
 		return NULL;
 }
 
-/* クライアントを追加する関数
+/* クライアントを追加する関数（nicknameとクライアントオブジェクトをマップに追加）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
 void Server::AddClient(const std::string &nickname, Client* client) {

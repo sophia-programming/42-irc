@@ -83,14 +83,11 @@ void SendToChannel(Client &client, const std::string &channel, const std::string
  * 引数4 -> サーバー */
 void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server) {
 	int fd = client.GetFd();
-
-	// デバッグ: サーバーに接続しているクライアントを表示
-	PrintAllClients(server);
-
+	Client* targetClient = server.FindClientByNickname(target, client);
 	//nicknameからクライアントオブジェクトを取得
 	std::cout << "target = " << target << std::endl;
 	std::cout << "message = " << message << std::endl;
-	Client* targetClient = server.FindClientByNickname(target, client);
+
 	std::cout << "targetClient: " << targetClient << std::endl;
 
 	//クライアントオブジェクトが存在する場合、メッセージを送信
@@ -99,16 +96,3 @@ void SendToUser(Client &client, const std::string &target, const std::string &me
 	else
 		SendMessage(fd, ERR_NOSUCHNICK(client.GetNickname()), 0);
 }
-
-/* serverに接続しているクライアントの一覧を出力するdebug cord*/
-void PrintAllClients(Server &server) {
-	std::cout << "Connected clients:" << std::endl;
-	std::vector<Client*> clients = server.GetAllClients();
-	for (size_t i = 0; i < clients.size(); ++i) {
-		if (clients[i] != NULL)
-			std::cout << "Nickname: " << clients[i]->GetNickname() << std::endl;
-		else
-			std::cout << "Error: NULL client detected!" << std::endl;
-	}
-}
-
