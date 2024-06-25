@@ -370,6 +370,8 @@ Client* Server::FindClientByNickname(const std::string &nickname, Client &client
 
 	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
+	std::cout << "it->first = " << it->first << std::endl;
+	std::cout << "it->second = " << it->second << std::endl;
 
 	// clientが新規の場合のみ追加する
 	if (clients_.find(client.GetNickname()) == clients_.end())
@@ -401,14 +403,9 @@ Channel* Server::FindChannelByName(const std::string &name) {
 /* クライアントを追加する関数（nicknameとクライアントオブジェクトをマップに追加）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
-void Server::AddClient(const std::string &nickname, Client* client) {
-	//古いニックネームが存在する場合、削除
-	std::map<std::string, Client*>::iterator it = clients_.find(client->GetNickname());
-	if (it != clients_.end())
-		clients_.erase(it);
-
-	// 新しいニックネームを追加
-	clients_[nickname] = client;
+void Server::AddClient(const std::string &nickname, Client* clientPointer) {
+	// nicknameとクライアントオブジェクトをマップに追加
+	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
 /* デバッグ用関数 */
