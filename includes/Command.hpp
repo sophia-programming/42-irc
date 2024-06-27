@@ -39,14 +39,14 @@ class Message;
 #define ERR_NOTONCHANNEL(nick, ch_name) "442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
 #define ERR_USERNOTINCHANNEL(nick, ch_name) "441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 #define ERR_PASSWDMISMATCH(nick) "464 " + nick + " :Password incorrect\r\n"
+#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
+#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 // パスワードエラーメッセージ
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
 
 #define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
-#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
-#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
-#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
