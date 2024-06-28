@@ -23,6 +23,7 @@ enum ChannelMode{
 
 // Priviledge 権限
 enum User_Priv{
+	P_None, // 権限なし
 	P_Nomal, // 一般ユーザー
 	P_Operator //オペレーター権限ユーザー
 };

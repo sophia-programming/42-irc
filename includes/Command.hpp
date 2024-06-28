@@ -43,6 +43,7 @@ namespace Command{
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
+    void MODE(Client &client, Server *server, const Message &message);
 };
 
 // void PASS(Client &client, Server *server, const Message &message);
