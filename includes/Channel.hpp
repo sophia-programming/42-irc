@@ -23,6 +23,7 @@ enum ChannelMode{
 
 // Priviledge 権限
 enum User_Priv{
+	P_None, // 権限なしチャンネルに存在しない
 	P_Nomal, // 一般ユーザー
 	P_Operator //オペレーター権限ユーザー
 };
@@ -66,18 +67,21 @@ class Channel{
 		void SetLimit(long int limit);
 		// void SetMode(const std::string& mode);
 
-		void SetPrivAsOperator(const std::string& user_name);
-		void SetPrivAsNomal(const std::string& user_name);
+		void SetPrivAsOperator(const std::string& nick_name);
+		void SetPrivAsNomal(const std::string& nick_name);
 
 		// getter
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
+		int GetLimit() const;
 
-		Client* GetUser(const std::string& user_name) ;
-		const User_Priv GetPriv(const std::string& user_name);
+
+		Client* GetUser(const std::string& nick_name);
+		const User_Priv GetPriv(const std::string& nick_name);
 		bool CheckMode(ChannelMode mode);
-		void RmMode(ChannelMode mode);
+		bool IsInvited(const std::string& nick_name);
+
 
 		void SendMsgToAll(const std::string& msg);
 

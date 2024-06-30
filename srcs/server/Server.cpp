@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server() {}
+Server::Server(): channel_list_(){}
 
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
@@ -65,6 +65,10 @@ void Server::ChatFlow(int fd) {
 
 	// マップからクライアントを取得
 	Client &user = users_[fd];
+	std::cout << "-------------Client Message-------------" << std::endl;
+	std::cout << "client fd: [" << fd << "]" << std::endl;
+	std::cout << "client : " << received_data << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
 	// 受け取ったデータをクライアントのメッセージバッファに追加
 	user.AddMessage(std::string(received_data));
 	//　クライアントのメッセージバッファを取得
@@ -94,37 +98,59 @@ void Server::ChatFlow(int fd) {
 
 
 /* Commandを処理する関数
- * 引数1 -> クライアントのソケットファイルディスクリプタ*/
+ * 引数1 -> クライアントのソケットファイルディスクリプタ
+ * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
 
-	if (!client.GetIsAuthenticated()) {
-		if (cmd == "PASS")
-			Command::PASS(client, this, message);
-		else
-			SendMessage(fd, std::string(YELLOW) + ERR_NOTREGISTERED(client.GetNickname()) + std::string(STOP), 0);
-		return ;
+	// 初期接続時に許可されるコマンドの制限
+	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
+		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
+//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
+		return;
 	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "NICK")
+	if (cmd == "NICK") {
 		Command::NICK(client, map_nick_fd_, message);
-	else if (cmd == "USER")
+		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
+			SendWelcomeMessage(client);
+			client.SetIsConnected(true);
+		}
+	} else if (cmd == "USER") {
 		if (client.GetIsUserSet())
 			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		else {
 			Command::USER(client, message);
 			client.SetIsUserSet(true);
+			if (client.GetIsNick() && !client.GetIsWelcome()) {
+				SendWelcomeMessage(client);
+				client.SetIsConnected(true);
+				client.SetIsWelcome(true);
+			}
 		}
+	}
+	else if (cmd == "CAP")
+		Command::CAP(client, fds_, users_, map_nick_fd_, message);
+	else if (cmd == "PASS")
+		Command::PASS(client, this, password_);
+	else if (cmd == "PING")
+		Command::PONG(client, params);
+	else if (cmd == "JOIN"){
+		std::cout << "JOIN" << std::endl;
+		Command::JOIN(client, this, message);
+	}
+	else if (cmd == "KICK"){
+		Command::KICK(client, this, message);
+	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
-
 
 /* クライアントにデータを送信する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
@@ -169,14 +195,6 @@ void Server::CloseFds() {
 		// socketが閉じられたことを記録
 		server_socket_fd_ = -1;
 	}
-}
-
-
-/* passwordを検証する関数
- * 引数1 -> 入力されたパスワード
- * 戻り値 -> パスワードが正しい場合はtrue、それ以外はfalse*/
-bool Server::CheckPassword(const std::string &password) const {
-	return password == this->password_;
 }
 
 
@@ -315,7 +333,10 @@ void Server::SetPassword(const std::string &password) {
 
 // 既存のチャンネルか確認する
 // 1: std::string& name -> 確認したいチャンネル名
-bool Server::IsChannel(std::string& name) {
+bool Server::IsChannel(const std::string& name) {
+	if (this->channel_list_.size() < 1){
+		return false;
+	}
 	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
 		return true;
@@ -325,7 +346,7 @@ bool Server::IsChannel(std::string& name) {
 
 // チャンネル名から検索してchannelオブジェクトを取得する
 // 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(std::string& name)
+Channel* Server::GetChannel(const std::string& name)
 {
 	Server::channel_iterator iter = this->channel_list_.find(name);
 	if(iter != this->channel_list_.end()){
@@ -336,13 +357,17 @@ Channel* Server::GetChannel(std::string& name)
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
-Channel* Server::CreateChannel(std::string& name)
+Channel* Server::CreateChannel(const std::string& name)
 {
 	if(name[0] != '#'){
-		// error plese create #channel name
-		return NULL;
+		throw ServerException("channel name should start from #\n");
 	}
-	Channel ch_tmp(name);
-	this->channel_list_.insert(std::make_pair(name, &ch_tmp));
+	Channel* ch_tmp = new Channel(name);
+	this->channel_list_.insert(std::make_pair(name, ch_tmp));
 	return this->GetChannel(name);
+}
+
+const char *Server::ServerException::what(void) const throw()
+{
+	return this->msg_.c_str();
 }

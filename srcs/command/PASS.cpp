@@ -29,6 +29,7 @@ void Command::PASS(Client &client, Server *server, const Message &message) {
 	}
 }
 
+
 void SendMessage(int fd, const std::string &message, int flag) {
 	send(fd, message.c_str(), message.size(), flag);
 }
