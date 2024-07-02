@@ -90,7 +90,7 @@ public:
 	void ExecuteCommand(int fd, const Message &message);
 
 	/* Client */
-	Client* FindClientByNickname(const std::string &nickname, Client &client);
+	Client* FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd);
 	void AddClient(const std::string &nickname, Client* client);
 
 	/* Channel */

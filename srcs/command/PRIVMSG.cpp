@@ -10,25 +10,20 @@ void PrintAllClients(Server &server);
 
 /* PRIVMSGコマンド(メッセージを送信する)
  * 引数1 -> クライアント
- * 引数2 -> パラメータのvector */
-void Command::PRIVMSG(Client &client, const std::vector<std::string> &params, Server &server) {
+ * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ
+ * 引数3 -> チャンネルのリスト */
+void Command::PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels) {
+	std::vector<std::string> params = message.GetParams();
+
 	if (!IsCorrectFormat(params, client))
 		return;
 
-	std::string target = params[0];
-	std::string message = params[1];
-	for (size_t i = 2; i < params.size(); ++i) {
-		message += " " + params[i];
-	}
-	// メッセージ先頭のコロンを削除
-	if (message[0] == ':')
-		message = message.substr(1);
+	const std::vector<std::string> target = SplitComma(params[0]);
+	const std::string message = params[1];
 
-	// channelは#から始まる
-	if (target[0] == '#')
-		SendToChannel(client, target, message, server);
-	else
-		SendToUser(client, target, message, server);
+	for (size_t i = 0; i < target.size(); ++i) {
+		SendPrivmsg(target[i], message, client, channels, map_nick_fd);
+	}
 }
 
 /* 正しいフォーマットかどうかを確認する関数
@@ -58,41 +53,41 @@ bool IsInMember(std::vector<Client *> const &members, std::string const &name) {
 	return false;
 }
 
-/* チャンネルへのメッセージ送信
- * 引数1 -> クライアント
- * 引数2 -> チャンネル名
- * 引数3 -> メッセージ */
-void SendToChannel(Client &client, const std::string &channel, const std::string &message, Server &server) {
-	int fd = client.GetFd();
 
-	//channel名からチャンネルオブジェクトを取得
-	Channel* targetChannel = server.FindChannelByName(channel);
+/* Private Messageを送信する関数
+ * 引数1 -> ターゲット
+ * 引数2 -> メッセージ
+ * 引数3 -> クライアント
+ * 引数4 -> チャンネルのリスト */
+void SendPrivmsg(const std::string &target, const std::string &message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd) {
+	std::string const &nick = client.GetNickname();
+	if (target[0] == '#') {
+		const std::string channelName = &target[1];
+		if (FindChannelForServer(channels, channelName) == false) {
+			SendMessage(client.GetFd(), ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
+		}
+		else {
+			const Channel &channel = channels[channelName];
+			const std::vector<Client *> &members = channel.GetMember();
 
-	//チャンネルオブジェクトが存在する場合、メッセージを送信
-	if (targetChannel)
-		SendMessage(fd, PRIVMSG_MESSAGE(channel, message), 0);
-	else
-		SendMessage(fd, ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
-}
-
-
-/* ユーザーへのメッセージ送信
- * 引数1 -> クライアント
- * 引数2 -> ユーザー名
- * 引数3 -> メッセージ
- * 引数4 -> サーバー */
-void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server) {
-	int fd = client.GetFd();
-	Client* targetClient = server.FindClientByNickname(target, client);
-	//nicknameからクライアントオブジェクトを取得
-	std::cout << "target = " << target << std::endl;
-	std::cout << "message = " << message << std::endl;
-
-	std::cout << "targetClient: " << targetClient << std::endl;
-
-	//クライアントオブジェクトが存在する場合、メッセージを送信
-	if (targetClient)
-		SendMessage(targetClient->GetFd(), PRIVMSG_MESSAGE(client.GetNickname(), message), 0);
-	else
-		SendMessage(fd, ERR_NOSUCHNICK(client.GetNickname()), 0);
+			/* check if they are in the channel */
+			if (IsInMember(members, client.GetNickname()) == false)
+				SendMessage(client.GetFd(), ERR_NOTJOINCHANNEL(client.GetNickname(), channelName), 0);
+			else {
+				for (std::vector<Client *>::const_iterator it = members.begin(); it != members.end(); it++) {
+					if ((*it)->GetNickname() != nick)
+						SendMessage((*it)->GetFd(), PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), "#" + channelName, message), 0);
+				}
+			}
+		}
+	}
+	else {
+		int fd;
+		const std::string target_nick = target;
+		if ((fd = map_nick_fd[target_nick]) == 0) {
+			SendMessage(client.GetFd(), ERR_NOSUCHNICK(client.GetNickname(), target_nick), 0);
+			return;
+		}
+		SendMessage(fd, PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), target_nick, message), 0);
+	}
 }

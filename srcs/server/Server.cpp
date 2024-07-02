@@ -105,6 +105,7 @@ void Server::ChatFlow(int fd) {
  * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
+	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
@@ -145,7 +146,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
-		Command::PRIVMSG(client, params, *this);
+		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
 	else if (cmd == "JOIN"){
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
@@ -375,7 +376,7 @@ Channel* Server::CreateChannel(const std::string& name)
 /* ニックネームからクライアントオブジェクトを取得する関数
  * 引数1 -> ニックネーム
  * 戻り値 -> クライアントオブジェクト またはNULL */
-Client* Server::FindClientByNickname(const std::string &nickname, Client &client) {
+Client* Server::FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd) {
 	std::cout << "Searching for nickname: " << nickname << std::endl;
 
 	// clientが新規の場合のみ追加する
@@ -397,7 +398,6 @@ Client* Server::FindClientByNickname(const std::string &nickname, Client &client
 		return NULL;
 	}
 }
-
 
 /* チャンネル名からチャンネルオブジェクトを取得する関数
  * 引数1 -> チャンネル名
