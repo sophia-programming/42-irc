@@ -79,9 +79,9 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	bool IsChannel(std::string& name);
-	Channel* GetChannel(std::string& name);
-	Channel* CreateChannel(std::string& name);
+	bool IsChannel(const std::string& name);
+	Channel* GetChannel( const std::string& name);
+	Channel* CreateChannel( const std::string& name);
 
 	/* setter */
 	void SetPassword(const std::string &password);
@@ -98,6 +98,15 @@ public:
 
 	/* debug */
 	std::vector<Client*> GetAllClients() const;
+
+	class ServerException : public std::exception{
+			private:
+				std::string msg_;
+			public:
+				ServerException(const std::string &msg):msg_(msg){};
+				virtual ~ServerException () throw() {};
+				virtual const char* what (void) const throw();
+	};
 };
 
 #endif
