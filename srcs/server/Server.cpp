@@ -423,14 +423,14 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 }
 
 /* デバッグ用関数 */
-std::vector<Client*> Server::GetAllClients() const {
-	std::vector<Client*> result;
-	for (std::map<std::string, Client*>::const_iterator it = clients_.begin(); it != clients_.end(); ++it) {
-		result.push_back(it->second);
-	}
-	return result;
+//std::vector<Client*> Server::GetAllClients() const {
+//	std::vector<Client*> result;
+//	for (std::map<std::string, Client*>::const_iterator it = clients_.begin(); it != clients_.end(); ++it) {
+//		result.push_back(it->second);
+//	}
+//	return result;
 
-const char *Server::ServerException::what(void) const throw()
-{
-	return this->msg_.c_str();
-}
+//const char *Server::ServerException::what(void) const throw()
+//{
+//	return this->msg_.c_str();
+//}

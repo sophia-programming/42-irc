@@ -43,6 +43,9 @@ class Channel{
 		// 招待リスト（nick_nameの配列）
 		std::vector<std::string> invate_users_;
 
+		// チャンネルメンバー
+		std::vector<Client*> members_;
+
 		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
 
 	public:
@@ -74,6 +77,7 @@ class Channel{
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
 		int GetLimit() const;
+		const std::vector<Client*>& GetMember() const;
 
 
 		Client* GetUser(const std::string& nick_name);

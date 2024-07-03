@@ -45,6 +45,7 @@ public:
 	const std::string &GetServername() const;
 	const std::string &GetRealname() const;
 	bool GetIsUserSet() const;
+	const Message& GetParsedMessage() const;
 
 
 	/* setter関数 */

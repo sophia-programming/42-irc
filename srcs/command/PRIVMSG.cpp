@@ -3,9 +3,7 @@
 /* PRIVMSG <target> :<message> */
 
 bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
-void SendToChannel(Client &client, const std::string &channel, const std::string &message, Server &server);
-void SendToUser(Client &client, const std::string &target, const std::string &message, Server &server);
-void PrintAllClients(Server &server);
+void SendPrivmsg(const std::string target, const std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd);
 
 
 /* PRIVMSGコマンド(メッセージを送信する)
@@ -13,7 +11,7 @@ void PrintAllClients(Server &server);
  * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ
  * 引数3 -> チャンネルのリスト */
 void Command::PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels) {
-	std::vector<std::string> params = message.GetParams();
+	std::vector<std::string> params = client.GetParsedMessage().GetParams();
 
 	if (!IsCorrectFormat(params, client))
 		return;
@@ -59,7 +57,7 @@ bool IsInMember(std::vector<Client *> const &members, std::string const &name) {
  * 引数2 -> メッセージ
  * 引数3 -> クライアント
  * 引数4 -> チャンネルのリスト */
-void SendPrivmsg(const std::string &target, const std::string &message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd) {
+void SendPrivmsg(const std::string target, const std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd) {
 	std::string const &nick = client.GetNickname();
 	if (target[0] == '#') {
 		const std::string channelName = &target[1];

@@ -75,7 +75,7 @@ void ClearClientInfo(
 		std::map<int, Client> &users,
 		std::map<std::string, int> &nick_to_fd
 );
-void SendPrivmsg(const std::string &target, const std::string &message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd);
+void SendPrivmsg(const std::string target, const std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd);
 bool FindChannelForServer(const std::map<std::string, Channel*> &channels, const std::string &channelName);
 
 #endif

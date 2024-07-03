@@ -95,6 +95,9 @@ bool Client::GetIsUserSet() const {
 	return this->is_user_set_;
 }
 
+const Message& Client::GetParsedMessage() const {
+	return parsed_msg_;
+}
 
 /* ====== setter関数 ====== */
 void Client::SetFd(int fd) {

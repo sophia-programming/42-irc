@@ -18,6 +18,7 @@
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
+#include "Utils.hpp"
 #include <signal.h> // for SIGINT in linux
 
 
