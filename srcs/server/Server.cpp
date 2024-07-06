@@ -112,7 +112,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 
 	// 初期接続時に許可されるコマンドの制限
 	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
-		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
+		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands).\n" + std::string(STOP), 0);
 //		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
 	}
@@ -148,11 +148,13 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
 	else if (cmd == "JOIN"){
-		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
 	}
 	else if (cmd == "KICK"){
 		Command::KICK(client, this, message);
+	}
+	else if (cmd == "INVITE"){
+		Command::INVITE(client, this, message);
 	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
