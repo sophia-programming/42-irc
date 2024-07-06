@@ -22,7 +22,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
         try{
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
-                Channel* ch = server->GetChannel(ch_name);
+                Channel* ch = server->FindChannelByName(ch_name);
                 if(ch->GetLimit() <= ch->users_.size()){ // エラー1 すでに満員
                     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
                     SendMessage(client.GetFd(), msg_to_c, 0);
@@ -66,7 +66,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             const std::string key = msg[1];
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
-                Channel* ch = server->GetChannel(ch_name);
+                Channel* ch = server->FindChannelByName(ch_name);
                 if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
                     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
                     SendMessage(client.GetFd(), msg_to_c, 0);

@@ -351,16 +351,16 @@ bool Server::IsChannel(const std::string& name) {
 }
 
 
-// チャンネル名から検索してchannelオブジェクトを取得する
-// 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(const std::string& name)
-{
-	Server::channel_iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return iter->second;
-	}
-	return NULL;
-}
+// // チャンネル名から検索してchannelオブジェクトを取得する
+// // 1:std::string& name -> 取得したいチャンネル名
+// Channel* Server::GetChannel(const std::string& name)
+// {
+// 	Server::channel_iterator iter = this->channel_list_.find(name);
+// 	if(iter != this->channel_list_.end()){
+// 		return iter->second;
+// 	}
+// 	return NULL;
+// }
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
@@ -371,20 +371,20 @@ Channel* Server::CreateChannel(const std::string& name)
 	}
 	Channel* ch_tmp = new Channel(name);
 	this->channel_list_.insert(std::make_pair(name, ch_tmp));
-	return this->GetChannel(name);
+	return this->FindChannelByName(name);
 }
 
 /* ニックネームからクライアントオブジェクトを取得する関数
  * 引数1 -> ニックネーム
  * 戻り値 -> クライアントオブジェクト またはNULL */
-Client* Server::FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd) {
+Client* Server::FindClientByNickname(const std::string &nickname) {
 	std::cout << "Searching for nickname: " << nickname << std::endl;
 
-	// clientが新規の場合のみ追加する
-	if (clients_.find(client.GetNickname()) == clients_.end()) {
-		std::cout << "Client not found in map, adding client: " << client.GetNickname() << std::endl;
-		AddClient(client.GetNickname(), &client);
-	}
+	// // clientが新規の場合のみ追加する
+	// if (clients_.find(client.GetNickname()) == clients_.end()) {
+	// 	std::cout << "Client not found in map, adding client: " << client.GetNickname() << std::endl;
+	// 	AddClient(client.GetNickname(), &client);
+	// }
 
 	// clients_からnicknameをキーにクライアントを検索
 	std::map<std::string, Client*>::iterator it = clients_.find(nickname);

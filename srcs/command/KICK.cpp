@@ -17,7 +17,7 @@ void Command::KICK(Client &client, Server *server, const Message &message)
     std::string msg_to_all;
 
     // std::cout << "ch " + ch_name << " user " + user_name << std::endl;
-    Channel* ch = server->GetChannel(ch_name);
+    Channel* ch = server->FindChannelByName(ch_name);
     if(!ch){  //エラー１　指定されたチャンネルが存在しない
         msg_to_c = ERR_NOSUCHCHANNEL(ch_name);
         SendMessage(client.GetFd(), msg_to_c, 0);

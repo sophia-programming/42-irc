@@ -1,10 +1,8 @@
 #include "Command.hpp"
 // INVITE コマンドの処理をする関数
-// 1: クライアント情報
-// 2: Server情報
-// 3: 受け取ったメッセージ
-
-
+// 1: Client &client -> クライアント情報
+// 2: Server *server -> Server情報
+// 3: const Message &message -> 受け取ったメッセージ
 void Command::INVITE(Client &client, Server *server, const Message &message)
 {
 	std::vector<std::string> msg = message.GetParams();
@@ -12,7 +10,7 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 
 	if(msg.size() < 2){
         //paramが不足していたらエラー
-		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname());
+		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "INVITE");
 		SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
     }
@@ -20,14 +18,14 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	std::string ch_name = msg[1];
 	std::string inviter = client.GetNickname();
 
-	if(/*invitedがサーバーのメンバーにいるか*/){ // エラー１　招待された人がサーバーにいない
+	if(!server->FindClientByNickname(invited)){ // エラー１　招待された人がサーバーにいない
 		msg_to_c = ERR_NOSUCHNICK(inviter, invited);
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return;
 	}
-	Channel* ch = server->GetChannel(ch_name);
+	Channel* ch = server->FindChannelByName(ch_name);
 	if(!ch){ // エラー２　指定されたチャンネルが存在しない
-		msg_to_c = ERR_NOSUCHNICK(inviter, invited);
+		msg_to_c = ERR_NOSUCHCHANNEL(inviter);
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return;
 	}

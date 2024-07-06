@@ -50,7 +50,7 @@ class Channel;
 #define INVITE_SUCCESS(nick,user,ip, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE invitedNick :" + ch_name+ "\r\n"
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
 // #define ERR_NEEDMOREPARAMS(nick) ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n"
-#define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
+// #define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
 // #define ERR_NOTONCHANNEL(inviter, ch_name) ":ft_irc 442 "+inviter+" "+ch_name+" :You're not on that channel\r\n"
 #define ERR_USERONCHANNEL(inviter, invited, ch_name) ":ft_irc 443 "+inviter+" "+invited+ " "+ch_name+" :is already on channel\r\n"
 

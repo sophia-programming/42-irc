@@ -80,7 +80,7 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	Channel* GetChannel( const std::string& name);
+	// Channel* GetChannel( const std::string& name);
 	Channel* CreateChannel( const std::string& name);
 	bool IsChannel(const std::string& name);
 
@@ -91,7 +91,7 @@ public:
 	void ExecuteCommand(int fd, const Message &message);
 
 	/* Client */
-	Client* FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd);
+	Client* FindClientByNickname(const std::string &nickname);
 	void AddClient(const std::string &nickname, Client* client);
 
 	/* Channel */
