@@ -1,10 +1,10 @@
 #include "Command.hpp"
 
+/* USER <username> <hostname> <servername> <realname> */
 
-/* USERコマンドの処理を行う関数
+/* USERコマンド(ユーザー情報を設定する)
  * 引数1 -> クライアント
- * Command: USER
- * Parameters: <username> <hostname> <servername> <realname>*/
+ * 引数2 -> メッセージ */
 
 void Command::USER(Client &client, const Message &message) {
 	int fd = client.GetFd();

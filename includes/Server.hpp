@@ -12,13 +12,14 @@
 #include <map> // for std::map
 #include <stdlib.h> // for exit()
 #include <string> // for std::string
+#include <signal.h> // for SIGINT in linux
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
-#include <signal.h> // for SIGINT in linux
+#include "Utils.hpp"
 
 
 const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
@@ -56,6 +57,9 @@ private:
 	typedef std::map<std::string, Channel*>::iterator channel_iterator;
 	std::map<std::string, Channel*> channel_list_;
 
+	//clientのリスト(nicknameをキーにして検索)
+	std::map<std::string, Client *> clients_;
+
 
 public:
 	Server();
@@ -86,6 +90,16 @@ public:
 	/* Command */
 	void ExecuteCommand(int fd, const Message &message);
 
+	/* Client */
+	Client* FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd);
+	void AddClient(const std::string &nickname, Client* client);
+
+	/* Channel */
+	Channel* FindChannelByName(const std::string &name);
+
+	/* debug */
+	std::vector<Client*> GetAllClients() const;
+
 	class ServerException : public std::exception{
 			private:
 				std::string msg_;
@@ -94,7 +108,6 @@ public:
 				virtual ~ServerException () throw() {};
 				virtual const char* what (void) const throw();
 	};
-
 };
 
 #endif
