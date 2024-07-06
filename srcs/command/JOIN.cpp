@@ -176,6 +176,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             }
         }catch(const std::exception& e){
             std::cerr << "Exception caught: " << e.what() << std::endl;
+            SendMessage(client.GetFd(), "Error\n", 0);
             return;
         }
     }
