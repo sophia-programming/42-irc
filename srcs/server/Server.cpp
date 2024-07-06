@@ -5,6 +5,9 @@ Server::Server(): channel_list_(){}
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
 Server::~Server() {
+	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		delete it->second;
+	}
 	CloseFds();
 }
 
@@ -102,6 +105,7 @@ void Server::ChatFlow(int fd) {
  * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
+	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
@@ -123,7 +127,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 			client.SetIsConnected(true);
 		}
 	} else if (cmd == "USER") {
-		if (client.GetIsUserSet())
+		if (!client.GetIsUserSet())
 			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
 		else {
 			Command::USER(client, message);
@@ -141,6 +145,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PASS(client, this, password_);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
+	else if (cmd == "PRIVMSG")
+		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
 	else if (cmd == "JOIN"){
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
@@ -365,6 +371,64 @@ Channel* Server::CreateChannel(const std::string& name)
 	Channel* ch_tmp = new Channel(name);
 	this->channel_list_.insert(std::make_pair(name, ch_tmp));
 	return this->GetChannel(name);
+}
+
+/* ニックネームからクライアントオブジェクトを取得する関数
+ * 引数1 -> ニックネーム
+ * 戻り値 -> クライアントオブジェクト またはNULL */
+Client* Server::FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd) {
+	std::cout << "Searching for nickname: " << nickname << std::endl;
+
+	// clientが新規の場合のみ追加する
+	if (clients_.find(client.GetNickname()) == clients_.end()) {
+		std::cout << "Client not found in map, adding client: " << client.GetNickname() << std::endl;
+		AddClient(client.GetNickname(), &client);
+	}
+
+	// clients_からnicknameをキーにクライアントを検索
+	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
+
+	if (it != clients_.end()) {
+		std::cout << "it->first = " << it->first << std::endl;
+		std::cout << "it->second = " << it->second << std::endl;
+		std::cout << "Client found = " << it->second->GetNickname() << std::endl;
+		return it->second;
+	} else {
+		std::cout << "Client not found for nickname: " << nickname << std::endl;
+		return NULL;
+	}
+}
+
+/* チャンネル名からチャンネルオブジェクトを取得する関数
+ * 引数1 -> チャンネル名
+ * 戻り値 -> チャンネルオブジェクト またはNULL */
+Channel* Server::FindChannelByName(const std::string &name) {
+	std::map<std::string, Channel*>::iterator it = channel_list_.find(name);
+
+	// channelが見つかった場合、channelオブジェクトを返す
+	if (it != channel_list_.end())
+		return it->second;
+	else {
+		std::cout << "Channel not found for name: " << name << std::endl;
+		return NULL;
+	}
+}
+
+/* クライアントを追加する関数（nicknameとクライアントオブジェクトをマップに追加）
+ * 引数1 -> ニックネーム
+ * 引数2 -> クライアントオブジェクト */
+void Server::AddClient(const std::string &nickname, Client* clientPointer) {
+	// nicknameとクライアントオブジェクトをマップに追加
+	clients_.insert(std::make_pair(nickname, clientPointer));
+}
+
+/* デバッグ用関数 */
+std::vector<Client*> Server::GetAllClients() const {
+	std::vector<Client*> result;
+	for (std::map<std::string, Client*>::const_iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		result.push_back(it->second);
+	}
+	return result;
 }
 
 const char *Server::ServerException::what(void) const throw()
