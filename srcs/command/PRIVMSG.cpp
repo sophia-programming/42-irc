@@ -57,15 +57,14 @@ bool IsInMember(std::vector<Client *> const &members, std::string const &name) {
  * 引数2 -> メッセージ
  * 引数3 -> クライアント
  * 引数4 -> チャンネルのリスト */
-void SendPrivmsg(const std::string target, const std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd) {
+void SendPrivmsg(const std::string target, std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd) {
 	std::string const &nick = client.GetNickname();
 	if (target[0] == '#') {
 		const std::string channelName = &target[1];
-		if (FindChannelForServer(channels, channelName) == false) {
+		if (FindChannelForServer(channels, channelName) == false)
 			SendMessage(client.GetFd(), ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
-		}
 		else {
-			const Channel &channel = channels[channelName];
+			const Channel &channel = *channels[channelName];
 			const std::vector<Client *> &members = channel.GetMember();
 
 			/* check if they are in the channel */
@@ -73,8 +72,10 @@ void SendPrivmsg(const std::string target, const std::string message, Client &cl
 				SendMessage(client.GetFd(), ERR_NOTJOINCHANNEL(client.GetNickname(), channelName), 0);
 			else {
 				for (std::vector<Client *>::const_iterator it = members.begin(); it != members.end(); it++) {
-					if ((*it)->GetNickname() != nick)
-						SendMessage((*it)->GetFd(), PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), "#" + channelName, message), 0);
+					if ((*it)->GetNickname() != nick) {
+						std::string messageContent = PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), "#" + channelName, message);
+						SendMessage((*it)->GetFd(), messageContent, 0);
+					}
 				}
 			}
 		}
@@ -86,6 +87,7 @@ void SendPrivmsg(const std::string target, const std::string message, Client &cl
 			SendMessage(client.GetFd(), ERR_NOSUCHNICK(client.GetNickname(), target_nick), 0);
 			return;
 		}
-		SendMessage(fd, PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), target_nick, message), 0);
+		std::string messageContent2 = PRIVMSG_MESSAGE(nick, client.GetUsername(), client.GetHostname(), target_nick, message);
+		SendMessage(fd, messageContent2, 0);
 	}
 }

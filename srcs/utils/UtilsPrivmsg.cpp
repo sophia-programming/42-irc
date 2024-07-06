@@ -20,3 +20,16 @@ const std::vector<std::string> SplitComma(const std::string &param)
 	}
 	return channels;
 }
+
+/* サーバー用のチャンネルを見つける関数
+ * 引数1 -> チャンネルのリスト
+ * 引数2 -> ターゲット */
+bool FindChannelForServer(std::map<std::string, Channel*> &channels, const std::string &target) {
+	for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+		const std::string &channelName = (*it).first;
+		if (channelName == target)
+			return true;
+	}
+	return false;
+}
+

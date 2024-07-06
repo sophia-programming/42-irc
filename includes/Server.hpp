@@ -12,6 +12,7 @@
 #include <map> // for std::map
 #include <stdlib.h> // for exit()
 #include <string> // for std::string
+#include <signal.h> // for SIGINT in linux
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
@@ -19,7 +20,6 @@
 #include "Channel.hpp"
 #include "Command.hpp"
 #include "Utils.hpp"
-#include <signal.h> // for SIGINT in linux
 
 
 const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
