@@ -156,6 +156,12 @@ const User_Priv Channel::GetPriv(const std::string& nick_name)
     return P_None;
 }
 
+// チャンネルメンバーを取得する関数
+// 1:const std::vector<Client*>& -> メンバーのリスト
+const std::vector<Client*>& Channel::GetMember() const {
+	return members_;
+}
+
 // mapの要素としてChannel classを扱うための比較演算子オーバーロード
 bool Channel::operator<(const Channel &other) const
 {

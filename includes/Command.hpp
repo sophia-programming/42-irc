@@ -5,10 +5,13 @@
 #include "Client.hpp"
 #include "Message.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
+#include "Utils.hpp"
 
 class Server;
 class Client;
 class Message;
+class Channel;
 
 // Welcomeメッセージ(001 ~ 004)
 #define RPL_WELCOME(nick) ":ft_irc 001 " + nick + " :Welcome to the Internet Relay Chat Network \r\n"
@@ -25,8 +28,12 @@ class Message;
 // CAP LSメッセージ (CAPコマンドのレスポンス)
 #define CAP_LS ":ft_irc CAP * LS\r\n"
 #define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
+#define PRIVMSG_MESSAGE(nick, user, host, target, msg) ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + msg + "\r\n";
 
 // エラーメッセージ
+#define ERR_NOSUCHNICK(nick, target) ":ft_irc 401 " + nick + " " + target  + " :No such nick\r\n"
+#define ERR_NOTJOINCHANNEL(nick, channelName) ":ft_irc 404 " + nick + " #" + channelName + " :Cannot send to channel (+n)\r\n"
+#define ERR_NOTEXTTOSEND(nick) "412 " + nick + " :No text to send\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
 #define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, nickname) ":ft_irc 433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
@@ -59,6 +66,7 @@ namespace Command{
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
 	void PONG(Client &client, const std::vector<std::string> &params);
+	void PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);
@@ -69,5 +77,7 @@ void ClearClientInfo(
 		std::map<int, Client> &users,
 		std::map<std::string, int> &nick_to_fd
 );
+void SendPrivmsg(const std::string target, std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd);
+bool FindChannelForServer(const std::map<std::string, Channel*> &channels, const std::string &channelName);
 
 #endif
