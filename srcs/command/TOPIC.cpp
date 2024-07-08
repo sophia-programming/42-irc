@@ -20,8 +20,10 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 
 	Channel* ch = server->GetChannel(ch_name);
 
+	 std::cout << "<<" << ch_name << ">>" << std::endl;
 	// チャンネルが存在しない場合
 	if(!ch){
+		std::cout << "!ch" << std::endl;
 		msg_to_c = ERR_NOSUCHCHANNEL(client.GetNickname());
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;

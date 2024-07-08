@@ -154,6 +154,10 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "KICK"){
 		Command::KICK(client, this, message);
 	}
+	else if (cmd == "TOPIC"){
+		std::cout << "<<TOPIC>>" << std::endl;
+		Command::TOPIC(client, this, message);
+	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
