@@ -7,6 +7,7 @@
  * 引数3 -> メッセージ */
 void Command::TOPIC(Client &client, Server *server, const Message &message)
 {
+	// std::cout << "[[" << message.GetParams()[0] << "\n" << message.GetParams()[1] << "\n" << message.GetParams()[2] << "]]" << "\n";
 	if(message.GetParams().size() < 1){
 		//paramが不足していたらエラー
 		return ;
@@ -27,12 +28,13 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		// doesn't exist
 	}
 	//クライアントがチャンネルに参加していない場合
-	else if(ch->GetPriv(client.GetUsername())  == P_None){
-		msg_to_c = ERR_NOTONCHANNEL(client.GetNickname(), ch_name);
-		SendMessage(client.GetFd(), msg_to_c, 0);
-		return ;
+	// else if(ch->GetPriv(client.GetUsername()) == P_None){
+	// 	std::cout << "<<test>>\n";
+	// 	msg_to_c = ERR_NOTONCHANNEL(client.GetNickname(), ch_name);
+	// 	SendMessage(client.GetFd(), msg_to_c, 0);
+	// 	return ;
 		//you need oprator priv
-	}
+	// }
 	// チャンネルのトピックを設定
 	if(message.GetParams().size() == 2){
 		topic = message.GetParams()[1];
@@ -42,7 +44,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 	}
 	// チャンネルのトピックを取得
 	else{
-		msg_to_all = client.GetNickname() + "! TOPIC " + ch_name + " :"+ ch->GetTopic();
+		msg_to_all = client.GetNickname() + "! TOPIC " + ch_name + " :"+ ch->GetTopic() + "\n";
 		ch->SendMsgToAll(msg_to_all);
 	}
 }
