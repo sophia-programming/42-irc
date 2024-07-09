@@ -108,41 +108,33 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
-	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-
-	// 初期接続時に許可されるコマンドの制限
-	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
-		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
-//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
-		return;
-	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "NICK") {
-		Command::NICK(client, map_nick_fd_, server_channels_, message);
-		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
-			SendWelcomeMessage(client);
-			client.SetIsConnected(true);
-		}
-	} else if (cmd == "USER") {
-		if (!client.GetIsUserSet())
-			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
-		else {
-			Command::USER(client, message);
-			client.SetIsUserSet(true);
-			if (client.GetIsNick() && !client.GetIsWelcome()) {
-				SendWelcomeMessage(client);
-				client.SetIsConnected(true);
-				client.SetIsWelcome(true);
-			}
-		}
+	// クライアントが認証されていない場合
+	if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK" &&
+		cmd != "USER" && cmd != "CAP") {
+		ClearClientInfo(client, fds_, users_, map_nick_fd_);
+		return;
 	}
-	else if (cmd == "CAP")
+	// クライアントがニックネームを設定していない場合
+	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
+		Command::NICK(client, map_nick_fd_, server_channels_, message);
+		if (client.GetIsNick())
+			SendWelcomeMessage(client);
+		return;
+	}
+
+	// コマンドの処理
+	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	else if (cmd == "PASS")
 		Command::PASS(client, this, password_);
+	else if (cmd == "USER")
+		Command::USER(client, message);
+	else if (cmd == "NICK")
+		Command::NICK(client, map_nick_fd_, server_channels_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")

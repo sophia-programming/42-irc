@@ -24,8 +24,6 @@ void Command::PASS(Client &client, Server *server, const Message &message) {
 	// パスワードが正しい場合
 	if (password == server_password) {
 		client.SetIsAuthenticated(); // 認証済みに設定
-		SendWelcomeMessage(client); // Welcomeメッセージを送信
-
 	}
 }
 
