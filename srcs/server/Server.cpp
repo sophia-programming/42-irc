@@ -121,7 +121,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	cmd = Trim(cmd);
 
 	if (cmd == "NICK") {
-		Command::NICK(client, map_nick_fd_, message);
+		Command::NICK(client, map_nick_fd_, server_channels_, message);
 		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
 			SendWelcomeMessage(client);
 			client.SetIsConnected(true);
@@ -329,6 +329,10 @@ std::map<int, Client> Server::GetUsers() {
 
 int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
+}
+
+std::map<std::string, Channel>& Server::GetChannels() {
+	return server_channels_;
 }
 
 
