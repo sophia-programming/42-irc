@@ -7,7 +7,7 @@ bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> cons
  * 引数1 -> クライアント
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
-void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message) {
+void Command::NICK(Client &client, Server *server,std::map<std::string, int> &map_nick_fd, const Message &message) {
 	int fd = client.GetFd();
 
 	//　引数がない場合　例）NICK
@@ -40,6 +40,9 @@ void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, cons
 		client.SetIsWelcome(true);
 		// ニックネームを設定
 		client.SetNickname(NewNick);
+
+		server->AddClient(NewNick, &client);
+
 		// もしクライアントが認証済みの場合
 		if (client.GetIsAuthenticated())
 			SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);

@@ -8,6 +8,7 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	std::vector<std::string> msg = message.GetParams();
 	std::string msg_to_c;
 
+
 	if(msg.size() < 2){
         //paramが不足していたらエラー
 		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "INVITE");
@@ -48,6 +49,6 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	}
 
 	ch->AddUserinInvite(invited);
-	msg_to_c = INVITE_SUCCESS(inviter, client.GetUsername(), client.GetIpAdress(), ch_name);
+	msg_to_c = INVITE_SUCCESS(inviter, client.GetUsername(), client.GetIpAdress(), invited, ch_name);
 	SendMessage(client.GetFd(), msg_to_c, 0);
 }

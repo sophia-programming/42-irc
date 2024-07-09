@@ -13,7 +13,6 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     }
     // クライアントに送信するメッセージ
     std::string msg_to_c;
-    std::cout <<"msg size " << msg.size() << " [1] " << msg[0] << "\n" << "2 " << msg[1] << std::endl;
 
     // チャンネル名
     const std::string ch_name = msg[0];

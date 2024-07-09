@@ -121,7 +121,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	cmd = Trim(cmd);
 
 	if (cmd == "NICK") {
-		Command::NICK(client, map_nick_fd_, message);
+		Command::NICK(client, this, map_nick_fd_, message);
 		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
 			SendWelcomeMessage(client);
 			client.SetIsConnected(true);
@@ -250,6 +250,9 @@ void Server::CloseFds() {
 		client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
 		// add client to vector
 		connected_clients.push_back(client);
+
+		// Client* client_p = new Client(incomingfd, client.GetNickname());
+		// AddClient(client.GetNickname(), client_p);
 
 		// call MakePoll with the new client's fd
 		MakePoll(incomingfd);
@@ -387,11 +390,15 @@ Client* Server::FindClientByNickname(const std::string &nickname) {
 	// 	std::cout << "Client not found in map, adding client: " << client.GetNickname() << std::endl;
 	// 	AddClient(client.GetNickname(), &client);
 	// }
+	std::map<std::string, Client*>::iterator iter = this->clients_.begin();
+	while(iter != this->clients_.end()){
+		std::cout << "find " << iter->first << std::endl;
+		iter++;
+	}
+	// clients_からnicknameをキーにクライアン<トを検索
+	std::map<std::string, Client*>::iterator it = this->clients_.find(nickname);
 
-	// clients_からnicknameをキーにクライアントを検索
-	std::map<std::string, Client*>::iterator it = clients_.find(nickname);
-
-	if (it != clients_.end()) {
+	if (it != this->clients_.end()) {
 		std::cout << "it->first = " << it->first << std::endl;
 		std::cout << "it->second = " << it->second << std::endl;
 		std::cout << "Client found = " << it->second->GetNickname() << std::endl;

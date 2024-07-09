@@ -16,7 +16,6 @@ void Command::KICK(Client &client, Server *server, const Message &message)
     std::string user_name = message.GetParams()[1];
     std::string msg_to_all;
 
-    // std::cout << "ch " + ch_name << " user " + user_name << std::endl;
     Channel* ch = server->FindChannelByName(ch_name);
     if(!ch){  //エラー１　指定されたチャンネルが存在しない
         msg_to_c = ERR_NOSUCHCHANNEL(ch_name);
@@ -35,7 +34,6 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         return ;
     }
     msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name;
-    std::cout << msg_to_all << std::endl;
     if(message.GetParams().size() == 3){
         msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name + message.GetParams()[2];
     }

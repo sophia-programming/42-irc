@@ -47,7 +47,6 @@ void Message::ParseCommand(const std::string &message, int &i) {
 		i++;
 }
 
-
 /*IRCメッセージのパラメータを解析する関数
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
@@ -70,6 +69,7 @@ void Message::ParseParams(const std::string &message, int &i) {
 		while (i < message.size() && message[i] == ' ')
 			i++;
 	}
+	rtrim(params_.back());
 }
 
 /* メッセージバッファをクリアする関数 */

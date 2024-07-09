@@ -47,7 +47,7 @@ class Channel;
 #define ERR_USERNOTINCHANNEL(nick, ch_name) ":ft_irc 441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 #define ERR_PASSWDMISMATCH(nick) "464 " + nick + " :Password incorrect\r\n"
 
-#define INVITE_SUCCESS(nick,user,ip, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE invitedNick :" + ch_name+ "\r\n"
+#define INVITE_SUCCESS(nick,user,ip, invited, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE "+invited+" :" + ch_name+ "\r\n"
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
 // #define ERR_NEEDMOREPARAMS(nick) ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n"
 // #define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
@@ -64,7 +64,7 @@ class Channel;
 
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
-    void NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message);
+    void NICK(Client &client, Server *server,std::map<std::string, int> &map_nick_fd, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
