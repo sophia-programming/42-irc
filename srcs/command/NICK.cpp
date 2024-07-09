@@ -41,6 +41,7 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		// ニックネームを設定
 		client.SetNickname(NewNick);
 
+		server->RmClient(OldNick);
 		server->AddClient(NewNick, &client);
 
 		// もしクライアントが認証済みの場合

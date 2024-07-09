@@ -432,6 +432,17 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
+/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
+ * 引数1 -> ニックネーム
+ * 引数2 -> クライアントオブジェクト */
+void Server::RmClient(const std::string &nickname) {
+	// nicknameとクライアントオブジェクトをマップに追加
+	std::map<std::string, Client *>::iterator iter = this->clients_.find(nickname);
+	if(iter != this->clients_.end()){
+		clients_.erase(iter);
+	}
+}
+
 /* デバッグ用関数 */
 std::vector<Client*> Server::GetAllClients() const {
 	std::vector<Client*> result;
