@@ -8,11 +8,11 @@ bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> cons
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
 void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, const Message &message) {
-	int fd = client.GetFd();
+	const int &fd = client.GetFd();
 
 	//　引数がない場合　例）NICK
 	if (message.GetParams().size() < 1){
-		SendMessage(fd, std::string(YELLOW) + ERR_NEEDMOREPARAMS(client.GetNickname(), "NICK") + std::string(STOP), 0);
+		SendMessage(fd, ERR_NONICKNAMEGIVEN, 0);
 		return ;
 	}
 
