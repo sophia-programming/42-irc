@@ -18,8 +18,9 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	std::string invited = msg[0];
 	std::string ch_name = msg[1];
 	std::string inviter = client.GetNickname();
+	Client* invited_c = server->FindClientByNickname(invited);
 
-	if(!server->FindClientByNickname(invited)){ // エラー１　招待された人がサーバーにいない
+	if(!invited_c){ // エラー１　招待された人がサーバーにいない
 		msg_to_c = ERR_NOSUCHNICK(inviter, invited);
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return;
@@ -51,4 +52,5 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	ch->AddUserinInvite(invited);
 	msg_to_c = INVITE_SUCCESS(inviter, client.GetUsername(), client.GetIpAdress(), invited, ch_name);
 	SendMessage(client.GetFd(), msg_to_c, 0);
+	SendMessage(invited_c->GetFd(), msg_to_c, 0);
 }
