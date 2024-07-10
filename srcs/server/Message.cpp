@@ -16,6 +16,7 @@ Message::Message(const std::string &message) : original_message_(message) {
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
 void Message::ParsePrefix(const std::string &message, int &i) {
+	// i = 1は、メッセージの最初がコロン : で始まるため、その次の文字から開始するため
 	i = 1;
 
 	// プレフィックスがない場合(プレフィックスはコロン : で始まり、最初の空白文字 まで続く)
