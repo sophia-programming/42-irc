@@ -16,17 +16,17 @@ Message::Message(const std::string &message) : original_message_(message) {
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
 void Message::ParsePrefix(const std::string &message, int &i) {
-	if (message[i] == ':') {
+	i = 1;
+
+	// プレフィックスがない場合(プレフィックスはコロン : で始まり、最初の空白文字 まで続く)
+	while (message[i] != ' ') {
+		prefix_.append(&message[i], 1);
 		i++;
-		size_t pos = message.find(' ', i);
-		if (pos != std::string::npos) {
-			prefix_ = message.substr(i, pos - i);
-			i = pos + 1;
-		}
-		// スペースをスキップ
-		while (i < message.size() && message[i] == ' ')
-			i++;
 	}
+
+	// スペースをスキップ
+	while(message[i] == ' ')
+		i++;
 }
 
 
@@ -34,16 +34,16 @@ void Message::ParsePrefix(const std::string &message, int &i) {
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
 void Message::ParseCommand(const std::string &message, int &i) {
-	size_t pos = message.find(' ', i);
-	if (pos != std::string::npos) {
-		command_ = message.substr(i, pos - i);
-		i = pos + 1;
-	} else {
-		command_ = message.substr(i);
-		i = message.size();
+
+	// message[i]がスペースでない場合、コマンドを取得
+	while (message[i] != ' ' && message[i] != '\r' && message[i] != '\n')
+	{
+		command_.append(&message[i], 1);
+		i++;
 	}
+
 	// スペースをスキップ
-	while (i < message.size() && message[i] == ' ')
+	while (message[i] == ' ')
 		i++;
 }
 
@@ -52,23 +52,35 @@ void Message::ParseCommand(const std::string &message, int &i) {
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
 void Message::ParseParams(const std::string &message, int &i) {
-	while (i < message.size() && message[i] != '\r' && message[i] != '\n') {
-		if (message[i] == ':') {
-			i++; // skip ':'
-			params_.push_back(message.substr(i));
-			break;
+
+	// パラメータがない場合
+	while (message[i] != '\r' && message[i] != '\n' && message[i] != '\0')
+	{
+		std::string param;
+
+		// パラメータがコロンで始まる場合(例: :irc.example.com), パラメータを取得
+		if (message[i] == ':')
+		{
+			i += 1;
+			while (message[i] != '\r' && message[i] != '\n')
+			{
+				param.append(&message[i], 1);
+				i++;
+			}
 		}
-		size_t pos = message.find(' ', i);
-		if (pos != std::string::npos) {
-			params_.push_back(message.substr(i, pos - i));
-			i = pos + 1;
-		} else {
-			params_.push_back(message.substr(i));
-			break;
-		}
-		// スペースをスキップ
-		while (i < message.size() && message[i] == ' ')
+
+		// message[i]がスペースでない場合、パラメータを取得
+		while (message[i] != ' ' && message[i] != '\r' && message[i] != '\n')
+		{
+			param.append(&message[i], 1);
 			i++;
+		}
+
+		// スペースをスキップ
+		i++;
+
+		// パラメータを追加
+		params_.push_back(param);
 	}
 }
 
