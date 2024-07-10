@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Utils.hpp"
 
 /* コマンドの前後の空白を取り除く
 	 * find_last_not_of() -> 末尾の空白を削除

@@ -6,6 +6,10 @@
 #include "Channel.hpp"
 #include "Utils.hpp"
 
+class Server;
+class Message;
+class Channel;
+
 class Client {
 private:
 	int fd_; //client file descriptor
