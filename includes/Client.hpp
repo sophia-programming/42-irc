@@ -2,9 +2,9 @@
 #define CLIENT_HPP
 
 #include "Server.hpp"
-#include "Message.hpp"
 #include "Channel.hpp"
 #include "Utils.hpp"
+#include "Message.hpp"
 
 class Server;
 class Message;

@@ -26,7 +26,7 @@ const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
 
 class Channel;
 class Client;
-class Message;
+// class Message;
 
 bool ValidateArgs(int argc, char **argv);
 std::string Trim(const std::string &str);

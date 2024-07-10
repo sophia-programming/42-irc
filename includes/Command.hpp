@@ -3,15 +3,15 @@
 
 #include "Server.hpp"
 #include "Client.hpp"
-#include "Message.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Utils.hpp"
+#include "Message.hpp"
 
-class Server;
 class Client;
-class Message;
+class Server;
 class Channel;
+class Message;
 
 // Welcomeメッセージ(001 ~ 004)
 #define RPL_WELCOME(nick) ":ft_irc 001 " + nick + " :Welcome to the Internet Relay Chat Network \r\n"

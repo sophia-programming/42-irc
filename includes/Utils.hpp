@@ -11,6 +11,6 @@ class Channel;
 
 const std::vector<std::string> SplitComma(const std::string &param);
 bool FindChannelForServer(std::map<std::string, Channel*> &channels, const std::string &target);
-void rtrim(std::string& str);
+// void rtrim(std::string& str);
 
 #endif
