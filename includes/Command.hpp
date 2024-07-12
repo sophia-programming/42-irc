@@ -35,6 +35,7 @@ class Message;
 #define ERR_NOTJOINCHANNEL(nick, channelName) ":ft_irc 404 " + nick + " #" + channelName + " :Cannot send to channel (+n)\r\n"
 #define ERR_NOTEXTTOSEND(nick) "412 " + nick + " :No text to send\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
+#define ERR_NONICKNAMEGIVEN ":ft_irc 431 :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, nickname) ":ft_irc 433 " + nick + " " + nickname + " :Nickname is already in use\r\n"
 #define ERR_NOTREGISTERED(nick) ":ft_irc 451 " + nick + " :You have not registered\r\n"
@@ -64,16 +65,16 @@ class Message;
 
 namespace Command{
     void PASS(Client &client, Server *server, const Message &message);
-    void NICK(Client &client, Server *server,std::map<std::string, int> &map_nick_fd, const Message &message);
+  	void NICK(Client &client, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
     void INVITE(Client &client, Server *server, const Message &message);
-	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
+  	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
-	void PONG(Client &client, const std::vector<std::string> &params);
-	void PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels);
+	  void PONG(Client &client, const std::vector<std::string> &params);
+  	void PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);
