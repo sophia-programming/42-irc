@@ -8,9 +8,10 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 	std::vector<std::string> msg = message.GetParams();
 	std::string msg_to_c;
 
-
+	std::cout << "msg size "  << msg.size() << std::endl;
 	if(msg.size() < 2){
         //paramが不足していたらエラー
+		std::cout << "aaaa" << std::endl;
 		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "INVITE");
 		SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
