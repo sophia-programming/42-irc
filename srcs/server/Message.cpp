@@ -51,7 +51,7 @@ void Message::ParseCommand(const std::string &message, int &i) {
 //stringの末尾の改行を削除する関数
 // 1:std::string& str ->対象のstring
 void rtrim(std::string& str) {
-    std::string::size_type i = str.find_last_not_of(" \t\n\r");
+    std::string::size_type i = str.find_last_not_of("\n");
     if (i == std::string::npos) {
         str.clear(); // 全て空白文字の場合は空にする
     } else {
@@ -81,7 +81,9 @@ void Message::ParseParams(const std::string &message, int &i) {
 		while (i < message.size() && message[i] == ' ')
 			i++;
 	}
-	rtrim(params_.back());
+	if(!params_.empty()){
+		rtrim(params_.back());
+	}
 }
 
 /* メッセージバッファをクリアする関数 */
