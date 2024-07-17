@@ -63,6 +63,7 @@ class Channel{
 
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
+		void RmUserFromOperator(const std::string& user);
 
 		// setter
 		void SetToic(const std::string& topic);
@@ -85,9 +86,10 @@ class Channel{
 		const User_Priv GetPriv(const std::string& nick_name);
 		bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
+		bool IsOperator(const std::string &nickname);
 
 
-		void SendMsgToAll(const std::string& msg);
+	void SendMsgToAll(const std::string& msg);
 
 		class ChannelException : public std::exception{
 			private:
