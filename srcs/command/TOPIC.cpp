@@ -18,9 +18,15 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 	std::string msg_to_c;
 	std::string msg_to_all;
 
-	Channel* ch = server->GetChannel(ch_name);
+	Channel* ch = server->GetChannel("#ch\n");
+	// Channel* ch = server->GetChannel(ch_name);
+	// チャンネル名の最後に改行がついてないと、検索引っかからないため、一旦チャンネル名固定
+	// 検索できるようになったら、コメントアウトのコードに変更する
 
 	 std::cout << "<<" << ch_name << ">>" << std::endl;
+	//  std::cout << "<<" << ch->GetName() << ">>" << std::endl;
+	//テスト出力
+
 	// チャンネルが存在しない場合
 	if(!ch){
 		std::cout << "!ch" << std::endl;
@@ -30,14 +36,14 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		// doesn't exist
 	}
 	//クライアントがチャンネルに参加していない場合
-	// else if(ch->GetPriv(client.GetUsername()) == P_None){
-	// 	std::cout << "<<test>>\n";
-	// 	msg_to_c = ERR_NOTONCHANNEL(client.GetNickname(), ch_name);
-	// 	SendMessage(client.GetFd(), msg_to_c, 0);
-	// 	return ;
+	else if(ch->GetPriv(client.GetUsername()) == P_None){
+		std::cout << "<<test>>\n";
+		msg_to_c = ERR_NOTONCHANNEL(client.GetNickname(), ch_name);
+		SendMessage(client.GetFd(), msg_to_c, 0);
+		return ;
 		//you need oprator priv
-	// }
-	// チャンネルのトピックを設定
+	}
+	//チャンネルのトピックを設定
 	if(message.GetParams().size() == 2){
 		topic = message.GetParams()[1];
 		ch->SetToic(topic);
