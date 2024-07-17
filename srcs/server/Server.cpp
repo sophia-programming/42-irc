@@ -128,7 +128,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	// クライアントがニックネームを設定していない場合
 	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
-		Command::NICK(client, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 		if (client.GetIsNick())
 			SendWelcomeMessage(client);
 		return;
