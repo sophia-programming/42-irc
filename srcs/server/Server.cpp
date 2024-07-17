@@ -142,7 +142,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "USER")
 		Command::USER(client, message);
 	else if (cmd == "NICK")
-		Command::NICK(client, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
