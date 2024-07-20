@@ -59,7 +59,7 @@ void Server::ChatFlow(int fd) {
 
 	// データを受信
 	ssize_t bytes = recv(fd, received_data, sizeof(received_data), 0);
-	if (bytes <= 0) {
+	if (bytes < 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
 		ClearClients(fd);
 		close(fd);
@@ -110,7 +110,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	const std::vector<std::string> &params = message.GetParams();
 
 	/* コマンドの前後の空白を取り除く */
-	cmd = Trim(cmd);
+//	cmd = Trim(cmd);
 
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
