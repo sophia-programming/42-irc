@@ -163,7 +163,6 @@ Client* Channel::GetUser(const std::string& nick_name)
     }
     return NULL;
 }
-
 //指定したユーザーの権限を取得する
 //1:std::string nick_name->権限を知りたいユーザーのニックネーム
 const User_Priv Channel::GetPriv(const std::string& nick_name)
