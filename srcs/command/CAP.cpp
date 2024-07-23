@@ -42,12 +42,8 @@ void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
  * 引数1 -> クライアントのソケットファイルディスクリプタ
  * 引数2 -> 送信するメッセージ
  * 引数3 -> 送信するメッセージのサイズ */
-void ClearClientInfo(
-		Client &client,
-		std::vector<struct pollfd> &pollfds,
-		std::map<int, Client> &users,
-		std::map<std::string, int> &nick_to_fd
-) {
+void ClearClientInfo(Client &client, std::vector<struct pollfd> &pollfds,
+		 	std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
 	const std::string nick = client.GetNickname();
 
 	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++) {
