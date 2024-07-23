@@ -20,7 +20,7 @@ void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, std:
 	std::string const NewNick = message.GetParams()[0];
 
 	// ニックネームのサイズが9文字以下かどうかを確認
-	if (NickSize(NewNick) == false)
+	if (!NickSize(NewNick))
 		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
 
 	// ニックネームがすでに設定されているかどうかを確認
