@@ -29,6 +29,7 @@ class Channel;
 #define CAP_LS ":ft_irc CAP * LS\r\n"
 #define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
 #define PRIVMSG_MESSAGE(nick, user, host, target, msg) ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + msg + "\r\n";
+#define QUIT_MESSAGE(nick, user, host, msg) ":" + nick + "!" + user + "@" + host + " QUIT :" + msg + "\r\n";
 
 // エラーメッセージ
 #define ERR_NOSUCHNICK(nick, target) ":ft_irc 401 " + nick + " " + target  + " :No such nick\r\n"
@@ -67,6 +68,9 @@ namespace Command{
 			 const Message &message);
 	void PONG(Client &client, const std::vector<std::string> &params);
 	void PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels);
+	void QUIT(Client &client, Server *server, std::vector<struct pollfd> &pollfds,
+			  std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
+			  const std::vector<std::string> &params, const Message &message);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);

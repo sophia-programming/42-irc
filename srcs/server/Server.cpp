@@ -143,9 +143,10 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
 	}
-	else if (cmd == "KICK"){
+	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
-	}
+	else if (cmd == "QUIT")
+		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
