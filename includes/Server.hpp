@@ -41,7 +41,6 @@ private:
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
 	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
-	std::map<std::string, Channel> server_channels_; //map of channels
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
@@ -84,7 +83,7 @@ public:
 	bool IsChannel(const std::string& name);
 	Channel* GetChannel( const std::string& name);
 	Channel* CreateChannel( const std::string& name);
-	std::map<std::string, Channel>& GetChannels();
+	const std::map<std::string, Channel*>& GetChannels() const;
 
 	/* setter */
 	void SetPassword(const std::string &password);

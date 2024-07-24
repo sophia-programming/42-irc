@@ -120,7 +120,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	// クライアントがニックネームを設定していない場合
 	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
-		Command::NICK(client, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, map_nick_fd_, channel_list_, message);
 		if (client.GetIsNick())
 			SendWelcomeMessage(client);
 		return;
@@ -134,7 +134,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "USER")
 		Command::USER(client, message);
 	else if (cmd == "NICK")
-		Command::NICK(client, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, map_nick_fd_, channel_list_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
@@ -324,8 +324,8 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
-std::map<std::string, Channel>& Server::GetChannels() {
-	return server_channels_;
+const std::map<std::string, Channel*>& Server::GetChannels() const {
+	return channel_list_;
 }
 
 
