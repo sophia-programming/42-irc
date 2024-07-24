@@ -28,7 +28,8 @@ void Server::ServerInit(int port) {
 void Server::ServerStart() {
 	while (true) {
 		// poll()でデータを待機
-		if ((poll(&fds_[0], fds_.size(), TIMEOUT) == -1) && Server::signal_ == false)
+		int poll_result = poll(&fds_[0], fds_.size(), TIMEOUT);
+		if (poll_result == -1 && Server::signal_ == false)
 			throw (std::runtime_error("poll() failed"));
 
 		// 全てのファイルディスクリプタをチェック
@@ -115,7 +116,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	// クライアントが認証されていない場合
 	if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
-		ClearClientInfo(client, fds_, users_, map_nick_fd_);
+//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
 	}
 	// クライアントがニックネームを設定していない場合
@@ -235,7 +236,6 @@ void Server::CloseFds() {
 
 		// initialize client
 		SetupClient(incomingfd);
-
 		Client &client = users_[incomingfd];
 		// set client IP address
 		client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
