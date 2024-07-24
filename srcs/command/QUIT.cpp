@@ -17,11 +17,14 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	const std::string nick = client.GetNickname();
 	const int &ClientFd = client.GetFd();
 
-	std::string QuitMessage = "leaving";
+	// QUITメッセージがある場合はそれを使う.今回はないのでデフォルトで"Goodbye"を使う
+	std::string QuitMessage = "Goodbye";
 
+	// メッセージがある場合はそれを使う
 	if (!params.empty())
 		QuitMessage = message.GetParams()[0];
 
+	// チャンネルのメンバーにQUITメッセージを送信.
 	const std::map<std::string, Channel*>& channels = server->GetChannels();
 	if (!channels.empty())
 	{
@@ -33,8 +36,12 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 				 members_it != members.end();
 				 ++members_it) {
 				const int membersFd = (*members_it)->GetFd();
+
+				// メンバーがQUITしたクライアントの場合はメンバーから削除
 				if (membersFd == ClientFd)
 					it->second->RmUser(&client);
+
+				// メンバーにQUITメッセージを送信
 				else {
 					std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), QuitMessage);
 					SendMessage(membersFd, messageContent, 0);
@@ -43,6 +50,6 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 		}
 	}
 
-	// クライアントの接続を終了し、関連するリソースをクリーンアップする処理をここに追加
+	// クライアントの接続を終了し、関連するリソースをクリーンアップ
 	ClearClientInfo(client, pollfds, users, nick_to_fd);
 }
