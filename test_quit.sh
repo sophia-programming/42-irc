@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# ANSIエスケープコード
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 # IRCサーバーの起動
 ./ircserv 8080 password &
 SERVER_PID=$!
@@ -17,9 +22,9 @@ test_quit() {
 
     # 期待される出力と実際の出力を比較
     if echo "$output" | grep -q "$expected_output"; then
-        echo "PASS: QUIT test for $nickname"
+        echo -e "${GREEN}PASS: QUIT test for $nickname${NC}"
     else
-        echo "FAIL: QUIT test for $nickname"
+        echo -e "${RED}FAIL: QUIT test for $nickname${NC}"
         echo "Expected: $expected_output"
         echo "Got: $output"
     fi
@@ -41,11 +46,11 @@ test_quit "user2" "ERROR :Closing Link"
 sleep 2
 
 # user4がuser3のQUITメッセージを受信したか確認
-output=$(echo -e "PRIVMSG user4 :Are you there?\r\n" | nc localhost 6667)
+output=$(echo -e "NICK user4\r\nUSER user4 0 * :Real Name\r\nJOIN #test\r\nPRIVMSG #test :Are you there?\r\n" | nc localhost 8080)
 if echo "$output" | grep -q "user3.*QUIT :Goodbye"; then
-    echo "PASS: QUIT message broadcast test"
+    echo -e "${GREEN}PASS: QUIT message broadcast test${NC}"
 else
-    echo "FAIL: QUIT message broadcast test"
+    echo -e "${RED}FAIL: QUIT message broadcast test${NC}"
 fi
 
 # サーバーの停止
