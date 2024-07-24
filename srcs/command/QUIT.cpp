@@ -11,7 +11,7 @@
  * 引数6 -> メッセージのパラメータ
  * 引数7 -> メッセージオブジェクト */
 
-void QUIT(Client &client, Server *server, std::vector<struct pollfd> &pollfds,
+void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &pollfds,
 		  std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 		  const std::vector<std::string> &params, const Message &message) {
 	const std::string nick = client.GetNickname();
