@@ -108,32 +108,23 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
-	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-
-	// 初期接続時に許可されるコマンドの制限
-	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
-		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands).\n" + std::string(STOP), 0);
-//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
-		return;
-	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
 	// クライアントが認証されていない場合
-	if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK" &&
+	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
 		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
 	}
-	// クライアントがニックネームを設定していない場合
-	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
-		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+		// クライアントがニックネームを設定していない場合
+	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd == "NICK") {
+		Command::NICK(client, map_nick_fd_, server_channels_, message);
 		if (client.GetIsNick())
 			SendWelcomeMessage(client);
 		return;
 	}
-
 	// コマンドの処理
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
@@ -142,7 +133,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "USER")
 		Command::USER(client, message);
 	else if (cmd == "NICK")
-		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, map_nick_fd_, server_channels_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
