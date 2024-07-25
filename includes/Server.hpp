@@ -94,6 +94,7 @@ public:
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd);
 	void AddClient(const std::string &nickname, Client* client);
+	void RemoveClient(int clientFd);
 
 	/* Channel */
 	Channel* FindChannelByName(const std::string &name);

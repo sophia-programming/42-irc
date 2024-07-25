@@ -146,8 +146,10 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
-	else if (cmd == "QUIT")
+	else if (cmd == "QUIT") {
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
+		return ; // QUITコマンドはクライアントを切断するため、以降の処理は不要
+	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
@@ -417,6 +419,33 @@ Channel* Server::FindChannelByName(const std::string &name) {
 void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	// nicknameとクライアントオブジェクトをマップに追加
 	clients_.insert(std::make_pair(nickname, clientPointer));
+}
+
+/* クライアントを削除する関数
+ * 引数1 -> クライアントのソケットファイルディスクリプタ */
+void Server::RemoveClient(int clientFd) {
+	// クライアントが存在するか確認
+	std::string nickname = users_[clientFd].GetNickname();
+
+	// クライアントをユーザーリストから削除
+	users_.erase(clientFd);
+
+	// nicknameとfdのマップから削除
+	if (map_nick_fd_.find(nickname) != map_nick_fd_.end())
+		map_nick_fd_.erase(nickname);
+
+	// pollfd構造体のリストから削除
+	for (std::vector<struct pollfd>::iterator it = fds_.begin(); it != fds_.end(); it++) {
+		if (it->fd == clientFd) {
+			fds_.erase(it);
+			break;
+		}
+	}
+
+	// クライアントの接続を閉じる
+	close(clientFd);
+
+	std::cout << "Client " << clientFd << " removed from server" << std::endl;
 }
 
 /* デバッグ用関数 */

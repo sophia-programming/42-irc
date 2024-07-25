@@ -47,6 +47,17 @@ void Channel::AddUserinInvite(const std::string& nick_name)
     this->invate_users_.push_back(nick_name);
 }
 
+
+// ユーザーがチャンネルメンバーかどうかを確認する
+// 1:const Client *client -> 確認したいユーザーオブジェクト
+bool Channel::IsMember(const Client *client) const {
+	for (std::vector <Client*>::const_iterator it = members_.begin(); it != members_.end(); ++it) {
+		if (*it == client)
+			return true;
+	}
+	return false;
+}
+
 // ユーザーをチャンネルから削除
 // 1:Client * user ->削除したいユーザーオブジェクト
 void Channel::RmUser(Client * user)
