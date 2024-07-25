@@ -58,7 +58,7 @@ class Channel;
 #define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 namespace Command{
-    void PASS(Client &client, Server *server, const Message &message);
+    void PASS(Client &client, const std::string &server_password, const Message &message);
 	void NICK(Client &client, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
