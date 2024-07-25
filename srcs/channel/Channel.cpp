@@ -50,9 +50,9 @@ void Channel::AddUserinInvite(const std::string& nick_name)
 
 // ユーザーがチャンネルメンバーかどうかを確認する
 // 1:const Client *client -> 確認したいユーザーオブジェクト
-bool Channel::IsMember(const Client *client) const {
+bool Channel::IsMember(const Client *user) const {
 	for (std::vector <Client*>::const_iterator it = members_.begin(); it != members_.end(); ++it) {
-		if (*it == client)
+		if (*it == user)
 			return true;
 	}
 	return false;

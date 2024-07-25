@@ -116,10 +116,9 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
-//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
 	}
-	// クライアントがニックネームを設定していない場合
+		// クライアントがニックネームを設定していない場合
 	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
 		Command::NICK(client, map_nick_fd_, channel_list_, message);
 		if (client.GetIsNick())
@@ -140,19 +139,21 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
-	else if (cmd == "JOIN"){
+	else if (cmd == "JOIN") {
 		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
 	}
 	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
 	else if (cmd == "QUIT") {
+		std::cout << BLUE << "QUIT command received for client: " << client.GetNickname() << STOP << std::endl;
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
-		return ; // QUITコマンドはクライアントを切断するため、以降の処理は不要
+		return; // QUITコマンドはクライアントを切断するため、以降の処理は不要
 	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
+
 
 /* クライアントにデータを送信する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
@@ -425,28 +426,33 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
  * 引数1 -> クライアントのソケットファイルディスクリプタ */
 void Server::RemoveClient(int clientFd) {
 	// クライアントが存在するか確認
-	std::string nickname = users_[clientFd].GetNickname();
+	if (users_.find(clientFd) != users_.end()) {
+		// クライアントのニックネームを取得
+		std::string nickname = users_[clientFd].GetNickname();
 
-	// クライアントをユーザーリストから削除
-	users_.erase(clientFd);
+		// クライアントをユーザーリストから削除
+		users_.erase(clientFd);
 
-	// nicknameとfdのマップから削除
-	if (map_nick_fd_.find(nickname) != map_nick_fd_.end())
-		map_nick_fd_.erase(nickname);
-
-	// pollfd構造体のリストから削除
-	for (std::vector<struct pollfd>::iterator it = fds_.begin(); it != fds_.end(); it++) {
-		if (it->fd == clientFd) {
-			fds_.erase(it);
-			break;
+		// ニックネームとファイルディスクリプタのマップから削除
+		if (map_nick_fd_.find(nickname) != map_nick_fd_.end()) {
+			map_nick_fd_.erase(nickname);
 		}
+
+		// pollfd 構造体から削除
+		for (std::vector<struct pollfd>::iterator it = fds_.begin(); it != fds_.end(); ++it) {
+			if (it->fd == clientFd) {
+				fds_.erase(it);
+				break;
+			}
+		}
+
+		// クライアントの接続を閉じる
+		close(clientFd);
+
+		std::cout << "Client " << clientFd << " removed from server" << std::endl;
 	}
-
-	// クライアントの接続を閉じる
-	close(clientFd);
-
-	std::cout << "Client " << clientFd << " removed from server" << std::endl;
 }
+
 
 /* デバッグ用関数 */
 std::vector<Client*> Server::GetAllClients() const {

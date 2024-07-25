@@ -15,11 +15,6 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 				   std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 				   const std::vector<std::string> &params, const Message &message) {
 
-	// クライアントが接続していない場合は何もしない
-	if (!client.GetIsWelcome() || !client.GetIsConnected()) {
-		return;
-	}
-
 	const std::string &nick = client.GetNickname();
 	const int &clientFd = client.GetFd();
 
@@ -39,6 +34,7 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 
 		// チャンネルにクライアントが参加している場合
 		if (channel->IsMember(&client)) {
+			std::cout << BLUE << "IsMember" << STOP << std::endl;
 			const std::vector<Client *> &members = channel->GetMember();
 			std::vector<Client *>::const_iterator member_it;
 			for (member_it = members.begin(); member_it != members.end(); ++member_it) {

@@ -59,7 +59,7 @@ class Channel{
 		void AddUserAsN(Client& user);
 		void AddUserAsO(Client& user);
 		void AddUserinInvite(const std::string& name);
-		bool IsMember(const Client* client) const;
+		bool IsMember(const Client* user) const;
 
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
