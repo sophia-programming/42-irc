@@ -114,7 +114,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	cmd = Trim(cmd);
 
 	// クライアントが認証されていない場合
-	if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK" &&
+	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
 //		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
@@ -131,7 +131,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	else if (cmd == "PASS")
-		Command::PASS(client, this, password_);
+		Command::PASS(client, password_, message);
 	else if (cmd == "USER")
 		Command::USER(client, message);
 	else if (cmd == "NICK")
