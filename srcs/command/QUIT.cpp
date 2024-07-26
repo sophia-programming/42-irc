@@ -25,32 +25,49 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	}
 
 	// クライアントが参加しているチャンネルのメンバーにのみQUITメッセージを送信
-	const std::map<std::string, Channel*>& channels = server->GetChannels();
-	std::map<std::string, Channel*>::const_iterator it;
+	if (!server->GetChannels().empty()) {
+		const std::map<std::string, Channel*>& channels = server->GetChannels();
+		std::map<std::string, Channel*>::const_iterator it;
 
-	// チャンネルのメンバーにQUITメッセージを送信
-	for (it = channels.begin(); it != channels.end(); ++it) {
-		Channel* channel = it->second;
+		// debug
+		for (auto it = channels.begin(); it != channels.end(); ++it) {
+			std::cout << BOLD << "channels = " << it->first << STOP << std::endl;
+		}
 
-		// チャンネルにクライアントが参加している場合
-		if (channel->IsMember(&client)) {
-			std::cout << BLUE << "IsMember" << STOP << std::endl;
-			const std::vector<Client *> &members = channel->GetMember();
-			std::vector<Client *>::const_iterator member_it;
-			for (member_it = members.begin(); member_it != members.end(); ++member_it) {
-				Client *member = *member_it;
+		// チャンネルのメンバーにQUITメッセージを送信
+		for (it = channels.begin(); it != channels.end(); ++it) {
+			Channel* channel = it->second;
+			// 上記ポインタが入っているのを確認済み
 
-				// もしメンバーがクライアント自身でない場合は、QUITメッセージを送信
-				if (member->GetFd() != clientFd) {
-					std::cout << BOLD << "client.GetUsername() " << client.GetUsername() << STOP << std::endl;
-					std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
-					SendMessage(member->GetFd(), messageContent, 0);
+			//======================== ここから機能していない =======================
+
+			// チャンネルにクライアントが参加している場合
+			if (channel->IsMember(&client)) {
+				const std::vector<Client *> &members = channel->GetMember();
+				for (auto it = members.begin(); it != members.end(); ++it) {
+					std::cout << BOLD << (*it)->GetUsername() << STOP << std::endl;
+				}
+
+				std::vector<Client *>::const_iterator member_it;
+				for (member_it = members.begin(); member_it != members.end(); ++member_it) {
+					Client *member = *member_it;
+
+					for (auto it = members.begin(); it != members.end(); ++it) {
+						std::cout << BOLD << (*it)->GetFd() << STOP << std::endl;
+					}
+					std::cout << BOLD << "clientFd " << clientFd << STOP << std::endl;
+
+//				 もしメンバーがクライアント自身でない場合は、QUITメッセージを送信
+					if (member->GetFd() != clientFd) {
+						std::cout << BOLD << "client.GetUsername() " << client.GetUsername() << STOP << std::endl;
+						std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
+						SendMessage(member->GetFd(), messageContent, 0);
+					}
 				}
 			}
 			channel->RmUser(&client);
 		}
 	}
-
 	// クライアントの接続を終了し、関連するリソースをクリーンアップ
 	try {
 		ClearClientInfo(client, pollfds, users, nick_to_fd);

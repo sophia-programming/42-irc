@@ -145,11 +145,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
-	else if (cmd == "QUIT") {
-		std::cout << BLUE << "QUIT command received for client: " << client.GetNickname() << STOP << std::endl;
+	else if (cmd == "QUIT")
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
-		return; // QUITコマンドはクライアントを切断するため、以降の処理は不要
-	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
