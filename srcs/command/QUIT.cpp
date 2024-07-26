@@ -42,6 +42,7 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 
 				// もしメンバーがクライアント自身でない場合は、QUITメッセージを送信
 				if (member->GetFd() != clientFd) {
+					std::cout << BOLD << "client.GetUsername() " << client.GetUsername() << STOP << std::endl;
 					std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
 					SendMessage(member->GetFd(), messageContent, 0);
 				}
