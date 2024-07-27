@@ -28,7 +28,6 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	if (!server->GetChannels().empty()) {
 		const std::map<std::string, Channel*>& channels = server->GetChannels();
 		std::map<std::string, Channel*>::const_iterator it;
-
 		// debug
 		for (auto it = channels.begin(); it != channels.end(); ++it) {
 			std::cout << BOLD << "channels = " << it->first << STOP << std::endl;
@@ -63,11 +62,13 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 						std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
 						SendMessage(member->GetFd(), messageContent, 0);
 					}
-				}
+
+	}
 			}
 			channel->RmUser(&client);
 		}
 	}
+
 	// クライアントの接続を終了し、関連するリソースをクリーンアップ
 	try {
 		ClearClientInfo(client, pollfds, users, nick_to_fd);

@@ -51,12 +51,13 @@ void Channel::AddUserinInvite(const std::string& nick_name)
 // ユーザーがチャンネルメンバーかどうかを確認する
 // 1:const Client *client -> 確認したいユーザーオブジェクト
 bool Channel::IsMember(const Client *user) const {
-	for (std::vector <Client*>::const_iterator it = members_.begin(); it != members_.end(); ++it) {
-		if (*it == user)
+	for (std::vector<Client*>::const_iterator it = members_.begin(); it != members_.end(); ++it) {
+		if ((*it)->GetNickname() == user->GetNickname())
 			return true;
 	}
 	return false;
 }
+
 
 // ユーザーをチャンネルから削除
 // 1:Client * user ->削除したいユーザーオブジェクト
