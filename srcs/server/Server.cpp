@@ -425,14 +425,14 @@ void Server::RemoveClient(int clientFd) {
 	// クライアントが存在するか確認
 	if (users_.find(clientFd) != users_.end()) {
 		// クライアントのニックネームを取得
-		std::string nickname = users_[clientFd].GetNickname();
+		std::string nick = users_[clientFd].GetNickname();
 
 		// クライアントをユーザーリストから削除
 		users_.erase(clientFd);
 
 		// ニックネームとファイルディスクリプタのマップから削除
-		if (map_nick_fd_.find(nickname) != map_nick_fd_.end()) {
-			map_nick_fd_.erase(nickname);
+		if (map_nick_fd_.find(nick) != map_nick_fd_.end()) {
+			map_nick_fd_.erase(nick);
 		}
 
 		// pollfd 構造体から削除

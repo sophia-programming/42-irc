@@ -46,13 +46,20 @@ void ClearClientInfo(Client &client, std::vector<struct pollfd> &pollfds,
 		 	std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
 	const std::string nick = client.GetNickname();
 
+	// pollfdsからクライアントを削除
 	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++) {
 		if (client.GetFd() == it->fd) {
 			pollfds.erase(it);
 			break;
 		}
 	}
+
+	// usersからクライアントを削除
 	users.erase(client.GetFd());
+
+	// nick_to_fdからクライアントを削除
 	nick_to_fd.erase(nick);
+
+	// クライアントのソケットファイルディスクリプタをクローズ
 	close(client.GetFd());
 }

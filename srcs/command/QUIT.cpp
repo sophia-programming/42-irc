@@ -27,39 +27,26 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 
 		// チャンネル内にクライアントがいるかどうかを確認
 		Client* channelMember = channel->GetUser(nick);
-		if (channelMember != NULL) {
-			std::cout << "Client " << nick << " is a member of channel " << channel->GetName() << std::endl;
 
-			// チャンネル内の他のメンバーにQUITメッセージを送信
-			std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
-			for (std::map<Client*, User_Priv>::const_iterator member_it = channel->users_.begin(); member_it != channel->users_.end(); ++member_it) {
-				Client *member = member_it->first;
-				if (member->GetFd() != clientFd) {
-					SendMessage(member->GetFd(), messageContent, 0);
-					std::cout << "Sent QUIT message to member: " << member->GetNickname() << std::endl;
-				}
-			}
-
-			channel->RmUser(&client);
-			std::cout << "Removed client " << nick << " from channel " << channel->GetName() << std::endl;
-		} else {
-			std::cout << "Client " << nick << " is not a member of channel " << channel->GetName() << std::endl;
+		// チャンネル内の他のメンバーにQUITメッセージを送信
+		std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
+		for (std::map<Client*, User_Priv>::const_iterator member_it = channel->users_.begin(); member_it != channel->users_.end(); ++member_it) {
+			Client *member = member_it->first;
+			if (member->GetFd() != clientFd)
+				SendMessage(member->GetFd(), messageContent, 0);
 		}
+		channel->RmUser(&client);
 	}
 
-	// クライアントにエラーメッセージを送信
-	std::string errorMessage = "ERROR :Closing Link: " + client.GetHostname() + " (" + quitMessage + ")\r\n";
-	SendMessage(clientFd, errorMessage, 0);
-	std::cout << "Sent error message to client: " << errorMessage << std::endl;
-
 	// クライアントの接続を終了し、関連するリソースをクリーンアップ
+	const std::string savedNick = client.GetNickname();
+
 	try {
 		ClearClientInfo(client, pollfds, users, nick_to_fd);
-		std::cout << "Cleared client info for: " << nick << std::endl;
 	} catch (const std::exception &e) {
 		std::cerr << "Error during client cleanup: " << e.what() << std::endl;
 	}
 
+	// サーバーにクライアントの切断を通知
 	server->RemoveClient(clientFd);
-	std::cout << "Removed client from server: " << nick << std::endl;
 }
