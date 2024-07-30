@@ -97,7 +97,6 @@ public:
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname);
 	void AddClient(const std::string &nickname, Client* client);
-	void RemoveClient(int clientFd);
 	void RmClient(const std::string &nickname);
 
 	/* Channel */

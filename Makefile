@@ -7,8 +7,7 @@ OBJ_DIR	=	./objs
 OBJS	=	$(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 #CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g $(includes)
-CXXFLAGS = -std=c++98 -g $(INCLUDES) -fsanitize=address -g
-
+CXXFLAGS = -std=c++98 -g $(INCLUDES) -fsanitize=address -g3
 all : $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp

@@ -432,38 +432,6 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
-/* クライアントを削除する関数
- * 引数1 -> クライアントのソケットファイルディスクリプタ */
-void Server::RemoveClient(int clientFd) {
-	// クライアントが存在するか確認
-	if (users_.find(clientFd) != users_.end()) {
-		// クライアントのニックネームを取得
-		std::string nick = users_[clientFd].GetNickname();
-
-		// クライアントをユーザーリストから削除
-		users_.erase(clientFd);
-
-		// ニックネームとファイルディスクリプタのマップから削除
-		if (map_nick_fd_.find(nick) != map_nick_fd_.end()) {
-			map_nick_fd_.erase(nick);
-		}
-
-		// pollfd 構造体から削除
-		for (std::vector<struct pollfd>::iterator it = fds_.begin(); it != fds_.end(); ++it) {
-			if (it->fd == clientFd) {
-				fds_.erase(it);
-				break;
-			}
-		}
-
-		// クライアントの接続を閉じる
-		close(clientFd);
-
-		std::cout << "Client " << clientFd << " removed from server" << std::endl;
-	}
-}
-
-
 /* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
