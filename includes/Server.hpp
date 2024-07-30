@@ -26,6 +26,7 @@ const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
 
 class Channel;
 class Client;
+// class Message;
 
 bool ValidateArgs(int argc, char **argv);
 std::string Trim(const std::string &str);
@@ -80,10 +81,10 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	bool IsChannel(const std::string& name);
-	Channel* GetChannel( const std::string& name);
+	// Channel* GetChannel( const std::string& name);
 	Channel* CreateChannel( const std::string& name);
-	const std::map<std::string, Channel*>& GetChannels() const;
+	bool IsChannel(const std::string& name);
+	std::map<std::string, Channel>& GetChannels();
 
 	/* setter */
 	void SetPassword(const std::string &password);
@@ -92,9 +93,10 @@ public:
 	void ExecuteCommand(int fd, const Message &message);
 
 	/* Client */
-	Client* FindClientByNickname(const std::string &nickname, Client &client, std::map<std::string, int > &map_nick_fd);
+	Client* FindClientByNickname(const std::string &nickname);
 	void AddClient(const std::string &nickname, Client* client);
 	void RemoveClient(int clientFd);
+	void RmClient(const std::string &nickname);
 
 	/* Channel */
 	Channel* FindChannelByName(const std::string &name);
