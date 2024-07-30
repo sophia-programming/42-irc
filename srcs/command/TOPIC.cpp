@@ -9,6 +9,8 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 {
 	if(message.GetParams().size() < 1){
 		//paramが不足していたらエラー
+		std::string msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "TOPIC");
+		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;
 	}
 	std::string ch_name = message.GetParams()[0];
