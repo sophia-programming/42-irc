@@ -9,3 +9,4 @@ std::string Trim(const std::string &str){
 	trimmed.erase(0, trimmed.find_first_not_of(" \n\r\t"));
 	return trimmed;
 }
+
