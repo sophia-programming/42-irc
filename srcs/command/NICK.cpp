@@ -7,7 +7,7 @@ bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_
  * 引数1 -> クライアント
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
-void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message) {
+void Command::NICK(Client &client, Server *server,std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message) {
 	const int &fd = client.GetFd();
 
 	//　引数がない場合　例）NICK
@@ -23,13 +23,13 @@ void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, std:
 	if (!NickSize(NewNick))
 		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
 
-	// ニックネームがすでに設定されているかどうかを確認
+		// ニックネームがすでに設定されているかどうかを確認
 	else if (NickAlreadySet(NewNick, map_nick_fd) == true) {
 		client.SetIsWelcome(false);
 		SendMessage(fd, ERR_NICKNAMEINUSE(OldNick, NewNick), 0);
 	}
 
-	// 古いニックネームを削除し、新しいニックネームを追加
+		// 古いニックネームを削除し、新しいニックネームを追加
 	else {
 		map_nick_fd.erase(OldNick);
 		map_nick_fd[NewNick] = fd;
@@ -47,6 +47,7 @@ void Command::NICK(Client &client, std::map<std::string, int> &map_nick_fd, std:
 		// ニックネームを設定
 		client.SetIsNick();
 		client.SetNickname(NewNick);
+		server->AddClient(NewNick, &client);
 
 		// もしクライアントが認証済みの場合
 		if (client.GetIsAuthenticated())
