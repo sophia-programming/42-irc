@@ -7,7 +7,6 @@
 #include <iostream>
 #include <algorithm>
 
-
 #include "Client.hpp"
 
 class Client;
@@ -44,6 +43,9 @@ class Channel{
 		// 招待リスト（nick_nameの配列）
 		std::vector<std::string> invate_users_;
 
+		// チャンネルメンバー
+		std::vector<Client*> members_;
+
 		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
 
 	public:
@@ -60,6 +62,7 @@ class Channel{
 
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
+		void RmUserFromOperator(const std::string& user);
 
 		// setter
 		void SetToic(const std::string& topic);
@@ -75,15 +78,17 @@ class Channel{
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
 		int GetLimit() const;
+		const std::vector<Client*>& GetMember() const;
 
 
 		Client* GetUser(const std::string& nick_name);
 		const User_Priv GetPriv(const std::string& nick_name);
 		bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
+		bool IsOperator(const std::string &nickname);
 
 
-		void SendMsgToAll(const std::string& msg);
+	void SendMsgToAll(const std::string& msg);
 
 		class ChannelException : public std::exception{
 			private:

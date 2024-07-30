@@ -14,11 +14,30 @@ void Channel::AddUserAsN(Client& user)
     this->users_.insert(std::make_pair(&user,P_Nomal));
 }
 
+// ユーザーがオペレーターかどうかを確認する
+// 1:const std::string &nickname -> 確認したいユーザーのニックネーム
+bool Channel::IsOperator(const std::string &nickname) {
+	Client* user = GetUser(nickname);
+	if (user != NULL) {
+		return users_.at(user) == P_Operator;
+	}
+	return false;
+}
+
 // ユーザーをオペレーター権限でチャンネルに追加
 // 1:Client& user ->　追加したいユーザーリファレンス　
 void Channel::AddUserAsO(Client& user)
 {
     this->users_.insert(std::make_pair(&user, P_Operator));
+}
+
+// ユーザーをオペレーターから削除する
+// 1:const std::string &nickname -> 削除したいユーザーのニックネーム
+void Channel::RmUserFromOperator(const std::string &nickname) {
+	Client* user = GetUser(nickname);
+	if (user != NULL) {
+		this->users_[user] = P_Nomal;
+	}
 }
 
 // ユーザーを招待リストに追加
@@ -153,6 +172,12 @@ const User_Priv Channel::GetPriv(const std::string& nick_name)
     if(cl != NULL)
         return this->users_.find(cl)->second;
     throw ChannelException("Erroe: user dosent exist");
+}
+
+// チャンネルメンバーを取得する関数
+// 1:const std::vector<Client*>& -> メンバーのリスト
+const std::vector<Client*>& Channel::GetMember() const {
+	return members_;
 }
 
 // mapの要素としてChannel classを扱うための比較演算子オーバーロード

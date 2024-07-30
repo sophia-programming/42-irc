@@ -2,7 +2,13 @@
 #define CLIENT_HPP
 
 #include "Server.hpp"
+#include "Channel.hpp"
+#include "Utils.hpp"
 #include "Message.hpp"
+
+class Server;
+class Message;
+class Channel;
 
 class Client {
 private:
@@ -17,10 +23,9 @@ private:
 	std::string hostname_;
 	std::string servername_;
 	std::string realname_;
-	bool is_user_set_;
+	bool is_user_set_; //user情報がセットされているかどうか
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
-
 
 public:
 	Client();
@@ -45,14 +50,15 @@ public:
 	const std::string &GetServername() const;
 	const std::string &GetRealname() const;
 	bool GetIsUserSet() const;
+	const Message& GetParsedMessage() const;
 
 
 	/* setter関数 */
 	void SetFd(int fd);
 	void SetNickname(const std::string &nick);
 	void SetIsAuthenticated();
-	void SetIsWelcome(bool iswelcome);
-	void SetIsConnected();
+	void SetIsWelcome(bool is_welcome);
+	void SetIsConnected(bool is_connected);
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 
