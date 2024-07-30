@@ -115,7 +115,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
-		ClearClientInfo(client, fds_, users_, map_nick_fd_);
 		return;
 	}
 		// クライアントがニックネームを設定していない場合
