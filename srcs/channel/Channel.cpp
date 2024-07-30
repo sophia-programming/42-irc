@@ -75,6 +75,16 @@ void Channel::SetToic(const std::string& topic)
     this->topic_=topic;
 }
 
+void Channel::SetTopicSetter(Client* setter)
+{
+    this->topic_setter_ = setter;
+}
+
+void Channel::SetTopicTime(std::time_t time)
+{
+    this->topic_time_ = time;
+}
+
 void Channel::SetKey(const std::string &key)
 {
     this->key_ = key;
@@ -104,6 +114,16 @@ const std::string &Channel::GetName() const
 const std::string &Channel::GetTopic() const
 {
     return this->topic_;
+}
+
+const Client *Channel::GetTopicSetter() const
+{
+    return this->topic_setter_;
+}
+
+const std::time_t Channel::GetTopicTime() const
+{
+    return this->topic_time_;
 }
 
 const std::string &Channel::GetKey() const
@@ -141,11 +161,13 @@ bool Channel::IsInvited(const std::string& nick_name){
 
 // メッセージをこのチャンネルメンバー全員に送信する関数
 // 1:const std::string& msg -> 送信したいメッセージ
-void Channel::SendMsgToAll(const std::string& msg)
+void Channel::SendMsgToAll(const std::string& msg, Client* sender)
 {
     user_list_iter iter = this->users_.begin();
     while(iter != this->users_.end()){
-        send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+        if(iter->first != sender){
+            send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+        }
         iter++;
     }
 }

@@ -82,7 +82,7 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	// Channel* GetChannel( const std::string& name);
+	Channel* GetChannel( const std::string& name);
 	Channel* CreateChannel( const std::string& name);
 	bool IsChannel(const std::string& name);
 	std::map<std::string, Channel>& GetChannels();

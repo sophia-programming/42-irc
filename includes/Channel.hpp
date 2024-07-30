@@ -33,6 +33,10 @@ class Channel{
 		std::string name_;
 		// チャンネルトピック
 		std::string topic_;
+		// トピック設定者
+		Client* topic_setter_;
+		// トピック設定日時
+		std::time_t topic_time_;
 		// チャンネルモード
 		std::vector<ChannelMode> mode_;
 		// チャンネルキー（パスワード）
@@ -66,6 +70,8 @@ class Channel{
 
 		// setter
 		void SetToic(const std::string& topic);
+		void SetTopicSetter(Client* setter);
+		void SetTopicTime(std::time_t time);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
 		// void SetMode(const std::string& mode);
@@ -76,6 +82,8 @@ class Channel{
 		// getter
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
+		const Client* GetTopicSetter() const;
+		const std::time_t GetTopicTime() const;
 		const std::string& GetKey() const;
 		int GetLimit() const;
 		const std::vector<Client*>& GetMember() const;
@@ -88,7 +96,7 @@ class Channel{
 		bool IsOperator(const std::string &nickname);
 
 
-	void SendMsgToAll(const std::string& msg);
+	void SendMsgToAll(const std::string& msg, Client* sender);
 
 		class ChannelException : public std::exception{
 			private:
