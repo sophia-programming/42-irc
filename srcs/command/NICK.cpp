@@ -47,12 +47,8 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		// ニックネームを設定
 		client.SetIsNick();
 		client.SetNickname(NewNick);
-<<<<<<< HEAD
-		std::cout << "NewNick: " << NewNick << std::endl;
-=======
 		server->AddClient(NewNick, &client);
 
->>>>>>> main
 		// もしクライアントが認証済みの場合
 		if (client.GetIsAuthenticated())
 			SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
