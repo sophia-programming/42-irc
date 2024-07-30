@@ -17,18 +17,18 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	const std::string &nick = client.GetNickname();
 	const int &clientFd = client.GetFd();
 
-	// パラメータがない場合はデフォルトのメッセージ(Goodbye)を使用
+//	 パラメータがない場合はデフォルトのメッセージ(Goodbye)を使用
 	std::string quitMessage = params.empty() ? "Goodbye" : params[0];
 
-	// チャンネル内の他のメンバーにQUITメッセージを送信
+//	 チャンネル内の他のメンバーにQUITメッセージを送信
 	const std::map<std::string, Channel*>& channels = server->GetChannels();
 	for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
 		Channel* channel = it->second;
 
-		// チャンネル内にクライアントがいるかどうかを確認
+//		 チャンネル内にクライアントがいるかどうかを確認
 		Client* channelMember = channel->GetUser(nick);
 
-		// チャンネル内の他のメンバーにQUITメッセージを送信
+//		 チャンネル内の他のメンバーにQUITメッセージを送信
 		std::string messageContent = QUIT_MESSAGE(nick, client.GetUsername(), client.GetHostname(), quitMessage);
 		for (std::map<Client*, User_Priv>::const_iterator member_it = channel->users_.begin(); member_it != channel->users_.end(); ++member_it) {
 			Client *member = member_it->first;
@@ -38,7 +38,7 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 		channel->RmUser(&client);
 	}
 
-	// クライアントの接続を終了し、関連するリソースをクリーンアップ
+//	 クライアントの接続を終了し、関連するリソースをクリーンアップ
 	const std::string savedNick = client.GetNickname();
 
 	try {
@@ -47,6 +47,6 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 		std::cerr << "Error during client cleanup: " << e.what() << std::endl;
 	}
 
-	// サーバーにクライアントの切断を通知
+//	 サーバーにクライアントの切断を通知
 	server->RemoveClient(clientFd);
 }

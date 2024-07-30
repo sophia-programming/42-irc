@@ -119,13 +119,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		return;
 	}
 		// クライアントがニックネームを設定していない場合
-<<<<<<< HEAD
-	else if (client.GetIsWelcome() == false && client.GetIsConnected() == false && cmd != "NICK") {
-		Command::NICK(client, map_nick_fd_, channel_list_, message);
-=======
-	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd == "NICK") {
+	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK") {
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
->>>>>>> main
 		if (client.GetIsNick())
 			SendWelcomeMessage(client);
 		return;
@@ -138,34 +133,21 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "USER")
 		Command::USER(client, message);
 	else if (cmd == "NICK")
-<<<<<<< HEAD
-		Command::NICK(client, map_nick_fd_, channel_list_, message);
-=======
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
->>>>>>> main
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
-<<<<<<< HEAD
-	else if (cmd == "JOIN") {
-		std::cout << "JOIN" << std::endl;
-=======
 	else if (cmd == "JOIN"){
->>>>>>> main
 		Command::JOIN(client, this, message);
 	}
 	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
-<<<<<<< HEAD
 	else if (cmd == "QUIT")
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
-=======
-	}
 	else if (cmd == "INVITE"){
 		Command::INVITE(client, this, message);
 	}
->>>>>>> main
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
@@ -346,6 +328,10 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
+std::map<std::string, Channel*>& Server::GetServerChannels() {
+	return server_channels_;
+}
+
 const std::map<std::string, Channel*>& Server::GetChannels() const {
 	return channel_list_;
 }
@@ -446,7 +432,6 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
-<<<<<<< HEAD
 /* クライアントを削除する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ */
 void Server::RemoveClient(int clientFd) {
@@ -479,7 +464,6 @@ void Server::RemoveClient(int clientFd) {
 }
 
 
-=======
 /* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
@@ -491,7 +475,6 @@ void Server::RmClient(const std::string &nickname) {
 	}
 }
 
->>>>>>> main
 /* デバッグ用関数 */
 std::vector<Client*> Server::GetAllClients() const {
 	std::vector<Client*> result;

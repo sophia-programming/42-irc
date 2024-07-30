@@ -66,7 +66,7 @@ class Message;
 
 namespace Command{
 	void PASS(Client &client, const std::string &server_password, const Message &message);
-	void NICK(Client &client,  Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message);
+	void NICK(Client &client,  Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
