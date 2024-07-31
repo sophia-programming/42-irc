@@ -47,18 +47,6 @@ void Channel::AddUserinInvite(const std::string& nick_name)
     this->invate_users_.push_back(nick_name);
 }
 
-
-// ユーザーがチャンネルメンバーかどうかを確認する
-// 1:const Client *client -> 確認したいユーザーオブジェクト
-bool Channel::IsMember(const Client *user) const {
-	for (std::vector<Client*>::const_iterator it = members_.begin(); it != members_.end(); ++it) {
-		if ((*it)->GetNickname() == user->GetNickname())
-			return true;
-	}
-	return false;
-}
-
-
 // ユーザーをチャンネルから削除
 // 1:Client * user ->削除したいユーザーオブジェクト
 void Channel::RmUser(Client * user)
@@ -196,6 +184,16 @@ const std::vector<Client*>& Channel::GetMember() const {
 bool Channel::operator<(const Channel &other) const
 {
     return this->name_ < other.name_;
+}
+
+// チャンネルに指定したユーザーが存在するかどうかを確認する関数
+bool Channel::HasUser(const std::string& nickname) const {
+	for (std::map<Client*, User_Priv>::const_iterator it = users_.begin(); it != users_.end(); ++it) {
+		if (it->first->GetNickname() == nickname) {
+			return true;
+		}
+	}
+	return false;
 }
 
 const char *Channel::ChannelException::what(void) const throw()

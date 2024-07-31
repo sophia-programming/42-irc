@@ -58,7 +58,6 @@ class Channel{
 		void AddUserAsN(Client& user);
 		void AddUserAsO(Client& user);
 		void AddUserinInvite(const std::string& name);
-		bool IsMember(const Client* user) const;
 
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
@@ -86,6 +85,7 @@ class Channel{
 		bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
 		bool IsOperator(const std::string &nickname);
+		bool HasUser(const std::string& nickname) const;
 
 
 	void SendMsgToAll(const std::string& msg);

@@ -328,10 +328,6 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
-std::map<std::string, Channel*>& Server::GetServerChannels() {
-	return server_channels_;
-}
-
 const std::map<std::string, Channel*>& Server::GetChannels() const {
 	return channel_list_;
 }
@@ -355,17 +351,16 @@ bool Server::IsChannel(const std::string& name) {
 	return false;
 }
 
-
 // // チャンネル名から検索してchannelオブジェクトを取得する
 // // 1:std::string& name -> 取得したいチャンネル名
-// Channel* Server::GetChannel(const std::string& name)
-// {
-// 	Server::channel_iterator iter = this->channel_list_.find(name);
-// 	if(iter != this->channel_list_.end()){
-// 		return iter->second;
-// 	}
-// 	return NULL;
-// }
+ Channel* Server::GetChannel(const std::string& name)
+ {
+ 	Server::channel_iterator iter = this->channel_list_.find(name);
+ 	if(iter != this->channel_list_.end()){
+ 		return iter->second;
+ 	}
+ 	return NULL;
+ }
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
