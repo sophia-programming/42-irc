@@ -35,6 +35,12 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 	}
 	//チャンネルのトピックを設定
 	if(message.GetParams().size() == 2 && message.GetParams()[1] != ""){
+		//channelがtモードかつ、クライアントがオペレーター権限を持っていない場合
+		if(ch->GetModeTopic() == true && ch->GetPriv(client.GetNickname()) != P_Operator){
+			msg_to_c = ERR_CHANOPRIVSNEEDED(client.GetNickname(), ch_name);
+			SendMessage(client.GetFd(), msg_to_c, 0);
+			return ;
+		}
 		topic = message.GetParams()[1];
 		ch->SetToic(topic);
 		ch->SetTopicSetter(&client);
@@ -46,6 +52,12 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 	}
 	//チャンネルのトピックを削除
 	else if (message.GetParams().size() == 2 && message.GetParams()[1] == "") {
+		//channelがtモードかつ、クライアントがオペレーター権限を持っていない場合
+		if(ch->GetModeTopic() == true && ch->GetPriv(client.GetNickname()) != P_Operator){
+			msg_to_c = ERR_CHANOPRIVSNEEDED(client.GetNickname(), ch_name);
+			SendMessage(client.GetFd(), msg_to_c, 0);
+			return ;
+		}
 		ch->SetToic("non");
 		ch->SetTopicSetter(&client);
 		std::cout << "remove" << std::endl;
