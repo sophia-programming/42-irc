@@ -27,13 +27,13 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     SendMessage(client.GetFd(), msg_to_c, 0);
                     return ;
                 }
-                if(ch->CheckMode(CM_Key)){ //エラー２keyが必要
+                if(ch->GetModeKey() == true){ //エラー２keyが必要
                     msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
                     SendMessage(client.GetFd(), msg_to_c, 0);
                     return ;
                 }
-                if(ch->CheckMode(CM_Invite)){
-                    if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+                if(ch->GetModeInvite() == true){ //エラー３招待が必要
+                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
                         msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
                         SendMessage(client.GetFd(), msg_to_c, 0);
                         return ;
@@ -71,7 +71,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     SendMessage(client.GetFd(), msg_to_c, 0);
                     return ;
                 }
-                if(ch->CheckMode(CM_Key)){
+                if(ch->GetModeKey() == true){ //エラー２keyが必要
                     if(ch->GetKey() != key){ //エラー２keyが一致しない
                         msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
                         SendMessage(client.GetFd(), msg_to_c, 0);
@@ -79,8 +79,8 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     }
                     ch->AddUserAsN(client);
                 }
-                if(ch->CheckMode(CM_Invite)){
-                    if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+                if(ch->GetModeInvite() == true){ //エラー３招待が必要
+                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
                         msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
                         SendMessage(client.GetFd(), msg_to_c, 0);
                         return ;
