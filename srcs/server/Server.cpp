@@ -146,6 +146,9 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "INVITE"){
 		Command::INVITE(client, this, message);
 	}
+	else if (cmd == "MODE"){
+		Command::MODE(client, this, message);
+	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
