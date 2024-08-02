@@ -37,7 +37,7 @@ void Command::KICK(Client &client, Server *server, const Message &message)
     if(message.GetParams().size() == 3){
         msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name + message.GetParams()[2];
     }
-    ch->SendMsgToAll(msg_to_all);
+    ch->SendMsgToAll(msg_to_all, &client);
     ch->RmUser(user);
     ch->RmUserFromInvite(user_name);
 }
