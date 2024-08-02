@@ -143,6 +143,9 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "KICK"){
 		Command::KICK(client, this, message);
 	}
+	else if (cmd == "TOPIC"){
+		Command::TOPIC(client, this, message);
+	}
 	else if (cmd == "INVITE"){
 		Command::INVITE(client, this, message);
 	}
@@ -353,16 +356,16 @@ bool Server::IsChannel(const std::string& name) {
 }
 
 
-// // チャンネル名から検索してchannelオブジェクトを取得する
-// // 1:std::string& name -> 取得したいチャンネル名
-// Channel* Server::GetChannel(const std::string& name)
-// {
-// 	Server::channel_iterator iter = this->channel_list_.find(name);
-// 	if(iter != this->channel_list_.end()){
-// 		return iter->second;
-// 	}
-// 	return NULL;
-// }
+// チャンネル名から検索してchannelオブジェクトを取得する
+// 1:std::string& name -> 取得したいチャンネル名
+Channel* Server::GetChannel(const std::string& name)
+{
+	Server::channel_iterator iter = this->channel_list_.find(name);
+	if(iter != this->channel_list_.end()){
+		return iter->second;
+	}
+	return NULL;
+}
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
