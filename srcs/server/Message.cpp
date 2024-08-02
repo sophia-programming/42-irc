@@ -49,6 +49,17 @@ void Message::ParseCommand(const std::string &message, int &i) {
 }
 
 
+//stringの末尾の改行を削除する関数
+// 1:std::string& str ->対象のstring
+void rtrim(std::string& str) {
+    std::string::size_type i = str.find_last_not_of("\n");
+    if (i == std::string::npos) {
+        str.clear(); // 全て空白文字の場合は空にする
+    } else {
+        str.erase(i + 1); // 最後の非空白文字の次を削除
+    }
+}
+
 /*IRCメッセージのパラメータを解析する関数
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
@@ -82,6 +93,9 @@ void Message::ParseParams(const std::string &message, int &i) {
 
 		// パラメータを追加
 		params_.push_back(param);
+	}
+	if(!params_.empty()){
+		rtrim(params_.back());
 	}
 }
 

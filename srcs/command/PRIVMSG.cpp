@@ -10,18 +10,21 @@ void SendPrivmsg(const std::string target, const std::string message, Client &cl
  * 引数1 -> クライアント
  * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ
  * 引数3 -> チャンネルのリスト */
-void Command::PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels) {
-	std::vector<std::string> params = client.GetParsedMessage().GetParams();
+void Command::PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels, const Message &message) {
+	// std::vector<std::string> params = client.GetParsedMessage().GetParams();
+	std::cout << "aaaaaaaaaaaaaa" << std::endl;
+	const std::vector<std::string> msg = message.GetParams();
 
-	if (!IsCorrectFormat(params, client))
+	std::cout << "msg: " << msg.size() << std::endl;
+	if (!IsCorrectFormat(msg, client))
 		return;
 
-	const std::vector<std::string> target = SplitComma(params[0]);
-	const std::string message = params[1];
+	// const std::vector<std::string> target = SplitComma(params[0]);
+	// const std::string message = params[1];
 
-	for (size_t i = 0; i < target.size(); ++i) {
-		SendPrivmsg(target[i], message, client, channels, map_nick_fd);
-	}
+	// for (size_t i = 0; i < target.size(); ++i) {
+	// 	SendPrivmsg(target[i], message, client, channels, map_nick_fd);
+	// }
 }
 
 /* 正しいフォーマットかどうかを確認する関数
