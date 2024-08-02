@@ -8,24 +8,25 @@
 #include <algorithm>
 
 #include "Client.hpp"
+#include "Mode.hpp"
 
 class Client;
 
-enum ChannelMode{
-	CM_Non,
-	CM_Invite, //  inviteされた人のみjoinを許可　チャンネルオペレーターだけinviteできる
-	CM_Topic, // topicの書き換え権限がチャンオペのみ
-	CM_Key, // キーワードを設定してわかる人のみjoin
-	CM_Limit, //join可能人数を設定して制限する
-	CM_Operator //オペレータ-権限のgive take
-};
+// enum ChannelMode{
+
+// 	CM_Invite, //  inviteされた人のみjoinを許可　チャンネルオペレーターだけinviteできる
+// 	CM_Topic, // topicの書き換え権限がチャンオペのみ
+// 	CM_Key, // キーワードを設定してわかる人のみjoin
+// 	CM_Limit, //join可能人数を設定して制限する
+// 	CM_Operator //オペレータ-権限のgive take
+// };
 
 // Priviledge 権限
 enum User_Priv{
+	P_None, // 権限なし
 	P_Nomal, // 一般ユーザー
 	P_Operator //オペレーター権限ユーザー
 };
-
 class Channel{
 	private:
 		// チャンネル名
@@ -33,7 +34,8 @@ class Channel{
 		// チャンネルトピック
 		std::string topic_;
 		// チャンネルモード
-		std::vector<ChannelMode> mode_;
+		// std::vector<ChannelMode> mode_;
+		Mode mode_;
 		// チャンネルキー（パスワード）
 		std::string key_;
 		// チャンネルの人数制限
@@ -41,6 +43,9 @@ class Channel{
 
 		// 招待リスト（nick_nameの配列）
 		std::vector<std::string> invate_users_;
+
+		// チャンネルメンバー
+		std::vector<Client*> members_;
 
 		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
 
@@ -58,12 +63,19 @@ class Channel{
 
 		void RmUser(Client *user);
 		void RmUserFromInvite(const std::string& user);
+		void RmUserFromOperator(const std::string& user);
 
 		// setter
-		void SetToic(const std::string& topic);
+		void SetTopic(const std::string& topic);
 		void SetKey(const std::string& key);
 		void SetLimit(long int limit);
-		// void SetMode(const std::string& mode);
+
+		// setter for mode
+		void SetModeInvite(const bool invite);
+		void SetModeTopic(const bool topic);
+		void SetModeKey(const bool key);
+		void SetModeIsLimit(const bool is_limited);
+		void SetModeLimit(long int limit);
 
 		void SetPrivAsOperator(const std::string& nick_name);
 		void SetPrivAsNomal(const std::string& nick_name);
@@ -73,15 +85,22 @@ class Channel{
 		const std::string& GetTopic() const;
 		const std::string& GetKey() const;
 		int GetLimit() const;
-
+		const std::vector<Client*>& GetMember() const;
+		// getter for mode
+		bool GetModeInvite() const;
+		bool GetModeTopic() const;
+		bool GetModeKey() const;
+		bool GetModeIsLimit() const;
+		long int GetModeLimit() const;
 
 		Client* GetUser(const std::string& nick_name);
 		const User_Priv GetPriv(const std::string& nick_name);
-		bool CheckMode(ChannelMode mode);
+		// bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
+		bool IsOperator(const std::string &nickname);
 
 
-		void SendMsgToAll(const std::string& msg);
+	void SendMsgToAll(const std::string& msg);
 
 		class ChannelException : public std::exception{
 			private:

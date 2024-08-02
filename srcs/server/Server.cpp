@@ -5,6 +5,9 @@ Server::Server(): channel_list_(){}
 Server::Server(int port, const std::string &password) : port_(port), password_(password) {}
 
 Server::~Server() {
+	for (std::map<std::string, Client*>::iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		delete it->second;
+	}
 	CloseFds();
 }
 
@@ -102,51 +105,49 @@ void Server::ChatFlow(int fd) {
  * 引数2 -> メッセージオブジェクト*/
 void Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
+	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
-	// map_nick_fdにはニックネームとソケットファイルディスクリプタのマップが格納されている
-
-	// 初期接続時に許可されるコマンドの制限
-	if (!client.GetIsConnected() && cmd != "NICK" && cmd != "USER" && cmd != "CAP") {
-		SendMessage(fd, std::string(YELLOW) + "You must register first (NICK and USER commands)." + std::string(STOP), 0);
-//		ClearClientInfo(client, fds_, users_, map_nick_fd_);
-		return;
-	}
 
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "NICK") {
-		Command::NICK(client, map_nick_fd_, message);
-		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome()) {
-			SendWelcomeMessage(client);
-			client.SetIsConnected(true);
-		}
-	} else if (cmd == "USER") {
-		if (client.GetIsUserSet())
-			SendMessage(fd, std::string(YELLOW) + ERR_ALREADYREGISTERED(client.GetNickname()) + std::string(STOP), 0);
-		else {
-			Command::USER(client, message);
-			client.SetIsUserSet(true);
-			if (client.GetIsNick() && !client.GetIsWelcome()) {
-				SendWelcomeMessage(client);
-				client.SetIsConnected(true);
-				client.SetIsWelcome(true);
-			}
-		}
+	// クライアントが認証されていない場合
+	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
+		cmd != "USER" && cmd != "CAP") {
+		return;
 	}
-	else if (cmd == "CAP")
+		// クライアントがニックネームを設定していない場合
+	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd == "NICK") {
+		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+		if (client.GetIsNick())
+			SendWelcomeMessage(client);
+		return;
+	}
+	// コマンドの処理
+	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	else if (cmd == "PASS")
-		Command::PASS(client, this, password_);
+		Command::PASS(client, password_, message);
+	else if (cmd == "USER")
+		Command::USER(client, message);
+	else if (cmd == "NICK")
+		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
+	else if (cmd == "PRIVMSG")
+		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
 	else if (cmd == "JOIN"){
-		std::cout << "JOIN" << std::endl;
 		Command::JOIN(client, this, message);
 	}
 	else if (cmd == "KICK"){
 		Command::KICK(client, this, message);
+	}
+	else if (cmd == "INVITE"){
+		Command::INVITE(client, this, message);
+	}
+	else if (cmd == "MODE"){
+		Command::MODE(client, this, message);
 	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
@@ -243,6 +244,9 @@ void Server::CloseFds() {
 		// add client to vector
 		connected_clients.push_back(client);
 
+		// Client* client_p = new Client(incomingfd, client.GetNickname());
+		// AddClient(client.GetNickname(), client_p);
+
 		// call MakePoll with the new client's fd
 		MakePoll(incomingfd);
 		std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
@@ -325,6 +329,10 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
+std::map<std::string, Channel>& Server::GetChannels() {
+	return server_channels_;
+}
+
 
 /* setter関数 */
 void Server::SetPassword(const std::string &password) {
@@ -344,16 +352,17 @@ bool Server::IsChannel(const std::string& name) {
 	return false;
 }
 
-// チャンネル名から検索してchannelオブジェクトを取得する
-// 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(const std::string& name)
-{
-	Server::channel_iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return iter->second;
-	}
-	return NULL;
-}
+
+// // チャンネル名から検索してchannelオブジェクトを取得する
+// // 1:std::string& name -> 取得したいチャンネル名
+// Channel* Server::GetChannel(const std::string& name)
+// {
+// 	Server::channel_iterator iter = this->channel_list_.find(name);
+// 	if(iter != this->channel_list_.end()){
+// 		return iter->second;
+// 	}
+// 	return NULL;
+// }
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
@@ -364,7 +373,80 @@ Channel* Server::CreateChannel(const std::string& name)
 	}
 	Channel* ch_tmp = new Channel(name);
 	this->channel_list_.insert(std::make_pair(name, ch_tmp));
-	return this->GetChannel(name);
+	return this->FindChannelByName(name);
+}
+
+/* ニックネームからクライアントオブジェクトを取得する関数
+ * 引数1 -> ニックネーム
+ * 戻り値 -> クライアントオブジェクト またはNULL */
+Client* Server::FindClientByNickname(const std::string &nickname) {
+	std::cout << "Searching for nickname: " << nickname << std::endl;
+
+	// // clientが新規の場合のみ追加する
+	// if (clients_.find(client.GetNickname()) == clients_.end()) {
+	// 	std::cout << "Client not found in map, adding client: " << client.GetNickname() << std::endl;
+	// 	AddClient(client.GetNickname(), &client);
+	// }
+	std::map<std::string, Client*>::iterator iter = this->clients_.begin();
+	while(iter != this->clients_.end()){
+		std::cout << "find " << iter->first << std::endl;
+		iter++;
+	}
+	// clients_からnicknameをキーにクライアン<トを検索
+	std::map<std::string, Client*>::iterator it = this->clients_.find(nickname);
+
+	if (it != this->clients_.end()) {
+		std::cout << "it->first = " << it->first << std::endl;
+		std::cout << "it->second = " << it->second << std::endl;
+		std::cout << "Client found = " << it->second->GetNickname() << std::endl;
+		return it->second;
+	} else {
+		std::cout << "Client not found for nickname: " << nickname << std::endl;
+		return NULL;
+	}
+}
+
+/* チャンネル名からチャンネルオブジェクトを取得する関数
+ * 引数1 -> チャンネル名
+ * 戻り値 -> チャンネルオブジェクト またはNULL */
+Channel* Server::FindChannelByName(const std::string &name) {
+	std::map<std::string, Channel*>::iterator it = channel_list_.find(name);
+
+	// channelが見つかった場合、channelオブジェクトを返す
+	if (it != channel_list_.end())
+		return it->second;
+	else {
+		std::cout << "Channel not found for name: " << name << std::endl;
+		return NULL;
+	}
+}
+
+/* クライアントを追加する関数（nicknameとクライアントオブジェクトをマップに追加）
+ * 引数1 -> ニックネーム
+ * 引数2 -> クライアントオブジェクト */
+void Server::AddClient(const std::string &nickname, Client* clientPointer) {
+	// nicknameとクライアントオブジェクトをマップに追加
+	clients_.insert(std::make_pair(nickname, clientPointer));
+}
+
+/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
+ * 引数1 -> ニックネーム
+ * 引数2 -> クライアントオブジェクト */
+void Server::RmClient(const std::string &nickname) {
+	// nicknameとクライアントオブジェクトをマップに追加
+	std::map<std::string, Client *>::iterator iter = this->clients_.find(nickname);
+	if(iter != this->clients_.end()){
+		clients_.erase(iter);
+	}
+}
+
+/* デバッグ用関数 */
+std::vector<Client*> Server::GetAllClients() const {
+	std::vector<Client*> result;
+	for (std::map<std::string, Client*>::const_iterator it = clients_.begin(); it != clients_.end(); ++it) {
+		result.push_back(it->second);
+	}
+	return result;
 }
 
 const char *Server::ServerException::what(void) const throw()

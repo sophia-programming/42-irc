@@ -2,30 +2,22 @@
 
 /* PASSコマンドの処理を行う関数
  * 引数1 -> クライアント
- * 引数2 -> サーバーの情報
+ * 引数2 -> サーバーパスワード
  * 引数3 -> メッセージ */
-void Command::PASS(Client &client, Server *server, const Message &message) {
-	int fd = client.GetFd();
+void Command::PASS(Client &client, const std::string &server_password, const Message &message) {
+	int const &fd = client.GetFd();
 	const std::string &nick = client.GetNickname();
 
 	// パラメータが1つでない場合
-	if (message.GetParams().size() != 1) {
-		SendMessage(fd, std::string(YELLOW) + ERR_NEEDMOREPARAMS(nick, "PASS") + std::string(STOP), 0);
-		return ;
-	}
+	if (message.GetParams().size() != 1)
+		SendMessage(fd, ERR_NEEDMOREPARAMS(nick, "PASS"), 0);
 
 	// パスワードを取得
-	std::string password = message.GetParams()[0];
-	password = Trim(password);
-
-	std::string server_password = server->GetPassword();
-	server_password = Trim(server_password);
+	std::string const &password = message.GetParams()[0];
 
 	// パスワードが正しい場合
 	if (password == server_password) {
 		client.SetIsAuthenticated(); // 認証済みに設定
-		SendWelcomeMessage(client); // Welcomeメッセージを送信
-
 	}
 }
 

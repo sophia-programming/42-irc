@@ -12,19 +12,21 @@
 #include <map> // for std::map
 #include <stdlib.h> // for exit()
 #include <string> // for std::string
+#include <signal.h> // for SIGINT in linux
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
 #include "Message.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
-#include <signal.h> // for SIGINT in linux
+#include "Utils.hpp"
 
 
 const int TIMEOUT = 300 * 1000; // 5 minutes in milliseconds
 
 class Channel;
 class Client;
+// class Message;
 
 bool ValidateArgs(int argc, char **argv);
 std::string Trim(const std::string &str);
@@ -40,6 +42,7 @@ private:
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
 	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
+	std::map<std::string, Channel> server_channels_; //map of channels
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
@@ -55,6 +58,9 @@ private:
 	// 2: channel class -> チャンネルオブジェクト
 	typedef std::map<std::string, Channel*>::iterator channel_iterator;
 	std::map<std::string, Channel*> channel_list_;
+
+	//clientのリスト(nicknameをキーにして検索)
+	std::map<std::string, Client *> clients_;
 
 
 public:
@@ -76,15 +82,27 @@ public:
 	std::string GetPassword() const;
 	std::map<int, Client> GetUsers();
 	int GetServerSocketFd() const;
-	bool IsChannel(const std::string& name);
-	Channel* GetChannel( const std::string& name);
+	// Channel* GetChannel( const std::string& name);
 	Channel* CreateChannel( const std::string& name);
+	bool IsChannel(const std::string& name);
+	std::map<std::string, Channel>& GetChannels();
 
 	/* setter */
 	void SetPassword(const std::string &password);
 
 	/* Command */
 	void ExecuteCommand(int fd, const Message &message);
+
+	/* Client */
+	Client* FindClientByNickname(const std::string &nickname);
+	void AddClient(const std::string &nickname, Client* client);
+	void RmClient(const std::string &nickname);
+
+	/* Channel */
+	Channel* FindChannelByName(const std::string &name);
+
+	/* debug */
+	std::vector<Client*> GetAllClients() const;
 
 	class ServerException : public std::exception{
 			private:
@@ -94,7 +112,6 @@ public:
 				virtual ~ServerException () throw() {};
 				virtual const char* what (void) const throw();
 	};
-
 };
 
 #endif
