@@ -1,18 +1,14 @@
 #include "Command.hpp"
 #include "Message.hpp"
 
-void show_topic(Channel *ch, const std::string &nick, std::string &msg_to_c){
+void show_topic_and_member(Channel *ch, const std::string &nick, std::string &msg_to_c){
     if (ch->GetTopic().empty()){
         msg_to_c += ":ft_irc 331 " + nick + " " + ch->GetName() + " : No topic is set" + "\n";
     }
     else{
         msg_to_c += ":ft_irc 332 " + nick + " " + ch->GetName() + " :" + ch->GetTopic() + "\n";
     }
-}
-
-void show_channel_member(Channel *ch, const std::string &nick, std::string &msg_to_c){
     std::map<Client*, User_Priv>::iterator iter = ch->users_.begin();
-
     msg_to_c += ":server 353 " + nick + " = " + ch->GetName() + " :" ;
     while(iter != ch->users_.end()){
         msg_to_c += iter->first->GetNickname() + " ";
@@ -83,6 +79,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     if(msg.size() < 1){
         return ;
     }
+    int client_fd = client.GetFd();
     // クライアントに送信するメッセージ
     std::string msg_to_c;
 
@@ -96,39 +93,39 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 Channel* ch = server->FindChannelByName(ch_name);
                 if(ch->GetLimit() <= ch->users_.size()){ // エラー1 すでに満員
                     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
-                    SendMessage(client.GetFd(), msg_to_c, 0);
+                    SendMessage(client_fd, msg_to_c, 0);
                     return ;
                 }
                 if(ch->GetModeKey() == true){ //エラー２keyが必要
                     msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
-                    SendMessage(client.GetFd(), msg_to_c, 0);
+                    SendMessage(client_fd, msg_to_c, 0);
                     return ;
                 }
                 if(ch->GetModeInvite() == true){ //エラー３招待が必要
                     if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
                         msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-                        SendMessage(client.GetFd(), msg_to_c, 0);
+                        SendMessage(client_fd, msg_to_c, 0);
                         return ;
                     }
-
                     msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
                     ch->AddUserAsN(client);
                 }
-
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
                 ch->AddUserAsN(client);
+                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{ // チャンネルが存在しないとき
                 ch = server->CreateChannel(ch_name);
                 if(!ch){
                     return;
                 }
-                ch->AddUserAsO(client);
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                ch->AddUserAsO(client);
+                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
         }catch(const std::exception& e){
             msg_to_c = ERR_BADCHANMASK(client.GetNickname(), ch_name);
-            SendMessage(client.GetFd(), msg_to_c, 0);
+            SendMessage(client_fd, msg_to_c, 0);
             return;
         }
 
@@ -141,29 +138,32 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 Channel* ch = server->FindChannelByName(ch_name);
                 if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
                     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
-                    SendMessage(client.GetFd(), msg_to_c, 0);
+                    SendMessage(client_fd, msg_to_c, 0);
                     return ;
                 }
-                if(ch->GetModeKey() == true){ //エラー２keyが必要
+                if(ch->GetModeKey() == true){
                     if(ch->GetKey() != key){ //エラー２keyが一致しない
                         msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
-                        SendMessage(client.GetFd(), msg_to_c, 0);
-                        return ;
-                    }
-                    ch->AddUserAsN(client);
-                }
-                if(ch->GetModeInvite() == true){ //エラー３招待が必要
-                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
-                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-                        SendMessage(client.GetFd(), msg_to_c, 0);
+                        SendMessage(client_fd, msg_to_c, 0);
                         return ;
                     }
                     msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
                     ch->AddUserAsN(client);
+                    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 }
-
+                if(ch->GetModeInvite() == true){ //エラー３招待が必要
+                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
+                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
+                        SendMessage(client_fd, msg_to_c, 0);
+                        return ;
+                    }
+                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    ch->AddUserAsN(client);
+                    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
+                }
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
                 ch->AddUserAsN(client);
+                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{
                 ch = server->CreateChannel(ch_name);
@@ -171,18 +171,17 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 if(!ch){
                     return ;
                 }
-                ch->AddUserAsO(client);
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                ch->AddUserAsO(client);
+                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 ch->SetKey(key);
-                    // ch->SetMode(CM_Key);
+                ch->SetModeKey(true);
             }
         }catch(const std::exception& e){
             msg_to_c = ERR_BADCHANMASK(client.GetNickname(), ch_name);
-            SendMessage(client.GetFd(), msg_to_c, 0);
+            SendMessage(client_fd, msg_to_c, 0);
             return;
         }
     }
-    show_topic(ch,client.GetNickname(), msg_to_c);
-    show_channel_member(ch, client.GetNickname(), msg_to_c);
-    SendMessage(client.GetFd(), msg_to_c, 0);
+    SendMessage(client_fd, msg_to_c, 0);
 }
