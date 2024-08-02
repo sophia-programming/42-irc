@@ -127,7 +127,8 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
             }
         }catch(const std::exception& e){
-            std::cerr << "Exception caught: " << e.what() << std::endl;
+            msg_to_c = ERR_BADCHANMASK(client.GetNickname(), ch_name);
+            SendMessage(client.GetFd(), msg_to_c, 0);
             return;
         }
 
@@ -176,8 +177,8 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     // ch->SetMode(CM_Key);
             }
         }catch(const std::exception& e){
-            std::cerr << "Exception caught: " << e.what() << std::endl;
-            SendMessage(client.GetFd(), "Error\n", 0);
+            msg_to_c = ERR_BADCHANMASK(client.GetNickname(), ch_name);
+            SendMessage(client.GetFd(), msg_to_c, 0);
             return;
         }
     }
