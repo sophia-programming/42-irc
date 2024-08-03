@@ -25,30 +25,29 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	// サーバーのチャンネルリストを取得
 	const std::map<std::string, Channel*>& channels = server->GetChannels();
 
-	if (channels.empty()) {
-		// チャンネルがない場合、QUITコマンドを打ったクライアントのみ接続遮断
-		ClearClientInfo(client, pollfds, users, nick_to_fd);
-		return;
-	}
-
 	std::string messageContent = QUIT_MESSAGE(nick, username, hostname, quitMessage);
 
-	// すべてのチャンネルをチェックし、クライアントが参加しているチャンネルのみ処理
-	for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
-		Channel* channel = it->second;
-		if (channel && channel->HasUser(nick)) {
-			// チャンネル内の他のメンバーにQUITメッセージを送信
-			for (std::map<Client*, User_Priv>::const_iterator member_it = channel->users_.begin(); member_it != channel->users_.end(); ++member_it) {
-				Client *member = member_it->first;
-				if (member->GetFd() != clientFd) {
-					SendMessage(member->GetFd(), messageContent, 0);
+	if (!channels.empty()) {
+		// すべてのチャンネルをチェックし、クライアントが参加しているチャンネルのみ処理
+		for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+			Channel* channel = it->second;
+			if (channel && channel->HasUser(nick)) {
+				// チャンネル内の他のメンバーにQUITメッセージを送信
+				for (std::map<Client*, User_Priv>::const_iterator member_it = channel->users_.begin(); member_it != channel->users_.end(); ++member_it) {
+					Client *member = member_it->first;
+					if (member->GetFd() != clientFd) {
+						SendMessage(member->GetFd(), messageContent, 0);
+					}
 				}
+				// チャンネルからユーザーを削除
+				channel->RmUser(&client);
 			}
-			// チャンネルからユーザーを削除
-			channel->RmUser(&client);
 		}
 	}
 
-	// クライアントの情報を削除
-	ClearClientInfo(client, pollfds, users, nick_to_fd);
+	close(clientFd);
+
+	// クライアントの情報を削除(ここを入れるとエラーが発生する)
+//	ClearClientInfo(client, pollfds, users, nick_to_fd);
+
 }

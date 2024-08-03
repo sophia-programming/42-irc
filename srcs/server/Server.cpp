@@ -113,10 +113,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
-	if (cmd == "QUIT") {
-		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
-	}
-
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
@@ -148,12 +144,12 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::KICK(client, this, message);
 	else if (cmd == "TOPIC")
 		Command::TOPIC(client, this, message);
-	else if (cmd == "INVITE"){
+	else if (cmd == "QUIT")
+		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
+	else if (cmd == "INVITE")
 		Command::INVITE(client, this, message);
-	}
-	else if (cmd == "MODE"){
+	else if (cmd == "MODE")
 		Command::MODE(client, this, message);
-	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
 }
