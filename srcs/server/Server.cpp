@@ -113,6 +113,12 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
+	// QUITコマンドを最初に処理
+	if (cmd == "QUIT") {
+		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
+		return;
+	}
+
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
@@ -144,8 +150,6 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::KICK(client, this, message);
 	else if (cmd == "TOPIC")
 		Command::TOPIC(client, this, message);
-	else if (cmd == "QUIT")
-		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
 	else if (cmd == "INVITE")
 		Command::INVITE(client, this, message);
 	else if (cmd == "MODE")

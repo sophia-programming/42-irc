@@ -60,7 +60,4 @@ void ClearClientInfo(Client &client, std::vector<struct pollfd> &pollfds,
 
 	// nick_to_fdからクライアントを削除
 	nick_to_fd.erase(nick);
-
-	// クライアントのソケットファイルディスクリプタをクローズ
-	close(clientFd);
 }
