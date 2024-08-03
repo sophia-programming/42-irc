@@ -46,7 +46,7 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	}
 
 	// クライアントの情報を削除(ここを入れるとエラーが発生する)
-//	ClearClientInfo(client, pollfds, users, nick_to_fd);
+	ClearClientInfo(client, pollfds, users, nick_to_fd);
 
 	// クライアントの接続を切断
 	close(clientFd);

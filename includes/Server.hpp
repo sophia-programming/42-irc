@@ -92,7 +92,7 @@ public:
 	void SetPassword(const std::string &password);
 
 	/* Command */
-	void ExecuteCommand(int fd, const Message &message);
+	bool ExecuteCommand(int fd, const Message &message);
 
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname);

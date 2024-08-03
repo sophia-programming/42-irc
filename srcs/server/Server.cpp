@@ -96,7 +96,10 @@ void Server::ChatFlow(int fd) {
 		// 受け取ったコマンドをパース
 		Message parsed_msg(parsed_message);
 		// コマンドを処理
-		ExecuteCommand(fd, parsed_msg);
+		if (ExecuteCommand(fd, parsed_msg)) {
+			// QUITコマンドが実行された場合、クライアントを削除
+			break;
+		}
 	}
 }
 
@@ -104,7 +107,7 @@ void Server::ChatFlow(int fd) {
 /* Commandを処理する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
  * 引数2 -> メッセージオブジェクト*/
-void Server::ExecuteCommand(int fd, const Message &message) {
+bool Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	Server &server = *this;
 	std::string cmd = message.GetCommand();
@@ -116,20 +119,20 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	// QUITコマンドを最初に処理
 	if (cmd == "QUIT") {
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
-		return;
+		return true;
 	}
 
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
-		return;
+		return false;
 	}
 		// クライアントがニックネームを設定していない場合
 	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK") {
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 		if (client.GetIsNick())
 			SendWelcomeMessage(client);
-		return;
+		return false;
 	}
 	// コマンドの処理
 	if (cmd == "CAP")
@@ -156,6 +159,8 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::MODE(client, this, message);
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
+
+	return false;
 }
 
 
