@@ -18,4 +18,5 @@ void Command::USER(Client &client, const Message &message) {
 		client.SetServername(message.GetParams()[2]);
 		client.SetRealname(message.GetParams()[3]);
 	}
+	std::cout << "USER: " << client.GetUsername() << " " << client.GetHostname() << " " << client.GetServername() << " " << client.GetRealname() << std::endl;
 }

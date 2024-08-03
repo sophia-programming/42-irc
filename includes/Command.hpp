@@ -70,6 +70,8 @@ namespace Command{
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
+    void MODE(Client &client, Server *server, const Message &message);
+    void TOPIC(Client &client, Server *server, const Message &message);
     void INVITE(Client &client, Server *server, const Message &message);
   	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,

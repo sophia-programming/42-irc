@@ -70,20 +70,58 @@ void Channel::RmUserFromInvite(const std::string &nick_name)
 }
 
 // setter
+
+void Channel::SetModeInvite(const bool invite)
+{
+    this->mode_.SetInvite(invite);
+}
+
+void Channel::SetModeTopic(const bool topic)
+{
+    this->mode_.SetTopic(topic);
+}
+
+void Channel::SetModeKey(const bool key)
+{
+    this->mode_.SetKey(key);
+}
+
+void Channel::SetModeLimit(long int user_limit)
+{
+    this->limit_ = user_limit;
+}
+
+// チャンネルのモードを設定する
 void Channel::SetToic(const std::string& topic)
 {
     this->topic_=topic;
 }
 
-void Channel::SetKey(const std::string &key)
+void Channel::SetTopicSetter(Client* setter)
+{
+    this->topic_setter_ = setter;
+}
+
+void Channel::SetTopicTime(std::time_t time)
+{
+    this->topic_time_ = time;
+}
+
+void Channel::SetKey(const std::string& key)
 {
     this->key_ = key;
 }
 
-void Channel::SetLimit(long int user_limit)
+void Channel::SetModeIsLimit(const bool is_limited)
 {
-    this->limit_ = user_limit;
+    this->mode_.SetIsLimit(is_limited);
 }
+
+void Channel::SetLimit(long int limit)
+{
+    this->limit_ = limit;
+}
+
 
 // ユーザーの権限をオペレーターに設定する
 // 1:const std::string &nick_name -> オペレーターにしたいユーザーのニックネーム
@@ -92,6 +130,14 @@ void Channel::SetPrivAsOperator(const std::string &nick_name)
     user_list_iter iter = this->users_.find(this->GetUser(nick_name));
     if(iter != this->users_.end()){
         iter->second = P_Operator;
+    }
+}
+
+void Channel::SetPrivAsNomal(const std::string &nick_name)
+{
+    user_list_iter iter = this->users_.find(this->GetUser(nick_name));
+    if(iter != this->users_.end()){
+        iter->second = P_Nomal;
     }
 }
 
@@ -106,6 +152,16 @@ const std::string &Channel::GetTopic() const
     return this->topic_;
 }
 
+const Client *Channel::GetTopicSetter() const
+{
+    return this->topic_setter_;
+}
+
+const std::time_t Channel::GetTopicTime() const
+{
+    return this->topic_time_;
+}
+
 const std::string &Channel::GetKey() const
 {
     return this->key_;
@@ -118,13 +174,40 @@ int Channel::GetLimit() const
 
 // 引数のモードが現在設定されているかどうか確認する関数
 // 1:ChannelMode mode -> 確認したいモード
-bool Channel::CheckMode(ChannelMode mode)
+// bool Channel::CheckMode(ChannelMode mode)
+// {
+//     std::vector<ChannelMode>::iterator iter = std::find(this->mode_.begin(), this->mode_.end(), mode);
+//     if(iter != this->mode_.end()){
+//         return true;
+//     }
+//     return false;
+// }
+
+// getter for mode
+
+bool Channel::GetModeInvite() const
 {
-    std::vector<ChannelMode>::iterator iter = std::find(this->mode_.begin(), this->mode_.end(), mode);
-    if(iter != this->mode_.end()){
-        return true;
-    }
-    return false;
+    return this->mode_.GetInvite();
+}
+
+bool Channel::GetModeTopic() const
+{
+    return this->mode_.GetTopic();
+}
+
+bool Channel::GetModeKey() const
+{
+    return this->mode_.GetKey();
+}
+
+bool Channel::GetModeIsLimit() const
+{
+    return this->mode_.SetIsLimit();
+}
+
+long int Channel::GetModeLimit() const
+{
+    return this->mode_.GetLimit();
 }
 
 // 招待されているかの確認
@@ -141,11 +224,13 @@ bool Channel::IsInvited(const std::string& nick_name){
 
 // メッセージをこのチャンネルメンバー全員に送信する関数
 // 1:const std::string& msg -> 送信したいメッセージ
-void Channel::SendMsgToAll(const std::string& msg)
+void Channel::SendMsgToAll(const std::string& msg, Client* sender)
 {
     user_list_iter iter = this->users_.begin();
     while(iter != this->users_.end()){
-        send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+        if(iter->first != sender){
+            send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+        }
         iter++;
     }
 }
@@ -169,9 +254,10 @@ Client* Channel::GetUser(const std::string& nick_name)
 const User_Priv Channel::GetPriv(const std::string& nick_name)
 {
     Client* cl = this->GetUser(nick_name);
+    std::cout << "nick_name: " << nick_name << std::endl;
     if(cl != NULL)
         return this->users_.find(cl)->second;
-    throw ChannelException("Erroe: user dosent exist");
+    throw ChannelException("Error: user dosent exist");
 }
 
 // チャンネルメンバーを取得する関数
