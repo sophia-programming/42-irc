@@ -33,7 +33,7 @@ class Message;
 // エラーメッセージ
 #define ERR_NOSUCHNICK(nick, target) ":ft_irc 401 " + nick + " " + target  + " :No such nick\r\n"
 #define ERR_NOTJOINCHANNEL(nick, channelName) ":ft_irc 404 " + nick + " #" + channelName + " :Cannot send to channel (+n)\r\n"
-#define ERR_NOTEXTTOSEND(nick) "412 " + nick + " :No text to send\r\n"
+#define ERR_NOTEXTTOSEND(nick) ":ft_irc 412 " + nick + " :No text to send\r\n"
 #define ERR_UNKNOWNCOMMAND(nick, command) ":ft_irc 421 " + nick + " " + command + " :Unknown command\r\n"
 #define ERR_NONICKNAMEGIVEN ":ft_irc 431 :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick) ":ft_irc 432 " + nick + " :Erroneus nickname\r\n"
@@ -42,26 +42,24 @@ class Message;
 #define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
 
+// チャンネルエラーメッセージ
 #define ERR_CHANOPRIVSNEEDED(nick, ch_name) ":ft_irc 482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
 #define ERR_NOSUCHCHANNEL(nick) ":ft_irc 403 " + nick + "#nonexistent :No such channel\r\n"
 #define ERR_NOTONCHANNEL(nick, ch_name) ":ft_irc 442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
 #define ERR_USERNOTINCHANNEL(nick, ch_name) ":ft_irc 441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 #define ERR_PASSWDMISMATCH(nick) "464 " + nick + " :Password incorrect\r\n"
-
+#define ERR_USERONCHANNEL(inviter, invited, ch_name) ":ft_irc 443 "+inviter+" "+invited+ " "+ch_name+" :is already on channel\r\n"
+//チャンネルINVITEエラーメッセージ
 #define INVITE_SUCCESS(nick,user,ip, invited, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE "+invited+" :" + ch_name+ "\r\n"
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
-// #define ERR_NEEDMOREPARAMS(nick) ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n"
-// #define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
-// #define ERR_NOTONCHANNEL(inviter, ch_name) ":ft_irc 442 "+inviter+" "+ch_name+" :You're not on that channel\r\n"
-#define ERR_USERONCHANNEL(inviter, invited, ch_name) ":ft_irc 443 "+inviter+" "+invited+ " "+ch_name+" :is already on channel\r\n"
+// チャンネルJOINエラーメッセージ
+#define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
+#define ERR_CHANNELISFULL(nick, ch_name) ":ft_irc 471 " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_BADCHANNELKEY(nick, ch_name)  ":ft_irc 475 " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
+#define ERR_INVITEONLYCHAN(nick, ch_name) ":ft_irc 473  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 // パスワードエラーメッセージ
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
-
-#define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
-#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
-#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
-#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 namespace Command{
 	void PASS(Client &client, const std::string &server_password, const Message &message);
