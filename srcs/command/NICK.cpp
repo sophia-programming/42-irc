@@ -54,13 +54,8 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 			SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
 
 		// NICKとUSERコマンドの両方が設定されている場合, Welcomeメッセージを送信
-		if (client.GetIsNick() && client.GetIsUserSet()) {
+		if (client.GetIsNick() && client.GetIsUserSet())
 			client.SetIsWelcome(true);
-			SendMessage(fd, RPL_WELCOME(NewNick), 0);
-			SendMessage(fd, RPL_YOURHOST(NewNick), 0);
-			SendMessage(fd, RPL_CREATED(NewNick), 0);
-			SendMessage(fd, RPL_MYINFO(NewNick), 0);
-		}
 	}
 }
 
