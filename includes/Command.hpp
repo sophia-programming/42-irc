@@ -76,7 +76,7 @@ namespace Command{
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
 	  void PONG(Client &client, const std::vector<std::string> &params);
-  	void PRIVMSG(Client &client, std::map<std::string, int> map_nick_fd, std::map<std::string, Channel*> &channels, const Message &message);
+  	void PRIVMSG(Client &client, Server *server, const Message &message);
 };
 
 void SendMessage(int fd, const std::string &message, int flag);

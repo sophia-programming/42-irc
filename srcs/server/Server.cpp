@@ -59,7 +59,7 @@ void Server::ChatFlow(int fd) {
 
 	// データを受信
 	ssize_t bytes = recv(fd, received_data, sizeof(received_data), 0);
-	if (bytes < 0) {
+	if (bytes <= 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
 		ClearClients(fd);
 		close(fd);
@@ -110,7 +110,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	const std::vector<std::string> &params = message.GetParams();
 
 	/* コマンドの前後の空白を取り除く */
-//	cmd = Trim(cmd);
+	cmd = Trim(cmd);
 
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
@@ -136,7 +136,7 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
-		Command::PRIVMSG(client, map_nick_fd_, channel_list_, message);
+		Command::PRIVMSG(client, this, message);
 	else if (cmd == "JOIN"){
 		Command::JOIN(client, this, message);
 	}
@@ -332,10 +332,6 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
-std::map<std::string, Channel>& Server::GetChannels() {
-	return server_channels_;
-}
-
 
 /* setter関数 */
 void Server::SetPassword(const std::string &password) {
@@ -355,17 +351,6 @@ bool Server::IsChannel(const std::string& name) {
 	return false;
 }
 
-
-// チャンネル名から検索してchannelオブジェクトを取得する
-// 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(const std::string& name)
-{
-	Server::channel_iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return iter->second;
-	}
-	return NULL;
-}
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
@@ -432,7 +417,7 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
-/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
+/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップから削除）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
 void Server::RmClient(const std::string &nickname) {

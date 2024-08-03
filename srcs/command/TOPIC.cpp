@@ -18,7 +18,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 	std::string msg_to_c;
 	std::string msg_to_all;
 
-	Channel* ch = server->GetChannel(ch_name);
+	Channel* ch = server->FindChannelByName(ch_name);
 
 	// チャンネルが存在しない場合
 	if(!ch){
