@@ -80,7 +80,7 @@ namespace Command{
 };
 
 void SendMessage(int fd, const std::string &message, int flag);
-void SendWelcomeMessage(const Client &client);
+void SendWelcomeMessage(Client &client);
 void ClearClientInfo(
 		Client &client,
 		std::vector<struct pollfd> &pollfds,
