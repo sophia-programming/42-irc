@@ -208,13 +208,17 @@ void Server::CloseFds() {
 /* Clientの初期設定
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 	void Server::SetupClient(int socketfd) {
-		// set client nickname
+		// ニックネームを設定
 		std::stringstream ss;
 		ss << "unknown" << socketfd;
+
+		// ニックネームを取得
 		const std::string nick = ss.str();
-		// create new user
+
+		// 新しいクライアントを作成
 		Client user(socketfd, nick);
-		// add user to map
+
+		// クライアントをマップに追加
 		users_[socketfd] = user;
 	}
 
@@ -224,33 +228,36 @@ void Server::CloseFds() {
 		struct sockaddr_in clientAddress;
 		socklen_t len = sizeof(clientAddress);
 
-		// accept new client
+		// 新しいクライアントを受け入れる
 		int incomingfd = accept(server_socket_fd_, (struct sockaddr *) &clientAddress, &len);
 		if (incomingfd == -1) {
 			std::cout << RED << "accept() failed" << STOP << std::endl;
 			return;
 		}
 
-		// set client socket to non-blocking
+		// non-blocking socketを設定
 		if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) {
 			std::cout << RED << "fcntl() failed" << STOP << std::endl;
 			close(incomingfd);
 			return;
 		}
 
-		// initialize client
+		// 新しいクライアントの初期設定
 		SetupClient(incomingfd);
 
+		// 新しいクライアントをconnected_clientsに追加
 		Client &client = users_[incomingfd];
-		// set client IP address
+
+		// clientIpAddressを設定
 		client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
-		// add client to vector
+
+		// vectorにクライアントを追加
 		connected_clients.push_back(client);
 
 		// Client* client_p = new Client(incomingfd, client.GetNickname());
 		// AddClient(client.GetNickname(), client_p);
 
-		// call MakePoll with the new client's fd
+		// 新しいクライアントのfdをMakePollに渡す
 		MakePoll(incomingfd);
 		std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
 	}

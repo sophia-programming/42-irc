@@ -24,7 +24,7 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
 
 		// ニックネームがすでに設定されているかどうかを確認
-	else if (NickAlreadySet(NewNick, map_nick_fd) == true) {
+	else if (NickAlreadySet(NewNick, map_nick_fd)) {
 		client.SetIsWelcome(false);
 		SendMessage(fd, ERR_NICKNAMEINUSE(OldNick, NewNick), 0);
 	}
