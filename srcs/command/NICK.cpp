@@ -38,7 +38,7 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		std::map<std::string, Channel> &channels = server_channels;
 		std::map<std::string, Channel>::iterator it = channels.begin();
 		for (; it != channels.end(); it++) {
-			if (it->second.IsOperator(OldNick) == true) {
+			if (it->second.IsOperator(OldNick)) {
 				it->second.RmUserFromOperator(OldNick);
 				it->second.AddUserAsO(client);
 			}
@@ -49,12 +49,11 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		client.SetNickname(NewNick);
 		server->AddClient(NewNick, &client);
 
-		// もしクライアントが認証済みの場合
-		if (client.GetIsAuthenticated())
-			SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
+		// ニックネーム変更メッセージを送信
+		SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
 
 		// NICKとUSERコマンドの両方が設定されている場合, Welcomeメッセージを送信
-		if (client.GetIsNick() && client.GetIsUserSet())
+		if (client.GetIsNick() && client.GetIsUserSet() && !client.GetIsWelcome())
 			client.SetIsWelcome(true);
 	}
 }
