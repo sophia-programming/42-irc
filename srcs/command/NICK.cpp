@@ -50,6 +50,9 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 
 	// クライアントが認証済みかどうかに関わらず、クライアントの認証状態を設定
 	client.SetIsAuthenticated();
+
+	// ニックネーム変更メッセージを生成して送信
+	SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
 }
 
 
