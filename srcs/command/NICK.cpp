@@ -32,6 +32,7 @@ void Command::NICK(Client &client, Server *server,std::map<std::string, int> &ma
 		// 古いニックネームを削除し、新しいニックネームを追加
 	else {
 		map_nick_fd.erase(OldNick);
+		server->RmClient(OldNick);
 		map_nick_fd[NewNick] = fd;
 
 		// チャンネルのオペレータリストを更新
