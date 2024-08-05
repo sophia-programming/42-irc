@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <ctime>
 
 #include "Client.hpp"
 #include "Mode.hpp"
