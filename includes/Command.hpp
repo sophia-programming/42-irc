@@ -47,9 +47,13 @@ class Message;
 #define ERR_NOTONCHANNEL(nick, ch_name) ":ft_irc 442 " + nick + " " + ch_name + " :You're not on that channel\r\n"
 #define ERR_USERNOTINCHANNEL(nick, ch_name) ":ft_irc 441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 #define ERR_PASSWDMISMATCH(nick) "464 " + nick + " :Password incorrect\r\n"
+#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
+#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_BADCHANMASK(nick, ch_name) ":server 476 " + nick + " " + ch_name + " :Bad Channel Mask\r\n"
 
 #define INVITE_SUCCESS(nick,user,ip, invited, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE "+invited+" :" + ch_name+ "\r\n"
-#define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
+#define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name + "\r\n"
 // #define ERR_NEEDMOREPARAMS(nick) ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n"
 // #define ERR_NOSUCHNICK(inviter, invited) ":ft_irc 401 "+inviter+" "+invited+" :No such nick/channel\r\n"
 // #define ERR_NOTONCHANNEL(inviter, ch_name) ":ft_irc 442 "+inviter+" "+ch_name+" :You're not on that channel\r\n"
@@ -59,9 +63,6 @@ class Message;
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
 
 #define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
-#define ERR_CHANNELISFULL(nick, ch_name) "ERR_CHANNELISFULL (471) " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
-#define ERR_BADCHANNELKEY(nick, ch_name)  "ERR_BADCHANNELKEY (475) " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
-#define ERR_INVITEONLYCHAN(nick, ch_name) "ERR_INVITEONLYCHAN (473)  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
 namespace Command{
 	void PASS(Client &client, const std::string &server_password, const Message &message);
