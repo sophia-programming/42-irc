@@ -2,7 +2,6 @@
 
 bool NickSize(std::string const &nickname);
 bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_nick_fd);
-bool NickValidCharacters(std::string const &nickname);
 
 /* NICKコマンドの処理を行う関数
  * 引数1 -> クライアント
@@ -25,12 +24,6 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
 		return; // 処理を終了
 	}
-
-	// ニックネームの文字セットが有効かどうかを確認
-//	if (!NickValidCharacters(NewNick)) {
-//		SendMessage(fd, ERR_ERRONEUSNICKNAME(NewNick), 0);
-//		return; // 処理を終了
-//	}
 
 	// ニックネームがすでに設定されているかどうかを確認
 	if (NickAlreadySet(NewNick, map_nick_fd)) {
@@ -78,26 +71,3 @@ bool NickSize(std::string const &nickname) {
 bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_nick_fd) {
 	return map_nick_fd[nickname] > 0;
 }
-
-// =========== irssiに繋げた時にerrorになってしまうので、一旦コメントアウトしてる。今後変更するかもしれない。========
-
-/* ニックネームに使用できない文字が含まれていないかを確認する関数
- * 引数1 -> ニックネーム
- * 戻り値 -> ニックネームに使用できない文字が含まれていない場合はtrue, そうでない場合はfalse */
-//bool NickValidCharacters(std::string const &nickname) {
-//	if (nickname.empty())
-//		return false;
-//
-//	// 最初の文字がアルファベットまたは特殊文字かどうかを確認
-//	char first_char = nickname[0];
-//	if (!(isalpha(first_char) || first_char == '[' || first_char == ']' || first_char == '\\' || first_char == '^' || first_char == '_' || first_char == '{' || first_char == '}' || first_char == '|'))
-//		return false;
-//
-//	// それ以降の文字が有効かどうかを確認
-//	for (std::string::const_iterator it = nickname.begin() + 1; it != nickname.end(); ++it) {
-//		char c = *it;
-//		if (!(isalpha(c) || isdigit(c) || c == '-' || c == '[' || c == ']' || c == '\\' || c == '^' || c == '_' || c == '{' || c == '}' || c == '|'))
-//			return false;
-//	}
-//	return true;
-//}
