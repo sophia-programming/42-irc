@@ -7,7 +7,7 @@ bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_
  * 引数1 -> クライアント
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
-void Command::NICK(Client &client, Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message) {
+void Command::NICK(Client &client, Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message) {
 	const int &fd = client.GetFd();
 
 	// 引数がない場合 例）NICK
@@ -36,10 +36,12 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 	map_nick_fd[NewNick] = fd;
 
 	// チャンネルのオペレータリストを更新
-	for (std::map<std::string, Channel>::iterator it = server_channels.begin(); it != server_channels.end(); it++) {
-		if (it->second.IsOperator(OldNick)) {
-			it->second.RmUserFromOperator(OldNick);
-			it->second.AddUserAsO(client);
+	std::map<std::string, Channel*> channels = server_channels;
+	std::map<std::string, Channel*>::iterator it = channels.begin();
+	for (; it != channels.end(); it++) {
+		if (it->second->IsOperator(OldNick) == true) {
+			it->second->RmUserFromOperator(OldNick);
+			it->second->AddUserAsO(client);
 		}
 	}
 

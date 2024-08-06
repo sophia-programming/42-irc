@@ -84,6 +84,7 @@ public:
 	int GetServerSocketFd() const;
 	Channel* CreateChannel( const std::string& name);
 	bool IsChannel(const std::string& name);
+	const std::map<std::string, Channel*>& GetChannels() const;
 
 	/* setter */
 	void SetPassword(const std::string &password);

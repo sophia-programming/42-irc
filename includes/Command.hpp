@@ -79,7 +79,7 @@ namespace Command{
   	void QUIT(Client &client, Server *server, std::vector<struct pollfd> &pollfds,
 			  std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			  const std::vector<std::string> &params, const Message &message);
-	  void PONG(Client &client, const std::vector<std::string> &params);
+	void PONG(Client &client, const std::vector<std::string> &params);
   	void PRIVMSG(Client &client, Server *server, const Message &message);
 };
 
