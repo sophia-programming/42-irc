@@ -49,6 +49,8 @@ class Message;
 #define ERR_USERNOTINCHANNEL(nick, ch_name) ":ft_irc 441 kicker " + nick + " " + ch_name + " :They aren't on that channel\r\n"
 #define ERR_PASSWDMISMATCH(nick) "464 " + nick + " :Password incorrect\r\n"
 #define ERR_USERONCHANNEL(inviter, invited, ch_name) ":ft_irc 443 "+inviter+" "+invited+ " "+ch_name+" :is already on channel\r\n"
+#define ERR_BADCHANMASK(nick, ch_name) ":server 476 " + nick + " " + ch_name + " :Bad Channel Mask\r\n"
+
 //チャンネルINVITEエラーメッセージ
 #define INVITE_SUCCESS(nick,user,ip, invited, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE "+invited+" :" + ch_name+ "\r\n"
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
