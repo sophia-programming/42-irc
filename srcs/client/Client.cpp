@@ -16,8 +16,7 @@ void Client::AddMessage(const std::string &message) {
 }
 
 // mapに格納するために必要な比較演算子のオーバーロード
-bool Client::operator<(const Client &other) const
-{
+bool Client::operator<(const Client &other) const {
     return this->nickname_ < this->nickname_;
 }
 

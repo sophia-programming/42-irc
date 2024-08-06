@@ -130,7 +130,7 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		// クライアントがニックネームを設定していない場合
 	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK") {
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
-		if (client.GetIsNick())
+		if (client.GetIsNick() && client.GetIsUserSet())
 			SendWelcomeMessage(client);
 		return false;
 	}
@@ -146,7 +146,7 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
-		Command::PRIVMSG(client, map_nick_fd_, channel_list_);
+		Command::PRIVMSG(client, this, message);
 	else if (cmd == "JOIN")
 		Command::JOIN(client, this, message);
 	else if (cmd == "KICK")
@@ -216,13 +216,17 @@ void Server::CloseFds() {
 /* Clientの初期設定
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 	void Server::SetupClient(int socketfd) {
-		// set client nickname
+		// ニックネームを設定
 		std::stringstream ss;
 		ss << "unknown" << socketfd;
+
+		// ニックネームを取得
 		const std::string nick = ss.str();
-		// create new user
+
+		// 新しいクライアントを作成
 		Client user(socketfd, nick);
-		// add user to map
+
+		// クライアントをマップに追加
 		users_[socketfd] = user;
 	}
 
@@ -232,32 +236,36 @@ void Server::CloseFds() {
 		struct sockaddr_in clientAddress;
 		socklen_t len = sizeof(clientAddress);
 
-		// accept new client
+		// 新しいクライアントを受け入れる
 		int incomingfd = accept(server_socket_fd_, (struct sockaddr *) &clientAddress, &len);
 		if (incomingfd == -1) {
 			std::cout << RED << "accept() failed" << STOP << std::endl;
 			return;
 		}
 
-		// set client socket to non-blocking
+		// non-blocking socketを設定
 		if (fcntl(incomingfd, F_SETFL, O_NONBLOCK) == -1) {
 			std::cout << RED << "fcntl() failed" << STOP << std::endl;
 			close(incomingfd);
 			return;
 		}
 
-		// initialize client
+		// 新しいクライアントの初期設定
 		SetupClient(incomingfd);
+    
+		// 新しいクライアントをconnected_clientsに追加
 		Client &client = users_[incomingfd];
-		// set client IP address
+
+		// clientIpAddressを設定
 		client.SetIPAddress(inet_ntoa(clientAddress.sin_addr));
-		// add client to vector
+
+		// vectorにクライアントを追加
 		connected_clients.push_back(client);
 
 		// Client* client_p = new Client(incomingfd, client.GetNickname());
 		// AddClient(client.GetNickname(), client_p);
 
-		// call MakePoll with the new client's fd
+		// 新しいクライアントのfdをMakePollに渡す
 		MakePoll(incomingfd);
 		std::cout << GREEN << "New client <" << incomingfd << "> connected" << STOP << std::endl;
 	}
@@ -339,11 +347,6 @@ int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
 
-const std::map<std::string, Channel*>& Server::GetChannels() const {
-	return channel_list_;
-}
-
-
 /* setter関数 */
 void Server::SetPassword(const std::string &password) {
 	this->password_ = password;
@@ -362,16 +365,6 @@ bool Server::IsChannel(const std::string& name) {
 	return false;
 }
 
-// チャンネル名から検索してchannelオブジェクトを取得する
-// 1:std::string& name -> 取得したいチャンネル名
-Channel* Server::GetChannel(const std::string& name)
-{
-	Server::channel_iterator iter = this->channel_list_.find(name);
-	if(iter != this->channel_list_.end()){
-		return iter->second;
-	}
-	return NULL;
-}
 
 // チャンネルを作成してリストに登録する
 // 1:std::string& name　-> 作成したいチャンネル名
@@ -438,7 +431,7 @@ void Server::AddClient(const std::string &nickname, Client* clientPointer) {
 	clients_.insert(std::make_pair(nickname, clientPointer));
 }
 
-/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップに追加）
+/* クライアントを削除する関数（nicknameとクライアントオブジェクトをマップから削除）
  * 引数1 -> ニックネーム
  * 引数2 -> クライアントオブジェクト */
 void Server::RmClient(const std::string &nickname) {
