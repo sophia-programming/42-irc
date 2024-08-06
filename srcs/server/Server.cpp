@@ -28,7 +28,8 @@ void Server::ServerInit(int port) {
 void Server::ServerStart() {
 	while (true) {
 		// poll()でデータを待機
-		if ((poll(&fds_[0], fds_.size(), TIMEOUT) == -1) && Server::signal_ == false)
+		int poll_result = poll(&fds_[0], fds_.size(), TIMEOUT);
+		if (poll_result == -1 && Server::signal_ == false)
 			throw (std::runtime_error("poll() failed"));
 
 		// 全てのファイルディスクリプタをチェック
@@ -95,7 +96,10 @@ void Server::ChatFlow(int fd) {
 		// 受け取ったコマンドをパース
 		Message parsed_msg(parsed_message);
 		// コマンドを処理
-		ExecuteCommand(fd, parsed_msg);
+		if (ExecuteCommand(fd, parsed_msg)) {
+			// QUITコマンドが実行された場合、クライアントを削除
+			break;
+		}
 	}
 }
 
@@ -103,7 +107,7 @@ void Server::ChatFlow(int fd) {
 /* Commandを処理する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
  * 引数2 -> メッセージオブジェクト*/
-void Server::ExecuteCommand(int fd, const Message &message) {
+bool Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
 	Server &server = *this;
 	std::string cmd = message.GetCommand();
@@ -112,17 +116,23 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 	/* コマンドの前後の空白を取り除く */
 	cmd = Trim(cmd);
 
+	// QUITコマンドを最初に処理
+	if (cmd == "QUIT") {
+		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
+		return true;
+	}
+
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
 		cmd != "USER" && cmd != "CAP") {
-		return;
+		return false;
 	}
 		// クライアントがニックネームを設定していない場合
-	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd == "NICK") {
+	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK") {
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 		if (client.GetIsNick() && client.GetIsUserSet())
 			SendWelcomeMessage(client);
-		return;
+		return false;
 	}
 	// コマンドの処理
 	if (cmd == "CAP")
@@ -137,24 +147,22 @@ void Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, this, message);
-	else if (cmd == "JOIN"){
+	else if (cmd == "JOIN")
 		Command::JOIN(client, this, message);
-	}
-	else if (cmd == "KICK"){
+	else if (cmd == "KICK")
 		Command::KICK(client, this, message);
-	}
-	else if (cmd == "TOPIC"){
+	else if (cmd == "TOPIC")
 		Command::TOPIC(client, this, message);
-	}
-	else if (cmd == "INVITE"){
+	else if (cmd == "INVITE")
 		Command::INVITE(client, this, message);
-	}
-	else if (cmd == "MODE"){
+	else if (cmd == "MODE")
 		Command::MODE(client, this, message);
-	}
 	else
 		SendMessage(fd, std::string(YELLOW) + ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd) + std::string(STOP), 0);
+
+	return false;
 }
+
 
 /* クライアントにデータを送信する関数
  * 引数1 -> クライアントのソケットファイルディスクリプタ
@@ -244,7 +252,7 @@ void Server::CloseFds() {
 
 		// 新しいクライアントの初期設定
 		SetupClient(incomingfd);
-
+    
 		// 新しいクライアントをconnected_clientsに追加
 		Client &client = users_[incomingfd];
 
@@ -338,7 +346,6 @@ std::map<int, Client> Server::GetUsers() {
 int Server::GetServerSocketFd() const {
 	return server_socket_fd_;
 }
-
 
 /* setter関数 */
 void Server::SetPassword(const std::string &password) {

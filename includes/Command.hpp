@@ -29,6 +29,7 @@ class Message;
 #define CAP_LS ":ft_irc CAP * LS\r\n"
 #define PONG_MESSAGE(ServerName) ":ft_irc PONG " + ServerName + "\r\n"
 #define PRIVMSG_MESSAGE(nick, user, host, target, msg) ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + msg + "\r\n";
+#define QUIT_MESSAGE(nick, user, host, msg) ":" + nick + "!" + user + "@" + host + " QUIT :" + msg + "\r\n";
 
 // エラーメッセージ
 #define ERR_NOSUCHNICK(nick, target) ":ft_irc 401 " + nick + " " + target  + " :No such nick\r\n"
@@ -65,7 +66,7 @@ class Message;
 
 namespace Command{
 	void PASS(Client &client, const std::string &server_password, const Message &message);
-	void NICK(Client &client,  Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel> &server_channels, const Message &message);
+	void NICK(Client &client,  Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);
     void USER(Client &client, const Message &message);
@@ -75,6 +76,9 @@ namespace Command{
   	void CAP(Client &client, std::vector<struct pollfd> &pollfds,
 			 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
 			 const Message &message);
+  	void QUIT(Client &client, Server *server, std::vector<struct pollfd> &pollfds,
+			  std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd,
+			  const std::vector<std::string> &params, const Message &message);
 	  void PONG(Client &client, const std::vector<std::string> &params);
   	void PRIVMSG(Client &client, Server *server, const Message &message);
 };

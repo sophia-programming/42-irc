@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <ctime>
 
 #include "Client.hpp"
 #include "Mode.hpp"
@@ -106,6 +107,7 @@ class Channel{
 		// bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
 		bool IsOperator(const std::string &nickname);
+		bool HasUser(const std::string& nickname) const;
 
 
 	void SendMsgToAll(const std::string& msg, Client* sender);

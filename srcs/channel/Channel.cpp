@@ -272,6 +272,16 @@ bool Channel::operator<(const Channel &other) const
     return this->name_ < other.name_;
 }
 
+// チャンネルに指定したユーザーが存在するかどうかを確認する関数
+bool Channel::HasUser(const std::string& nickname) const {
+	for (std::map<Client*, User_Priv>::const_iterator it = users_.begin(); it != users_.end(); ++it) {
+		if (it->first->GetNickname() == nickname) {
+			return true;
+		}
+	}
+	return false;
+}
+
 const char *Channel::ChannelException::what(void) const throw()
 {
 	return this->msg_.c_str();

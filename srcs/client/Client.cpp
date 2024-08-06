@@ -39,7 +39,6 @@ void Client::ClearMessage() {
 	parsed_msg_.Clear();
 }
 
-
 /* ====== getter関数 ====== */
 int Client::GetFd() const {
 	return this->fd_;

@@ -43,16 +43,21 @@ void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
  * 引数2 -> 送信するメッセージ
  * 引数3 -> 送信するメッセージのサイズ */
 void ClearClientInfo(Client &client, std::vector<struct pollfd> &pollfds,
-		 	std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
+					 std::map<int, Client> &users, std::map<std::string, int> &nick_to_fd) {
 	const std::string nick = client.GetNickname();
+	int clientFd = client.GetFd();
 
-	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++) {
-		if (client.GetFd() == it->fd) {
+	// pollfdsからクライアントを削除
+	for (std::vector<struct pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); ++it) {
+		if (clientFd == it->fd) {
 			pollfds.erase(it);
 			break;
 		}
 	}
-	users.erase(client.GetFd());
+
+	// usersからクライアントを削除
+	users.erase(clientFd);
+
+	// nick_to_fdからクライアントを削除
 	nick_to_fd.erase(nick);
-	close(client.GetFd());
 }

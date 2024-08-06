@@ -42,7 +42,7 @@ private:
 	std::map<int, Client> users_; //map of users
 	std::map<int, std::string> nickname_; //map of nicknames
 	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
-	std::map<std::string, Channel> server_channels_; //map of channels
+	std::map<std::string, Channel*> server_channels_; //map of channels
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
@@ -89,7 +89,7 @@ public:
 	void SetPassword(const std::string &password);
 
 	/* Command */
-	void ExecuteCommand(int fd, const Message &message);
+	bool ExecuteCommand(int fd, const Message &message);
 
 	/* Client */
 	Client* FindClientByNickname(const std::string &nickname);
