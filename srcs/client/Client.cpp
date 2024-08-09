@@ -108,7 +108,6 @@ void Client::SetIsAuthenticated() {
 
 void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
-	this->is_user_set_ = true;
 }
 
 void Client::SetIsWelcome(bool is_welcome) {
@@ -123,8 +122,8 @@ void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
 }
 
-void Client::SetIsNick() {
-	this->is_nickname_ = true;
+void Client::SetIsNick(bool flag) {
+	this->is_nickname_ = flag;
 }
 
 void Client::SetUsername(const std::string &username) {

@@ -46,12 +46,9 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 	}
 
 	// ニックネームを設定
-	client.SetIsNick();
+	client.SetIsNick(true);
 	client.SetNickname(NewNick);
 	server->AddClient(NewNick, &client);
-
-	// クライアントが認証済みかどうかに関わらず、クライアントの認証状態を設定
-	client.SetIsAuthenticated();
 
 	// ニックネーム変更メッセージを生成して送信
 	SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
@@ -62,7 +59,7 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
  * 引数1 -> ニックネーム
  * 戻り値 -> ニックネームのサイズが9文字以下の場合はtrue, そうでない場合はfalse*/
 bool NickSize(std::string const &nickname) {
-	return (nickname.size() > 9) ? false : true;
+	return nickname.size() <= 9;
 }
 
 
@@ -71,5 +68,5 @@ bool NickSize(std::string const &nickname) {
  * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ
  * 戻り値 -> ニックネームが設定されている場合はtrue, そうでない場合はfalse*/
 bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_nick_fd) {
-	return map_nick_fd[nickname] > 0;
+	return map_nick_fd.find(nickname) != map_nick_fd.end();
 }

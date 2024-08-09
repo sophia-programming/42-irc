@@ -62,7 +62,7 @@ public:
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 
-	void SetIsNick();
+	void SetIsNick(bool flag);
 	void SetUsername(const std::string &username);
 	void SetHostname(const std::string &hostname);
 	void SetServername(const std::string &servername);

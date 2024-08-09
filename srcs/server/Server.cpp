@@ -123,26 +123,32 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 
 	// クライアントが認証されていない場合
-	if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK" &&
-		cmd != "USER" && cmd != "CAP") {
-		return false;
-	}
-		// クライアントがニックネームを設定していない場合
-	else if (!client.GetIsWelcome() && !client.GetIsConnected() && cmd != "NICK") {
-		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
-		if (client.GetIsNick() && client.GetIsUserSet())
+	if (!client.GetIsWelcome() && !client.GetIsConnected()) {
+		if (cmd == "NICK") {
+			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+		}
+
+		if (cmd == "USER") {
+			Command::USER(client, message);
+		}
+
+		// `NICK`と`USER`の両方が設定されたか確認
+		if (client.GetIsNick() && client.GetIsUserSet()) {
+			std::cout << "GetIsNick() = " << client.GetIsNick() << std::endl;
+			std::cout << "GetIsUserSet() = " << client.GetIsUserSet() << std::endl;
+			std::cout << RED << "hello" << STOP << std::endl;
 			SendWelcomeMessage(client);
-		return false;
+			client.SetIsWelcome(true); // クライアントが正式に接続されたことを記録
+		}
+
+		return false; // 認証が完了するまでは他のコマンドを処理しない
 	}
-	// コマンドの処理
+
+	// 認証が完了していれば、他のコマンドを処理
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	else if (cmd == "PASS")
 		Command::PASS(client, password_, message);
-	else if (cmd == "USER")
-		Command::USER(client, message);
-	else if (cmd == "NICK")
-		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
@@ -162,6 +168,9 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 
 	return false;
 }
+
+
+
 
 
 /* クライアントにデータを送信する関数
