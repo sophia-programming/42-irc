@@ -39,7 +39,7 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 	std::map<std::string, Channel*> channels = server_channels;
 	std::map<std::string, Channel*>::iterator it = channels.begin();
 	for (; it != channels.end(); it++) {
-		if (it->second->IsOperator(OldNick) == true) {
+		if (it->second->IsOperator(OldNick)) {
 			it->second->RmUserFromOperator(OldNick);
 			it->second->AddUserAsO(client);
 		}
@@ -51,7 +51,9 @@ void Command::NICK(Client &client, Server *server, std::map<std::string, int> &m
 	server->AddClient(NewNick, &client);
 
 	// ニックネーム変更メッセージを生成して送信
-	SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
+	if (!OldNick.empty()) {
+		SendMessage(fd, RPL_NICK(OldNick, NewNick), 0);
+	}
 }
 
 

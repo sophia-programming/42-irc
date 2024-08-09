@@ -29,7 +29,7 @@ private:
 
 public:
 	Client();
-	Client(int fd_, const std::string &nick);
+	Client(int fd);
 	~Client();
 
 	void Parse(const std::string &message);

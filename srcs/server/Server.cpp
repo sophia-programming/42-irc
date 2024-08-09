@@ -225,15 +225,8 @@ void Server::CloseFds() {
 /* Clientの初期設定
  1: 引数(socketfd) -> クライアントのソケットファイルディスクリプタ*/
 void Server::SetupClient(int socketfd) {
-	// ニックネームを設定
-	std::stringstream ss;
-	ss << "unknown" << socketfd;
-
-	// ニックネームを取得
-	const std::string nick = ss.str();
-
 	// 新しいクライアントを作成
-	Client user(socketfd, nick);
+	Client user(socketfd);
 
 	// クライアントをマップに追加
 	users_[socketfd] = user;
