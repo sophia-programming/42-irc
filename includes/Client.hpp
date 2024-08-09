@@ -29,7 +29,7 @@ private:
 
 public:
 	Client();
-	Client(int fd_, const std::string &nick);
+	Client(int fd);
 	~Client();
 
 	void Parse(const std::string &message);
@@ -62,7 +62,7 @@ public:
 	void SetIPAddress(const std::string& ipaddress);
 	void AddMessage(const std::string &message);
 
-	void SetIsNick();
+	void SetIsNick(bool flag);
 	void SetUsername(const std::string &username);
 	void SetHostname(const std::string &hostname);
 	void SetServername(const std::string &servername);

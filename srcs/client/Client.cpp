@@ -2,8 +2,8 @@
 
 Client::Client() : fd_(-1), is_authenticated_(false) {}
 
-Client::Client(int fd, const std::string &nick)
-	: fd_(fd), nickname_(nick), is_authenticated_(false), is_nickname_(true), is_user_set_(false) {}
+Client::Client(int fd)
+	: fd_(fd), nickname_(""), is_authenticated_(false), is_nickname_(false), is_user_set_(false) {}
 
 Client::~Client() {}
 
@@ -108,7 +108,6 @@ void Client::SetIsAuthenticated() {
 
 void Client::SetNickname(const std::string &nick) {
 	this->nickname_ = nick;
-	this->is_user_set_ = true;
 }
 
 void Client::SetIsWelcome(bool is_welcome) {
@@ -123,8 +122,8 @@ void Client::SetIPAddress(const std::string &ipaddress) {
 	this->ip_address_ = ipaddress;
 }
 
-void Client::SetIsNick() {
-	this->is_nickname_ = true;
+void Client::SetIsNick(bool flag) {
+	this->is_nickname_ = flag;
 }
 
 void Client::SetUsername(const std::string &username) {
