@@ -2,8 +2,6 @@
 
 /* PRIVMSG <target> :<message> */
 
-bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
-
 /* PRIVMSGコマンド(メッセージを送信する)
  * 引数1 -> クライアント
  * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ

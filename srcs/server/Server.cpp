@@ -153,6 +153,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, this, message);
+	else if (cmd == "NOTICE")
+		Command::NOTICE(client, this, message);
 	else if (cmd == "JOIN")
 		Command::JOIN(client, this, message);
 	else if (cmd == "KICK")
