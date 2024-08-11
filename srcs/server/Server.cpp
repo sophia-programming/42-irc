@@ -136,7 +136,6 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		if (client.GetIsNick() && client.GetIsUserSet()) {
 			std::cout << "GetIsNick() = " << client.GetIsNick() << std::endl;
 			std::cout << "GetIsUserSet() = " << client.GetIsUserSet() << std::endl;
-			std::cout << RED << "hello" << STOP << std::endl;
 			SendWelcomeMessage(client);
 			client.SetIsWelcome(true); // クライアントが正式に接続されたことを記録
 		}

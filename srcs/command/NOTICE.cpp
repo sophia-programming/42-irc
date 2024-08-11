@@ -10,9 +10,6 @@ void Command::NOTICE(Client &client, Server *server, const Message &message) {
 	const std::vector<std::string> msg = message.GetParams();
 	std::string msg_to_c;
 
-	if (!IsCorrectFormat(msg, client))
-		return;
-
 	// パラメータが不足している場合は処理を終了（エラーメッセージは送信しない）
 	if (msg.empty() || msg.size() < 2) {
 		return;
