@@ -1,6 +1,6 @@
 #include "Mode.hpp"
 
-Mode::Mode():invite_(false), topic_(false), key_(false), limit_(__LONG_MAX__)
+Mode::Mode():invite_(false), topic_(false), key_(false), limit_(0)
 {
 }
 

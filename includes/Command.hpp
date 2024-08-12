@@ -61,6 +61,10 @@ class Message;
 #define ERR_BADCHANNELKEY(nick, ch_name)  ":ft_irc 475 " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
 #define ERR_INVITEONLYCHAN(nick, ch_name) ":ft_irc 473  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
 
+//チャンネルMODEエラーメッセージ
+#define ERR_LIMITVALUEMINUS(nick, ch_name) ":ft_irc 472 " + nick + " -l :is an unknown mode character to me\r\n"
+#define ERR_LIMITVALUEOVER(nick, ch_name) ":ft_irc 461 " + nick + " MODE :Not enough parameters\r\n"
+
 // パスワードエラーメッセージ
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
 

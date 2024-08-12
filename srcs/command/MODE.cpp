@@ -51,7 +51,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			msg_to_c += "k";
 		}
 		if(ch->GetModeIsLimit())
-		msg_to_c += " " + std::to_string(ch->GetModeLimit());
+		msg_to_c += " " + change_string(ch->GetModeLimit());
 		msg_to_c += "\r\n";
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;
@@ -154,8 +154,19 @@ else if(mode_option == "-k"){
 		}
 		try{
 			std::string limit = message.GetParams()[2];
+			if (string_to_llint(limit) < 0){
+				msg_to_c = ERR_LIMITVALUEMINUS(client.GetNickname(), ch_name);
+				SendMessage(client.GetFd(), msg_to_c, 0);
+				return ;
+			}
+			if (string_to_llint(limit) > LONG_MAX){
+				msg_to_c = ERR_LIMITVALUEOVER(client.GetNickname(), ch_name);
+				SendMessage(client.GetFd(), msg_to_c, 0);
+				return ;
+			}
 			ch->SetModeIsLimit(true);
-			ch->SetModeLimit(std::stoi(limit));
+			ch->SetModeLimit(string_to_llint(limit));
+			std::cout << "ch->limit:" << ch->GetModeLimit() << std::endl;
 			msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +l " + limit + "\r\n";
 			ch->SendMsgToAll(msg_to_all, &client);
 		}catch(const std::invalid_argument& e){
