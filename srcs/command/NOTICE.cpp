@@ -1,5 +1,4 @@
 #include "Command.hpp"
-#include <sstream>
 
 /* NOTICE <recipient> :<content> */
 

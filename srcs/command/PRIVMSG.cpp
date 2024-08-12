@@ -4,38 +4,51 @@
 
 /* PRIVMSGコマンド(メッセージを送信する)
  * 引数1 -> クライアント
- * 引数2 -> ニックネームとソケットファイルディスクリプタのマップ
- * 引数3 -> チャンネルのリスト */
+ * 引数2 -> サーバーの情報
+ * 引数3 -> メッセージ */
 void Command::PRIVMSG(Client &client, Server *server, const Message &message) {
 	const std::vector<std::string> msg = message.GetParams();
-	std::string msg_to_c;
 
+	// パラメータが不足している場合はエラーメッセージを送信
 	if (!IsCorrectFormat(msg, client))
 		return;
-	const std::string recipient = msg[0];
+
+	const std::string recipients = msg[0];
 	const std::string content = msg[1];
-	if(content.empty()){ //エラー　メッセージが空
+
+	if (content.empty()){ // エラー　メッセージが空
 		SendMessage(client.GetFd(), ERR_NOTEXTTOSEND(client.GetNickname()), 0);
-		return ;
+		return;
 	}
-	if(recipient[0] == '#'){ //チャンネルに対して送信
-		Channel* channel = server->FindChannelByName(recipient);
-		if(!channel){ // エラー　一致するチャンネルが存在しない
-			SendMessage(client.GetFd(), ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
-			return ;
+
+	// recipientsをカンマで分割
+	std::stringstream ss(recipients);
+	std::string recipient;
+
+	while (std::getline(ss, recipient, ',')) {
+		// 空のターゲットは無視する
+		if (recipient.empty()) {
+			continue;
 		}
-		channel->SendMsgToAll(content, &client);
-	}
-	else{ // ユーザーに対して送信
-		Client *recep_client = server->FindClientByNickname(recipient);
-		if(!recep_client){ // エラー　一致するクライアントが存在しない
-			SendMessage(client.GetFd(), ERR_NOSUCHNICK(client.GetNickname(),recipient), 0);
-			return ;
+
+		if (recipient[0] == '#') {  // チャンネルに対して送信
+			Channel* channel = server->FindChannelByName(recipient);
+			if (!channel) { // エラー　一致するチャンネルが存在しない
+				SendMessage(client.GetFd(), ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
+				continue;
+			}
+			channel->SendMsgToAll(content, &client);
+		} else {  // ユーザーに対して送信
+			Client *recep_client = server->FindClientByNickname(recipient);
+			if (!recep_client) { // エラー　一致するクライアントが存在しない
+				SendMessage(client.GetFd(), ERR_NOSUCHNICK(client.GetNickname(), recipient), 0);
+				continue;
+			}
+			SendMessage(recep_client->GetFd(), content, 0);
 		}
-		SendMessage(recep_client->GetFd(), content, 0);
 	}
-	SendMessage(client.GetFd(), msg_to_c, 0);
 }
+
 
 /* 正しいフォーマットかどうかを確認する関数
  * 引数1 -> パラメータのvector

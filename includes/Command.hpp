@@ -8,6 +8,8 @@
 #include "Utils.hpp"
 #include "Message.hpp"
 
+#include "sstream"
+
 class Client;
 class Server;
 class Channel;
