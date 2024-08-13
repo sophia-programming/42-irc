@@ -154,11 +154,13 @@ else if(mode_option == "-k"){
 		}
 		try{
 			std::string limit = message.GetParams()[2];
-			if (string_to_llint(limit) < 0){
+			//リミットが1以下の場合
+			if (string_to_llint(limit) < 1){
 				msg_to_c = ERR_LIMITVALUEMINUS(client.GetNickname(), ch_name);
 				SendMessage(client.GetFd(), msg_to_c, 0);
 				return ;
 			}
+			//リミットがLONG_MAXを超える場合
 			if (string_to_llint(limit) > LONG_MAX){
 				msg_to_c = ERR_LIMITVALUEOVER(client.GetNickname(), ch_name);
 				SendMessage(client.GetFd(), msg_to_c, 0);
