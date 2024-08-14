@@ -136,7 +136,6 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		if (client.GetIsNick() && client.GetIsUserSet()) {
 			std::cout << "GetIsNick() = " << client.GetIsNick() << std::endl;
 			std::cout << "GetIsUserSet() = " << client.GetIsUserSet() << std::endl;
-			std::cout << RED << "hello" << STOP << std::endl;
 			SendWelcomeMessage(client);
 			client.SetIsWelcome(true); // クライアントが正式に接続されたことを記録
 		}
@@ -153,6 +152,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
 		Command::PRIVMSG(client, this, message);
+	else if (cmd == "NOTICE")
+		Command::NOTICE(client, this, message);
 	else if (cmd == "JOIN")
 		Command::JOIN(client, this, message);
 	else if (cmd == "KICK")
