@@ -109,7 +109,6 @@ void Server::ChatFlow(int fd) {
  * 引数2 -> メッセージオブジェクト*/
 bool Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
-	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
