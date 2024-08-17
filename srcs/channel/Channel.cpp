@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string channel_name):name_(channel_name), limit_(__LONG_MAX__),topic_("non"){
+Channel::Channel(std::string channel_name):name_(channel_name), topic_("non"), limit_(__LONG_MAX__) {
 }
 
 Channel::~Channel()
