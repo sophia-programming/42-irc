@@ -93,7 +93,7 @@ namespace Command{
 	void PONG(Client &client, const std::vector<std::string> &params);
   	void PRIVMSG(Client &client, Server *server, const Message &message);
 	void NOTICE(Client &client, Server *server, const Message &message);
-};
+}
 
 void SendMessage(int fd, const std::string &message, int flag);
 void SendWelcomeMessage(Client &client);
