@@ -88,6 +88,8 @@ void Channel::SetModeKey(const bool key)
 
 void Channel::SetModeLimit(long int user_limit)
 {
+    // std::cout << "Channnel.cpp limit: " << user_limit << std::endl;
+    this->mode_.SetLimit(user_limit);
     this->limit_ = user_limit;
 }
 
