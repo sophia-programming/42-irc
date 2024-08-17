@@ -5,7 +5,7 @@ Message::Message() {}
 Message::~Message() {}
 
 Message::Message(const std::string &message) : original_message_(message) {
-	int i = 0;
+	size_t i = 0;
 	ParsePrefix(original_message_, i);
 	ParseCommand(original_message_, i);
 	ParseParams(original_message_, i);
@@ -15,7 +15,7 @@ Message::Message(const std::string &message) : original_message_(message) {
  *（⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く）
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
-void Message::ParsePrefix(const std::string &message, int &i) {
+void Message::ParsePrefix(const std::string &message, size_t &i) {
 	if (message[i] == ':') {
 		i++;
 		size_t pos = message.find(' ', i);
@@ -33,7 +33,7 @@ void Message::ParsePrefix(const std::string &message, int &i) {
 /*IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
-void Message::ParseCommand(const std::string &message, int &i) {
+void Message::ParseCommand(const std::string &message, size_t &i) {
 	size_t pos = message.find(' ', i);
 	if (pos != std::string::npos) {
 		command_ = message.substr(i, pos - i);
@@ -62,7 +62,7 @@ void rtrim(std::string& str) {
 /*IRCメッセージのパラメータを解析する関数
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
-void Message::ParseParams(const std::string &message, int &i) {
+void Message::ParseParams(const std::string &message, size_t &i) {
 	while (i < message.size() && message[i] != '\r' && message[i] != '\n') {
 		if (message[i] == ':') {
 			i++; // skip ':'
