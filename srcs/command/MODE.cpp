@@ -155,19 +155,19 @@ else if(mode_option == "-k"){
 		try{
 			std::string limit = message.GetParams()[2];
 			//リミットが1以下の場合
-			if (string_to_llint(limit) < 1){
+			if (string_to_lint(limit) < 1){
 				msg_to_c = ERR_LIMITVALUEMINUS(client.GetNickname(), ch_name);
 				SendMessage(client.GetFd(), msg_to_c, 0);
 				return ;
 			}
 			//リミットがLONG_MAXを超える場合
-			if (string_to_llint(limit) > LONG_MAX){
+			if (string_to_lint(limit) > LONG_MAX){
 				msg_to_c = ERR_LIMITVALUEOVER(client.GetNickname(), ch_name);
 				SendMessage(client.GetFd(), msg_to_c, 0);
 				return ;
 			}
 			ch->SetModeIsLimit(true);
-			ch->SetModeLimit(string_to_llint(limit));
+			ch->SetModeLimit(string_to_lint(limit));
 			std::cout << "ch->limit:" << ch->GetModeLimit() << std::endl;
 			msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +l " + limit + "\r\n";
 			ch->SendMsgToAll(msg_to_all, &client);

@@ -1,8 +1,8 @@
 #include "Utils.hpp"
 
-long long int string_to_llint(const std::string& str) {
+long int string_to_lint(const std::string& str) {
     std::istringstream iss(str);
-    long long int num;
+    long int num;
     iss >> num;
 
     // 変換に失敗した場合は例外をスローするか、適切なエラーハンドリングを行う必要があります。
