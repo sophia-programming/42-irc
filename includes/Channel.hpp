@@ -93,7 +93,7 @@ class Channel{
 		const Client* GetTopicSetter() const;
 		const std::time_t &GetTopicTime() const;
 		const std::string& GetKey() const;
-		int GetLimit() const;
+		size_t GetLimit() const;
 		const std::vector<Client*>& GetMember() const;
 		// getter for mode
 		bool GetModeInvite() const;

@@ -169,7 +169,7 @@ const std::string &Channel::GetKey() const
     return this->key_;
 }
 
-int Channel::GetLimit() const
+size_t Channel::GetLimit() const
 {
     return this->limit_;
 }
