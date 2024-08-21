@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <ctime>
+#include <climits>
 
 #include "Client.hpp"
 #include "Mode.hpp"
