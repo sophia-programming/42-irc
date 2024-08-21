@@ -115,6 +115,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{ // チャンネルが存在しないとき
+                std::cout << "...." << ch_name << "--" << std::endl;
                 ch = server->CreateChannel(ch_name);
                 if(!ch){
                     return;

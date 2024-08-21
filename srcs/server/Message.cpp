@@ -29,7 +29,6 @@ void Message::ParsePrefix(const std::string &message, size_t &i) {
 	}
 }
 
-
 /*IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）
  * 引数1 -> メッセージ
  * 引数2 -> メッセージのインデックス*/
@@ -42,13 +41,13 @@ void Message::ParseCommand(const std::string &message, size_t &i) {
 		command_ = message.substr(i);
 		i = message.size();
 	}
-	// スペースをスキップ
-	while (i < message.size() && message[i] == ' ')
-		i++;
-	//受け取ったコマンドを全て大文字にする
+	// //受け取ったコマンドを全て大文字にする
 	for(size_t j=0; j<this->command_.size(); j++){
 		command_[j] = std::toupper(command_[j]);
 	}
+	// スペースをスキップ
+	while (i < message.size() && message[i] == ' ')
+		i++;
 }
 
 
