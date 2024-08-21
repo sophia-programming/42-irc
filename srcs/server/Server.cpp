@@ -109,7 +109,6 @@ void Server::ChatFlow(int fd) {
  * 引数2 -> メッセージオブジェクト*/
 bool Server::ExecuteCommand(int fd, const Message &message) {
 	Client &client = users_[fd];
-	Server &server = *this;
 	std::string cmd = message.GetCommand();
 	const std::vector<std::string> &params = message.GetParams();
 
@@ -121,7 +120,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		Command::QUIT(client, this, fds_, users_, map_nick_fd_, params, message);
 		return true;
 	}
-
+	if (cmd == "CAP")
+		Command::CAP(client, fds_, users_, map_nick_fd_, message);
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && !client.GetIsConnected()) {
 		if (cmd == "NICK") {
@@ -144,8 +144,9 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 
 	// 認証が完了していれば、他のコマンドを処理
-	if (cmd == "CAP")
-		Command::CAP(client, fds_, users_, map_nick_fd_, message);
+	if (cmd == "NICK") {
+			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+	}
 	else if (cmd == "PASS")
 		Command::PASS(client, password_, message);
 	else if (cmd == "PING")

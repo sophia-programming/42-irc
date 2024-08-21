@@ -19,6 +19,7 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 	const std::string username = client.GetUsername();
 	const std::string hostname = client.GetHostname();
 
+	(void)message;
 	// パラメータがない場合はデフォルトのメッセージ(Goodbye)を使用
 	std::string quitMessage = params.empty() ? "Goodbye" : params[0];
 

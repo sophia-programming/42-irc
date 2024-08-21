@@ -6,8 +6,7 @@ INCLUDES	=	-I./includes
 OBJ_DIR	=	./objs
 OBJS	=	$(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-#CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g $(includes)
-CXXFLAGS = -std=c++98 -g $(INCLUDES) -fsanitize=address -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g $(INCLUDES)
 all : $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp

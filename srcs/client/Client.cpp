@@ -17,13 +17,13 @@ void Client::AddMessage(const std::string &message) {
 
 // mapに格納するために必要な比較演算子のオーバーロード
 bool Client::operator<(const Client &other) const {
-    return this->nickname_ < this->nickname_;
+    return this->nickname_ < other.nickname_;
 }
 
 /* メッセージをパースする関数
  * 引数1 -> メッセージ */
 void Client::Parse(const std::string &message) {
-	int i = 0;
+	size_t i = 0;
 	/* parsePrefix : IRCメッセージのプレフィックス（例: :irc.example.com）を解析
  *　(⇨プレフィックスはコロン : で始まり、最初の空白文字 まで続く)
  * parseCommand : IRCメッセージの操作を指示するキーワード（例: PRIVMSG, JOIN など）

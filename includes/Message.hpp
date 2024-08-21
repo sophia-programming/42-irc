@@ -19,9 +19,9 @@ public:
 	Message(const std::string &message);
 	~Message();
 
-	void ParsePrefix(const std::string &message, int &i);
-	void ParseCommand(const std::string &message, int &i);
-	void ParseParams(const std::string &message, int &i);
+	void ParsePrefix(const std::string &message, size_t &i);
+	void ParseCommand(const std::string &message, size_t &i);
+	void ParseParams(const std::string &message, size_t &i);
 
 	/* getter関数 */
 	std::string GetPrefix() const;

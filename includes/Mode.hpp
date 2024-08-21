@@ -28,6 +28,4 @@ public:
 	long int GetLimit() const;
 };
 
-
-
 #endif

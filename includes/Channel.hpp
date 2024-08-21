@@ -92,9 +92,9 @@ class Channel{
 		const std::string& GetName() const;
 		const std::string& GetTopic() const;
 		const Client* GetTopicSetter() const;
-		const std::time_t GetTopicTime() const;
+		const std::time_t &GetTopicTime() const;
 		const std::string& GetKey() const;
-		int GetLimit() const;
+		size_t GetLimit() const;
 		const std::vector<Client*>& GetMember() const;
 		// getter for mode
 		bool GetModeInvite() const;
@@ -104,7 +104,7 @@ class Channel{
 		long int GetModeLimit() const;
 
 		Client* GetUser(const std::string& nick_name);
-		const User_Priv GetPriv(const std::string& nick_name);
+		const User_Priv &GetPriv(const std::string& nick_name);
 		// bool CheckMode(ChannelMode mode);
 		bool IsInvited(const std::string& nick_name);
 		bool IsOperator(const std::string &nickname);

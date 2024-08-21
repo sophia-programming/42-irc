@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string channel_name):name_(channel_name), limit_(__LONG_MAX__),topic_("non"){
+Channel::Channel(std::string channel_name):name_(channel_name), topic_("non"), limit_(__LONG_MAX__) {
 }
 
 Channel::~Channel()
@@ -159,7 +159,7 @@ const Client *Channel::GetTopicSetter() const
     return this->topic_setter_;
 }
 
-const std::time_t Channel::GetTopicTime() const
+const std::time_t &Channel::GetTopicTime() const
 {
     return this->topic_time_;
 }
@@ -169,7 +169,7 @@ const std::string &Channel::GetKey() const
     return this->key_;
 }
 
-int Channel::GetLimit() const
+size_t Channel::GetLimit() const
 {
     return this->limit_;
 }
@@ -253,13 +253,13 @@ Client* Channel::GetUser(const std::string& nick_name)
 
 //指定したユーザーの権限を取得する
 //1:std::string nick_name->権限を知りたいユーザーのニックネーム
-const User_Priv Channel::GetPriv(const std::string& nick_name)
+const User_Priv &Channel::GetPriv(const std::string& nick_name)
 {
     Client* cl = this->GetUser(nick_name);
     std::cout << "nick_name: " << nick_name << std::endl;
     if(cl != NULL)
         return this->users_.find(cl)->second;
-    throw ChannelException("Error: user dosent exist");
+    throw ChannelException("Error: user doesn't exist");
 }
 
 // チャンネルメンバーを取得する関数
