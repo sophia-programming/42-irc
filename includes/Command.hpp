@@ -63,6 +63,9 @@ class Message;
 #define INVITE_SUCCESS(nick,user,ip, invited, ch_name) ":"+nick+"!"+user+"@"+ip+" INVITE "+invited+" :" + ch_name+ "\r\n"
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name
 // チャンネルJOINエラーメッセージ
+#define GIVE_OP_PRIV(nick,user,host,ch_name,ur_name) ":"+nick+"!"+user+"@"+host+" MODE "+ch_name+ "+o " + ur_name+"\n"
+
+
 #define JOIN_SCCESS_MSG(nick, user, ch_name) nick + "! " + user + "JOIN : " + ch_name + "\r\n"
 #define ERR_CHANNELISFULL(nick, ch_name) ":ft_irc 471 " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
 #define ERR_BADCHANNELKEY(nick, ch_name)  ":ft_irc 475 " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
@@ -106,5 +109,6 @@ void ClearClientInfo(
 void SendPrivmsg(const std::string target, std::string message, Client &client, std::map<std::string, Channel*> &channels, std::map<std::string, int> map_nick_fd);
 bool FindChannelForServer(const std::map<std::string, Channel*> &channels, const std::string &channelName);
 bool IsCorrectFormat(std::vector<std::string> const &params, Client &client);
+std::string RmRFromString(std::string &str);
 
 #endif

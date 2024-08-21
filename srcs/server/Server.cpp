@@ -122,8 +122,12 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
+	if (cmd == "PASS")
+		Command::PASS(client, password_, message);
+
 	// クライアントが認証されていない場合
-	if (!client.GetIsWelcome() && !client.GetIsConnected()) {
+	// if (!client.GetIsWelcome() && !client.GetIsConnected()) { isconnected はcapでtrueになる
+	if (!client.GetIsWelcome()) {
 		if (cmd == "NICK") {
 			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 		}
@@ -145,10 +149,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 
 	// 認証が完了していれば、他のコマンドを処理
 	if (cmd == "NICK") {
-			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 	}
-	else if (cmd == "PASS")
-		Command::PASS(client, password_, message);
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
@@ -378,6 +380,7 @@ Channel* Server::CreateChannel(const std::string& name)
 	}
 	Channel* ch_tmp = new Channel(name);
 	this->channel_list_.insert(std::make_pair(name, ch_tmp));
+	return ch_tmp;
 	return this->FindChannelByName(name);
 }
 

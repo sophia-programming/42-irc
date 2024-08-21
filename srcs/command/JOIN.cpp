@@ -75,7 +75,7 @@ void join_with_key(Channel *ch, Client &client, std::string& msg_to_c, const std
 void Command::JOIN(Client &client, Server *server, const Message &message)
 {
     Channel* ch;
-    const std::vector<std::string> msg = message.GetParams();
+    std::vector<std::string> msg = message.GetParams();
     if(msg.size() < 1){
         return ;
     }
@@ -84,7 +84,11 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     std::string msg_to_c;
 
     // チャンネル名
-    const std::string ch_name = msg[0];
+    const std::string ch_name = RmRFromString(msg[0]);
+    // const std::string ch_name = msg[0];
+    // size_t pos = ch_name.find('\r');
+    // if(pos != std::string::npos)
+    //     ch_name.erase(pos);
 
     if(msg.size() == 1){
         try{
@@ -115,13 +119,14 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{ // チャンネルが存在しないとき
-                std::cout << "...." << ch_name << "--" << std::endl;
                 ch = server->CreateChannel(ch_name);
                 if(!ch){
                     return;
                 }
                 msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
+                std::cout<< "print ch name " << ch->GetName() << std::endl;
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
         }catch(const std::exception& e){

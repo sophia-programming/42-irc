@@ -4,7 +4,8 @@
 void Command::KICK(Client &client, Server *server, const Message &message)
 {
     std::string msg_to_c;
-    if(message.GetParams().size() < 2){
+     std::vector<std::string> msg = message.GetParams();
+    if(msg.size() < 2){
         //paramが不足していたらエラー
         msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "kick");
 		SendMessage(client.GetFd(), msg_to_c, 0);
@@ -12,8 +13,8 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         return ;
     }
 
-    std::string ch_name = message.GetParams()[0];
-    std::string user_name = message.GetParams()[1];
+    std::string ch_name = RmRFromString(msg[0]);
+    std::string user_name = RmRFromString(msg[1]);
     std::string msg_to_all;
 
     Channel* ch = server->FindChannelByName(ch_name);
@@ -34,8 +35,8 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         return ;
     }
     msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name;
-    if(message.GetParams().size() == 3){
-        msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name + message.GetParams()[2];
+    if(msg.size() == 3){
+        msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name + RmRFromString(msg[2]);
     }
     ch->SendMsgToAll(msg_to_all, &client);
     ch->RmUser(user);

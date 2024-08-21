@@ -7,14 +7,14 @@
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
 void Command::PRIVMSG(Client &client, Server *server, const Message &message) {
-	const std::vector<std::string> msg = message.GetParams();
+	std::vector<std::string> msg = message.GetParams();
 
 	// パラメータが不足している場合はエラーメッセージを送信
 	if (!IsCorrectFormat(msg, client))
 		return;
 
-	const std::string recipients = msg[0];
-	const std::string content = msg[1];
+	const std::string recipients =RmRFromString(msg[0]);
+	const std::string content = RmRFromString(msg[1]);
 
 	if (content.empty()){ // エラー　メッセージが空
 		SendMessage(client.GetFd(), ERR_NOTEXTTOSEND(client.GetNickname()), 0);

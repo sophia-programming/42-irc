@@ -33,3 +33,11 @@ bool FindChannelForServer(std::map<std::string, Channel*> &channels, const std::
 	return false;
 }
 
+std::string RmRFromString(std::string &str){
+	if(str.empty())
+		return str;
+	size_t pos = str.find('\r');
+    if(pos != std::string::npos)
+        str.erase(pos);
+	return str;
+}
