@@ -45,6 +45,10 @@ void Message::ParseCommand(const std::string &message, size_t &i) {
 	// スペースをスキップ
 	while (i < message.size() && message[i] == ' ')
 		i++;
+	//受け取ったコマンドを全て大文字にする
+	for(size_t j=0; j<this->command_.size(); j++){
+		command_[j] = std::toupper(command_[j]);
+	}
 }
 
 
