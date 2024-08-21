@@ -13,16 +13,16 @@ class Channel;
 class Client {
 private:
 	int fd_; //client file descriptor
-	bool is_authenticated_; //client authentication status
-	bool is_nickname_; //client nickname status
-	bool is_welcome_; //client welcome message status
-	bool is_connected_; //client connection status
 	std::string ip_address_; //client IP address
 	std::string nickname_; // max len 9
 	std::string username_;
 	std::string hostname_;
 	std::string servername_;
 	std::string realname_;
+	bool is_authenticated_; //client authentication status
+	bool is_nickname_; //client nickname status
+	bool is_welcome_; //client welcome message status
+	bool is_connected_; //client connection status
 	bool is_user_set_; //user情報がセットされているかどうか
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
