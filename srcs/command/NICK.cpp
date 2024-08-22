@@ -9,15 +9,17 @@ bool NickAlreadySet(std::string const &nickname, std::map<std::string, int> map_
  * 引数3 -> メッセージ */
 void Command::NICK(Client &client, Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message) {
 	const int &fd = client.GetFd();
+	std::vector<std::string> msg = message.GetParams();
 
 	// 引数がない場合 例）NICK
-	if (message.GetParams().size() < 1) {
+	if (msg.size() < 1) {
 		SendMessage(fd, ERR_NONICKNAMEGIVEN, 0);
 		return;
 	}
 
 	std::string const OldNick = client.GetNickname();
-	std::string const NewNick = message.GetParams()[0];
+	std::string const NewNick = RmRFromString(msg[0]);
+
 
 	// ニックネームのサイズが9文字以下かどうかを確認
 	if (!NickSize(NewNick)) {

@@ -64,8 +64,6 @@ class Message;
 #define INVITED_MSG(inviter, invited, ch_name) ":ft_irc 341 "+inviter+" "+invited+" "+ch_name + "\r\n"
 // チャンネルJOINエラーメッセージ
 #define GIVE_OP_PRIV(nick, user, host, ch_name, ur_name) ":" + nick + "!" + user + "@" + host + " MODE " + ch_name + " +o " + ur_name + "\r\n"
-
-
 #define JOIN_SUCCESS_MSG(nick, user, host, ch_name) ":" + nick + "!" + user + "@" + host + " JOIN :" + ch_name + "\r\n"
 #define ERR_CHANNELISFULL(nick, ch_name) ":ft_irc 471 " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
 #define ERR_BADCHANNELKEY(nick, ch_name)  ":ft_irc 475 " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
@@ -74,7 +72,7 @@ class Message;
 //チャンネルMODEエラーメッセージ
 #define ERR_LIMITVALUEMINUS(nick, ch_name) ":ft_irc 472 " + nick + " -l :is an unknown mode character to me\r\n"
 #define ERR_LIMITVALUEOVER(nick, ch_name) ":ft_irc 461 " + nick + " MODE :Not enough parameters\r\n"
-
+#define SHOW_MODE(nick,ch_name,modes) ":ft_irc 324 "+nick+""+ch_name+ " <" +modes+ ">\r\n"
 // パスワードエラーメッセージ
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
 
