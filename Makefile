@@ -2,7 +2,7 @@ NAME = ircserv
 SRC_DIR	=	./srcs
 SRCS	=	$(shell find $(SRC_DIR) -type f -name '*.cpp')
 
-INCLUDES	=	-I./includes
+INCLUDES	=	-I./includes -I/Users/yushimom/.brew/opt/wolfssl/include
 OBJ_DIR	=	./objs
 OBJS	=	$(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
@@ -14,7 +14,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+	$(CXX) $(CXXFLAGS)  -lwolfssl $(INCLUDES) $^ -o $@
 
 clean:
 	$(RM) -rf $(OBJ_DIR)

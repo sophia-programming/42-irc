@@ -18,6 +18,8 @@ void Server::ServerInit(int port) {
 
 	// シグナルをsetup
 	SetupSignal();
+	//SSLをsetup
+	SetUpSSL();
 	// サーバーソケットをsetup
 	SetupServerSocket();
 	// クライアントを受け入れる
@@ -232,6 +234,18 @@ void Server::SetupClient(int socketfd) {
 	// 新しいクライアントを作成
 	Client user(socketfd);
 
+	//SSLセッションの作成
+	user.ssl_ = wolfSSL_new(this->ctx_);
+	if (user.ssl == NULL) {
+		// エラー処理
+		return ;
+	}
+	wolfSSL_set_fd(user.ssl, socketfd);
+	// SSLハンドシェイクの実行
+	if (wolfSSL_accept(user.ssl) != SSL_SUCCESS) {
+		return ;
+	}
+
 	// クライアントをマップに追加
 	users_[socketfd] = user;
 }
@@ -268,8 +282,6 @@ void Server::AcceptNewClient() {
 	// vectorにクライアントを追加
 	connected_clients.push_back(client);
 
-	// Client* client_p = new Client(incomingfd, client.GetNickname());
-	// AddClient(client.GetNickname(), client_p);
 
 	// 新しいクライアントのfdをMakePollに渡す
 	MakePoll(incomingfd);
@@ -312,6 +324,16 @@ void Server::SetupServerSocket() {
 	address.sin_addr.s_addr = INADDR_ANY;
 	// set port
 	address.sin_port = htons(this->port_);
+
+	if (connect(this->server_socket_fd_, (struct sockaddr*)&address, sizeof(address)) != 0) {
+        std::cerr << "Failed to connect to server" << std::endl;
+        wolfSSL_free(this->ssl_);
+        wolfSSL_CTX_free(this->ctx_);
+        wolfSSL_Cleanup();
+        throw (std::runtime_error("Setting wolfSSL file descriptor failed"));
+    }
+	// SSLとソケットの紐付け
+	wolfSSL_set_fd(this->ssl_, this->server_socket_fd_);
 
 	/*=== set socket options ===*/
 	int en = 1;
@@ -464,4 +486,24 @@ std::vector<Client*> Server::GetAllClients() const {
 const char *Server::ServerException::what(void) const throw()
 {
 	return this->msg_.c_str();
+}
+
+
+void Server::SetUpSSL(){
+	// SSLコンテキストの作成
+	this->ctx_ = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    if (this->ctx_ == NULL) {
+        std::cerr << "Failed to create WOLFSSL_CTX" << std::endl;
+        throw (std::runtime_error("wolfSSL session creation failed"));
+    }
+	// サーバー証明書のロード
+	if (wolfSSL_CTX_use_certificate_file(this->ctx_, "server-cert.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+		std::cerr << "Failed to create WOLFSSL_CTX" << std::endl;
+        throw (std::runtime_error("wolfSSL session creation failed"));
+	}
+	// サーバー秘密鍵のロード
+	if (wolfSSL_CTX_use_PrivateKey_file(this->ctx_, "server-key.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+		std::cerr << "Failed to create WOLFSSL_CTX" << std::endl;
+        throw (std::runtime_error("wolfSSL session creation failed"));
+	}
 }

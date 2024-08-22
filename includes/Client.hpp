@@ -26,6 +26,7 @@ private:
 	bool is_user_set_; //user情報がセットされているかどうか
 	std::string message_buffer_; // max len 512
 	Message parsed_msg_;
+	WOLFSSL* ssl_; // for tls
 
 public:
 	Client();

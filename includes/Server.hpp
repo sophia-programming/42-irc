@@ -13,6 +13,8 @@
 #include <stdlib.h> // for exit()
 #include <string> // for std::string
 #include <signal.h> // for SIGINT in linux
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h> // for TLS
 #include "poll.h" // for poll()
 #include "Client.hpp"
 #include "Color.hpp"
@@ -43,6 +45,8 @@ private:
 	std::map<int, std::string> nickname_; //map of nicknames
 	std::map<std::string, int> map_nick_fd_; //map of nicknames and file descriptors
 	std::map<std::string, Channel*> server_channels_; //map of channels
+	WOLFSSL_CTX* ctx_; // for tls
+
 
 	void SetupServerSocket(); //create server socket
 	void AcceptNewClient(); //accept new client
@@ -52,6 +56,7 @@ private:
 	void CloseFds(); //close file descriptor
 	void MakePoll(int socket);
 	void SetupClient(int socketfd);
+	void SetUpSSL();
 
 	//channelのリスト(検索高速化の為に一旦mapで設定)
 	// 1:channel namel -> チャンネル名の文字列
@@ -112,5 +117,8 @@ public:
 				virtual const char* what (void) const throw();
 	};
 };
+
+WOLFSSL_CTX* createContext();
+
 
 #endif

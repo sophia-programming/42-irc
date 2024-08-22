@@ -13,8 +13,12 @@ int main(int argc, char **argv){
 
 	int port = std::atoi(argv[1]);
 	std::string password = argv[2];
+	wolfSSL_Init();
+
+
 
 	Server server(port, password);
+
 	try {
 		server.ServerInit(port);
 		server.ServerStart();
