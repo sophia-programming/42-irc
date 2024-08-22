@@ -20,57 +20,60 @@ void show_topic_and_member(Channel *ch, const std::string &nick, std::string &ms
     }
     msg_to_c += "\n:server 366 " + nick + " " + ch->GetName() + " :End of list\r\n";
 }
-/*
-void join_without_key(Channel *ch, Client &client, std::string& msg_to_c){
 
-    if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
+void join_without_key(Channel *ch, Client &client, std::string& msg_to_c, int client_fd){
+
+     if(ch->GetLimit() <= ch->users_.size()){ // エラー1 すでに満員
         msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
+        SendMessage(client_fd, msg_to_c, 0);
+        return ;
     }
-    else if(ch->GetModeKey() == true){ //エラー２keyが必要
+    if(ch->GetModeKey() == true){ //エラー２keyが必要
         msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
+        SendMessage(client_fd, msg_to_c, 0);
+        return ;
     }
-    else if(ch->GetModeInvite() == true){
-        if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+    if(ch->GetModeInvite() == true){ //エラー３招待が必要
+        if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
             msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-        }
-        else{
-            msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
-            ch->AddUserAsN(client);
+            SendMessage(client_fd, msg_to_c, 0);
+            return ;
         }
     }
-    else{
-        msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
-        ch->AddUserAsN(client);
-    }
+    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+    ch->AddUserAsN(client);
+    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
 }
 
 
-void join_with_key(Channel *ch, Client &client, std::string& msg_to_c, const std::string& key){
+void join_with_key(Channel *ch, Client &client, std::string& msg_to_c, int client_fd ,const std::string& key){
     if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
         msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
+        SendMessage(client_fd, msg_to_c, 0);
+        return ;
     }
-    else if(ch->GetModeKey() == true){
+    if(ch->GetModeKey() == true){
         if(ch->GetKey() != key){ //エラー２keyが一致しない
             msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
-        }else{
-            ch->AddUserAsN(client);
+            SendMessage(client_fd, msg_to_c, 0);
+            return ;
         }
+        msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+        ch->AddUserAsN(client);
+        show_topic_and_member(ch,client.GetNickname(), msg_to_c);
     }
-    else if(ch->GetModeInvite() == true){
-        if(ch->IsInvited(client.GetNickname()) == false){ //エラー３招待が必要
+    if(ch->GetModeInvite() == true){ //エラー３招待が必要
+        if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
             msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-        }
-        else{
-            msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
-            ch->AddUserAsN(client);
+            SendMessage(client_fd, msg_to_c, 0);
+            return ;
         }
     }
-    else{
-        msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
-            ch->AddUserAsN(client);
-    }
+    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+    ch->AddUserAsN(client);
+    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
 }
-*/
+
 
 // JOIN コマンドの処理をする関数
 // 1: クライアント情報
@@ -94,28 +97,29 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
                 Channel* ch = server->FindChannelByName(ch_name);
-                if(ch->GetLimit() <= ch->users_.size()){ // エラー1 すでに満員
-                    msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
-                    SendMessage(client_fd, msg_to_c, 0);
-                    return ;
-                }
-                if(ch->GetModeKey() == true){ //エラー２keyが必要
-                    msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
-                    SendMessage(client_fd, msg_to_c, 0);
-                    return ;
-                }
-                if(ch->GetModeInvite() == true){ //エラー３招待が必要
-                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
-                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-                        SendMessage(client_fd, msg_to_c, 0);
-                        return ;
-                    }
-                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                    ch->AddUserAsN(client);
-                }
-                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                ch->AddUserAsN(client);
-                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
+                join_without_key(ch, client, msg_to_c, client_fd);
+                // if(ch->GetLimit() <= ch->users_.size()){ // エラー1 すでに満員
+                //     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
+                //     SendMessage(client_fd, msg_to_c, 0);
+                //     return ;
+                // }
+                // if(ch->GetModeKey() == true){ //エラー２keyが必要
+                //     msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
+                //     SendMessage(client_fd, msg_to_c, 0);
+                //     return ;
+                // }
+                // if(ch->GetModeInvite() == true){ //エラー３招待が必要
+                //     if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
+                //         msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
+                //         SendMessage(client_fd, msg_to_c, 0);
+                //         return ;
+                //     }
+                //     msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                //     ch->AddUserAsN(client);
+                // }
+                // msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                // ch->AddUserAsN(client);
+                // show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{ // チャンネルが存在しないとき
                 ch = server->CreateChannel(ch_name);
@@ -125,7 +129,6 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                 msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                 msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
-                std::cout<< "print ch name " << ch->GetName() << std::endl;
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
         }catch(const std::exception& e){
@@ -141,34 +144,35 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
                 Channel* ch = server->FindChannelByName(ch_name);
-                if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
-                    msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
-                    SendMessage(client_fd, msg_to_c, 0);
-                    return ;
-                }
-                if(ch->GetModeKey() == true){
-                    if(ch->GetKey() != key){ //エラー２keyが一致しない
-                        msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
-                        SendMessage(client_fd, msg_to_c, 0);
-                        return ;
-                    }
-                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                    ch->AddUserAsN(client);
-                    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
-                }
-                if(ch->GetModeInvite() == true){ //エラー３招待が必要
-                    if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
-                        msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
-                        SendMessage(client_fd, msg_to_c, 0);
-                        return ;
-                    }
-                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                    ch->AddUserAsN(client);
-                    show_topic_and_member(ch,client.GetNickname(), msg_to_c);
-                }
-                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                ch->AddUserAsN(client);
-                show_topic_and_member(ch,client.GetNickname(), msg_to_c);
+                join_with_key(ch, client, msg_to_c, client_fd, key);
+                // if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
+                //     msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
+                //     SendMessage(client_fd, msg_to_c, 0);
+                //     return ;
+                // }
+                // if(ch->GetModeKey() == true){
+                //     if(ch->GetKey() != key){ //エラー２keyが一致しない
+                //         msg_to_c = ERR_BADCHANNELKEY(client.GetNickname(), ch->GetName());
+                //         SendMessage(client_fd, msg_to_c, 0);
+                //         return ;
+                //     }
+                //     msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                //     ch->AddUserAsN(client);
+                //     show_topic_and_member(ch,client.GetNickname(), msg_to_c);
+                // }
+                // if(ch->GetModeInvite() == true){ //エラー３招待が必要
+                //     if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
+                //         msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
+                //         SendMessage(client_fd, msg_to_c, 0);
+                //         return ;
+                //     }
+                //     msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                //     ch->AddUserAsN(client);
+                //     show_topic_and_member(ch,client.GetNickname(), msg_to_c);
+                // }
+                // msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                // ch->AddUserAsN(client);
+                // show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{
                 ch = server->CreateChannel(ch_name);

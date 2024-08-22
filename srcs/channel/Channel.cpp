@@ -256,7 +256,6 @@ Client* Channel::GetUser(const std::string& nick_name)
 const User_Priv &Channel::GetPriv(const std::string& nick_name)
 {
     Client* cl = this->GetUser(nick_name);
-    std::cout << "nick_name: " << nick_name << std::endl;
     if(cl != NULL)
         return this->users_.find(cl)->second;
     throw ChannelException("Error: user doesn't exist");

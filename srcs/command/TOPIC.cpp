@@ -60,7 +60,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		}
 		ch->SetToic("non");
 		ch->SetTopicSetter(&client);
-		std::cout << "remove" << std::endl;
+		// std::cout << "remove" << std::endl;
 		msg_to_all = ":ft_irc 332 " + client.GetNickname() + " " + ch_name + " :No topic is set\n" +
 			":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + ch->GetTopicSetter()->GetNickname() + " " + std::to_string(ch->GetTopicTime()) + "\n";
 		ch->SendMsgToAll(msg_to_all, &client);
