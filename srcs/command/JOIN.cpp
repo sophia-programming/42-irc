@@ -1,12 +1,16 @@
 #include "Command.hpp"
 #include "Message.hpp"
 
+//JOINに成功した後にチャンネルのトピックとメンバーリストを表示する関数
+// 1:Channel *ch -> チャンネルオブジェクト
+// 2:const std::string &nick -> コマンド実行したクライアントのニックネーム
+// 3:std::string &msg_to_c -> クライアントに送信するメッセージ
 void show_topic_and_member(Channel *ch, const std::string &nick, std::string &msg_to_c){
     if (ch->GetTopic().empty()){
-        msg_to_c += ":ft_irc 331 " + nick + " " + ch->GetName() + " : No topic is set" + "\n";
+        msg_to_c += ":ft_irc 331 " + nick + " " + ch->GetName() + " : No topic is set" + "\r\n";
     }
     else{
-        msg_to_c += ":ft_irc 332 " + nick + " " + ch->GetName() + " :" + ch->GetTopic() + "\n";
+        msg_to_c += ":ft_irc 332 " + nick + " " + ch->GetName() + " :" + ch->GetTopic() + "\r\n";
     }
     std::map<Client*, User_Priv>::iterator iter = ch->users_.begin();
     msg_to_c += ":server 353 " + nick + " = " + ch->GetName() + " :" ;
@@ -14,9 +18,9 @@ void show_topic_and_member(Channel *ch, const std::string &nick, std::string &ms
         msg_to_c += iter->first->GetNickname() + " ";
         iter++;
     }
-    msg_to_c += "\n:server 366 " + nick + " " + ch->GetName() + " :End of list\n";
+    msg_to_c += "\n:server 366 " + nick + " " + ch->GetName() + " :End of list\r\n";
 }
-
+/*
 void join_without_key(Channel *ch, Client &client, std::string& msg_to_c){
 
     if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
@@ -66,7 +70,7 @@ void join_with_key(Channel *ch, Client &client, std::string& msg_to_c, const std
             ch->AddUserAsN(client);
     }
 }
-
+*/
 
 // JOIN コマンドの処理をする関数
 // 1: クライアント情報
@@ -75,7 +79,7 @@ void join_with_key(Channel *ch, Client &client, std::string& msg_to_c, const std
 void Command::JOIN(Client &client, Server *server, const Message &message)
 {
     Channel* ch;
-    const std::vector<std::string> msg = message.GetParams();
+    std::vector<std::string> msg = message.GetParams();
     if(msg.size() < 1){
         return ;
     }
@@ -84,8 +88,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     std::string msg_to_c;
 
     // チャンネル名
-    const std::string ch_name = msg[0];
-
+    const std::string ch_name = RmRFromString(msg[0]);
     if(msg.size() == 1){
         try{
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
@@ -107,21 +110,22 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                         SendMessage(client_fd, msg_to_c, 0);
                         return ;
                     }
-                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                     ch->AddUserAsN(client);
                 }
-                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                 ch->AddUserAsN(client);
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{ // チャンネルが存在しないとき
-                std::cout << "...." << ch_name << "--" << std::endl;
                 ch = server->CreateChannel(ch_name);
                 if(!ch){
                     return;
                 }
-                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
+                std::cout<< "print ch name " << ch->GetName() << std::endl;
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
         }catch(const std::exception& e){
@@ -148,7 +152,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                         SendMessage(client_fd, msg_to_c, 0);
                         return ;
                     }
-                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                     ch->AddUserAsN(client);
                     show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 }
@@ -158,21 +162,21 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                         SendMessage(client_fd, msg_to_c, 0);
                         return ;
                     }
-                    msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                    msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                     ch->AddUserAsN(client);
                     show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 }
-                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
                 ch->AddUserAsN(client);
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
             }
             else{
                 ch = server->CreateChannel(ch_name);
-                msg_to_c = client.GetNickname() +"! JOIN :" + ch->GetName();
                 if(!ch){
                     return ;
                 }
-                msg_to_c = JOIN_SCCESS_MSG(client.GetNickname(),client.GetUsername(), ch->GetName());
+                msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
+                msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 ch->SetKey(key);

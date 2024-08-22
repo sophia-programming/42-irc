@@ -33,3 +33,13 @@ bool FindChannelForServer(std::map<std::string, Channel*> &channels, const std::
 	return false;
 }
 
+//stringから\rを削除して新しい文字列をreurnする関数
+// 1:std::string &str ->  対象の文字列
+std::string RmRFromString(std::string &str){
+	if(str.empty())
+		return str;
+	size_t pos = str.find('\r');
+    if(pos != std::string::npos)
+        str.erase(pos);
+	return str;
+}

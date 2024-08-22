@@ -4,19 +4,20 @@
 void Command::MODE(Client &client, Server *server, const Message &message)
 {
 	std::string msg_to_c;
+	std::vector<std::string> msg = message.GetParams();
 
 	//sevser側 テスト出力
 	std::cout << "MODE" << " " <<  client.GetNickname() << std::endl;
 
 	//parmsがない場合(MODEの引数がない)場合->エラー
-	if(message.GetParams().size() < 2){
+	if(msg.size() < 2){
 		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "mode");
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;
 	}
 
-	std::string ch_name = message.GetParams()[0];
-	std::string mode_option = message.GetParams()[1];
+	std::string ch_name = RmRFromString(msg[0]);
+	std::string mode_option = RmRFromString(msg[1]);
 	std::string msg_to_all;
 
 	std::cout << mode_option << std::endl << "mode_option "<< mode_option <<  std::endl;
