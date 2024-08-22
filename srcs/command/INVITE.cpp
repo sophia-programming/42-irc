@@ -14,8 +14,8 @@ void Command::INVITE(Client &client, Server *server, const Message &message)
 		SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
     }
-	std::string invited = msg[0];
-	std::string ch_name = msg[1];
+	std::string invited = RmRFromString(msg[0]);
+	std::string ch_name =RmRFromString(msg[1]);
 	std::string inviter = client.GetNickname();
 	Client* invited_c = server->FindClientByNickname(invited);
 

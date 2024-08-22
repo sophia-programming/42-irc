@@ -9,6 +9,7 @@ Message::Message(const std::string &message) : original_message_(message) {
 	ParsePrefix(original_message_, i);
 	ParseCommand(original_message_, i);
 	ParseParams(original_message_, i);
+
 }
 
 /* IRCメッセージのプレフィックス（例: :irc.example.com）を解析する関数
@@ -53,7 +54,7 @@ void Message::ParseCommand(const std::string &message, size_t &i) {
 
 //stringの末尾の改行を削除する関数
 // 1:std::string& str ->対象のstring
-void rtrim(std::string& str) {
+void ntrim(std::string& str) {
     std::string::size_type i = str.find_last_not_of("\n");
     if (i == std::string::npos) {
         str.clear(); // 全て空白文字の場合は空にする
@@ -85,7 +86,7 @@ void Message::ParseParams(const std::string &message, size_t &i) {
 			i++;
 	}
 	if(!params_.empty()){
-		rtrim(params_.back());
+		ntrim(params_.back());
 	}
 }
 

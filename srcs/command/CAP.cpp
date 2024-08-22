@@ -18,7 +18,8 @@ void Command::CAP(Client &client, std::vector<struct pollfd> &pollfds,
 				   const Message &message) {
 	const std::string nick = client.GetNickname();
 	const int &fd = client.GetFd();
-	std::cout << "print in cap: " << message.GetParams()[0] << std::endl;
+	if(message.GetParams().size() < 1)
+		return;
 
 	if (message.GetParams()[0] == "LS")
 		SendMessage(fd, CAP_LS, 0);

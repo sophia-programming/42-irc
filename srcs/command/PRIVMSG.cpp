@@ -7,14 +7,15 @@
  * 引数2 -> サーバーの情報
  * 引数3 -> メッセージ */
 void Command::PRIVMSG(Client &client, Server *server, const Message &message) {
-	const std::vector<std::string> msg = message.GetParams();
+	std::vector<std::string> msg = message.GetParams();
+	std::string msg_to_send;
 
 	// パラメータが不足している場合はエラーメッセージを送信
 	if (!IsCorrectFormat(msg, client))
 		return;
 
-	const std::string recipients = msg[0];
-	const std::string content = msg[1];
+	const std::string recipients =RmRFromString(msg[0]);
+	const std::string content = RmRFromString(msg[1]);
 
 	if (content.empty()){ // エラー　メッセージが空
 		SendMessage(client.GetFd(), ERR_NOTEXTTOSEND(client.GetNickname()), 0);
@@ -37,14 +38,16 @@ void Command::PRIVMSG(Client &client, Server *server, const Message &message) {
 				SendMessage(client.GetFd(), ERR_NOSUCHCHANNEL(client.GetNickname()), 0);
 				continue;
 			}
-			channel->SendMsgToAll(content, &client);
+			msg_to_send =PRIVMSG_MESSAGE(client.GetNickname(),client.GetUsername(), client.GetHostname(), recipient, content);
+			channel->SendMsgToAll(msg_to_send, &client);
 		} else {  // ユーザーに対して送信
 			Client *recep_client = server->FindClientByNickname(recipient);
 			if (!recep_client) { // エラー　一致するクライアントが存在しない
 				SendMessage(client.GetFd(), ERR_NOSUCHNICK(client.GetNickname(), recipient), 0);
 				continue;
 			}
-			SendMessage(recep_client->GetFd(), content, 0);
+			msg_to_send =PRIVMSG_MESSAGE(client.GetNickname(),client.GetUsername(), client.GetHostname(), recipient, content);
+			SendMessage(recep_client->GetFd(), msg_to_send, 0);
 		}
 	}
 }
