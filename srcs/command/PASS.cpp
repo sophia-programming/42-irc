@@ -9,8 +9,10 @@ void Command::PASS(Client &client, const std::string &server_password, const Mes
 	const std::string &nick = client.GetNickname();
 
 	// パラメータが1つでない場合
-	if (message.GetParams().size() != 1)
+	if (message.GetParams().size() != 1){
 		SendMessage(fd, ERR_NEEDMOREPARAMS(nick, "PASS"), 0);
+		return ;
+	}
 
 	// パスワードを取得
 	std::string const &password = message.GetParams()[0];

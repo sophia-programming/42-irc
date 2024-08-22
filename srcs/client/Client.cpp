@@ -89,7 +89,7 @@ const std::string &Client::GetRealname() const {
 }
 
 bool Client::GetIsUserSet() const {
-	std::cout << "is_user_set_ : " << this->is_user_set_ << std::endl;
+	// std::cout << "is_user_set_ : " << this->is_user_set_ << std::endl;
 	return this->is_user_set_;
 }
 

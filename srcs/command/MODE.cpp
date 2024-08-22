@@ -17,11 +17,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 	}
 
 	std::string ch_name = RmRFromString(msg[0]);
-	std::string mode_option = RmRFromString(msg[1]);
 	std::string msg_to_all;
-
-	std::cout << mode_option << std::endl << "mode_option "<< mode_option <<  std::endl;
-
 	Channel* ch = server->FindChannelByName(ch_name);
 
 	if(!ch){  //エラー１　指定されたチャンネルが存在しない
@@ -63,6 +59,8 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 		return ;
 	}
 	//オペレーター権限付与
+	std::string mode_option = RmRFromString(msg[1]);
+	std::cout << mode_option << std::endl << "mode_option "<< mode_option <<  std::endl;
 	if(mode_option == "+o"){
 		if(message.GetParams().size() < 3){
 			msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "mode");
@@ -78,7 +76,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			return ;
 		}
 		ch->SetPrivAsOperator(user->GetNickname());
-		msg_to_all = ":" + client.GetNickname() + "!" + client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		// SendMessage(client.GetFd(), msg_to_all, 0);
 		// ↑mergeしたら復活
@@ -98,7 +96,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			return ;
 		}
 		ch->SetPrivAsNomal(user->GetNickname());
-		msg_to_all = ":" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
+		msg_to_all =  ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		// SendMessage(client.GetFd(), msg_to_all, 0);
 		// ↑mergeしたら復活
