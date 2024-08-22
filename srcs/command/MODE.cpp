@@ -9,7 +9,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 	std::cout << "MODE" << " " <<  client.GetNickname() << std::endl;
 
 	//parmsがない場合(MODEの引数がない)場合->エラー
-	if(message.GetParams().size() < 1){
+	if(message.GetParams().size() < 2){
 		msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "mode");
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;
