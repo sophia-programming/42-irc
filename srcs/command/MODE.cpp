@@ -76,7 +76,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			return ;
 		}
 		ch->SetPrivAsOperator(user->GetNickname());
-		msg_to_all = ":" + client.GetNickname() + "!" + client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		// SendMessage(client.GetFd(), msg_to_all, 0);
 		// ↑mergeしたら復活
@@ -96,7 +96,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			return ;
 		}
 		ch->SetPrivAsNomal(user->GetNickname());
-		msg_to_all = ":" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
+		msg_to_all =  ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		// SendMessage(client.GetFd(), msg_to_all, 0);
 		// ↑mergeしたら復活
