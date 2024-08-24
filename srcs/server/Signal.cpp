@@ -14,6 +14,10 @@ void Server::SetupSignal() {
  * 引数1 -> 終了ステータス */
 void Server::Cleanup(int exitStatus) {
 	CloseFds();
+	// SSLコンテキストの解放
+	wolfSSL_CTX_free(this->ctx_); 
+	// wolfSSLライブラリのクリーンアップ
+	wolfSSL_Cleanup();
 	std::cerr << YELLOW << "Server closed" << STOP << std::endl;
 	std::exit(exitStatus);
 }

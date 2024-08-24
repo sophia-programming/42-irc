@@ -61,6 +61,7 @@ void Server::ChatFlow(int fd) {
 	char received_data[1024] = {0};
 
 	// データを受信
+	// ssize_t bytes = wolfSSL_read(client.ssl_, buffer, sizeof(buffer) - 1);
 	ssize_t bytes = recv(fd, received_data, sizeof(received_data), 0);
 	if (bytes <= 0) {
 		std::cout << RED << "Client " << fd << " disconnected" << STOP << std::endl;
