@@ -52,7 +52,6 @@ class Channel{
 
 		// チャンネルメンバー
 		std::vector<Client*> members_;
-		std::vector<Client*> op_members_;
 
 		typedef std::map<Client*, User_Priv>::iterator user_list_iter;
 

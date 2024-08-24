@@ -228,10 +228,14 @@ bool Channel::IsInvited(const std::string& nick_name){
 // 1:const std::string& msg -> 送信したいメッセージ
 void Channel::SendMsgToAll(const std::string& msg, Client* sender)
 {
+    if(this->users_.size() <= 1){
+        return ;
+    }
     user_list_iter iter = this->users_.begin();
+    std::cout << sender->GetNickname() << std::endl;
     while(iter != this->users_.end()){
         if(iter->first != sender){
-            send(iter->first->GetFd(), msg.c_str(), msg.size(), 0);
+            SendMessage(iter->first->GetFd(), msg, 0);
         }
         iter++;
     }

@@ -37,9 +37,6 @@ void join_channel(Channel *ch, Client &client, std::string& msg_to_c, int client
             SendMessage(client_fd, msg_to_c, 0);
             return ;
         }
-        msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-        ch->AddUserAsN(client);
-        show_topic_and_member(ch,client.GetNickname(), msg_to_c);
     }
     if(ch->GetModeInvite() == true){ //エラー３招待が必要
         if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
@@ -48,8 +45,10 @@ void join_channel(Channel *ch, Client &client, std::string& msg_to_c, int client
             return ;
         }
     }
+    std::cout << "print in join to all" << std::endl;
     msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
     ch->AddUserAsN(client);
+    ch->SendMsgToAll(msg_to_c, &client);
     show_topic_and_member(ch,client.GetNickname(), msg_to_c);
     SendMessage(client_fd, msg_to_c, 0);
 }
@@ -86,7 +85,6 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     return;
                 }
                 msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                // msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 SendMessage(client_fd, msg_to_c, 0);
@@ -104,7 +102,6 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
                 Channel* ch = server->FindChannelByName(ch_name);
-                // join_with_key(ch, client, msg_to_c, client_fd, key);
                 join_channel(ch, client, msg_to_c, client_fd, key);
             }
             else{
@@ -113,7 +110,6 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
                     return ;
                 }
                 msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
-                // msg_to_c += GIVE_OP_PRIV(client.GetNickname(), client.GetUsername(), client.GetHostname(), ch_name, client.GetNickname());
                 ch->AddUserAsO(client);
                 show_topic_and_member(ch,client.GetNickname(), msg_to_c);
                 ch->SetKey(key);
