@@ -236,14 +236,14 @@ void Server::SetupClient(int socketfd) {
 	Client user(socketfd);
 
 	//SSLセッションの作成
-	user.ssl_ = wolfSSL_new(this->ctx_);
-	if (user.ssl == NULL) {
-		// エラー処理
+	user.SetSSL(wolfSSL_new(this->ctx_));
+	if (user.GetSSL() == NULL) {
 		return ;
 	}
-	wolfSSL_set_fd(user.ssl, socketfd);
+	// ソケットとの紐付け
+	wolfSSL_set_fd(user.GetSSL(), socketfd);
 	// SSLハンドシェイクの実行
-	if (wolfSSL_accept(user.ssl) != SSL_SUCCESS) {
+	if (wolfSSL_accept(user.GetSSL()) != SSL_SUCCESS) {
 		return ;
 	}
 
@@ -328,14 +328,11 @@ void Server::SetupServerSocket() {
 
 	if (connect(this->server_socket_fd_, (struct sockaddr*)&address, sizeof(address)) != 0) {
         std::cerr << "Failed to connect to server" << std::endl;
-        wolfSSL_free(this->ssl_);
         wolfSSL_CTX_free(this->ctx_);
         wolfSSL_Cleanup();
         throw (std::runtime_error("Setting wolfSSL file descriptor failed"));
     }
-	// SSLとソケットの紐付け
-	wolfSSL_set_fd(this->ssl_, this->server_socket_fd_);
-
+	
 	/*=== set socket options ===*/
 	int en = 1;
 	// set socket options to reuse address

@@ -52,6 +52,8 @@ public:
 	const std::string &GetRealname() const;
 	bool GetIsUserSet() const;
 	const Message& GetParsedMessage() const;
+	WOLFSSL* GetSSL() const;
+	
 
 
 	/* setter関数 */
@@ -69,6 +71,7 @@ public:
 	void SetServername(const std::string &servername);
 	void SetRealname(const std::string &realname);
 	void SetIsUserSet(bool flag);
+	void SetSSL(WOLFSSL* ssl);
 
 	bool operator<(const Client& other) const;
 };

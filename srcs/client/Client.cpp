@@ -97,6 +97,10 @@ const Message& Client::GetParsedMessage() const {
 	return parsed_msg_;
 }
 
+WOLFSSL *Client::GetSSL() const{
+    return this->ssl_;
+}
+
 /* ====== setter関数 ====== */
 void Client::SetFd(int fd) {
 	this->fd_ = fd;
@@ -146,6 +150,9 @@ void Client::SetIsUserSet(bool flag) {
 	this->is_user_set_ = flag;
 }
 
+void Client::SetSSL(WOLFSSL *ssl){
+	this->ssl_ = ssl;
+}
 
 /* ====== 認証関数 ====== */
 
