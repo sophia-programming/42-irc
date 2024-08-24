@@ -1,5 +1,6 @@
 #include "Command.hpp"
 #include "Channel.hpp"
+#include "Utils.hpp"
 
 /* TOPICコマンドの処理を行う関数
  * 引数1 -> クライアント
@@ -28,7 +29,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		// doesn't exist
 	}
 	// クライアントがチャンネルに参加していない場合
-	else if(ch->GetUser(client.GetNickname()) == nullptr){
+	else if(ch->GetUser(client.GetNickname()) == NULL){
 		msg_to_c = ERR_NOTONCHANNEL(client.GetNickname(), ch_name);
 		SendMessage(client.GetFd(), msg_to_c, 0);
 		return ;
@@ -44,9 +45,9 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		topic = message.GetParams()[1];
 		ch->SetToic(topic);
 		ch->SetTopicSetter(&client);
-		ch->SetTopicTime(std::time(nullptr));
+		ch->SetTopicTime(std::time(NULL));
 		msg_to_all = ":ft_irc 332 " + client.GetNickname() + " " + ch_name + " :"+ topic + "\n" +
-		":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + client.GetNickname() + " " + std::to_string(ch->GetTopicTime()) + "\n";
+		":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + client.GetNickname() + " " + change_string(ch->GetTopicTime()) + "\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
@@ -62,7 +63,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		ch->SetTopicSetter(&client);
 		// std::cout << "remove" << std::endl;
 		msg_to_all = ":ft_irc 332 " + client.GetNickname() + " " + ch_name + " :No topic is set\n" +
-			":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + ch->GetTopicSetter()->GetNickname() + " " + std::to_string(ch->GetTopicTime()) + "\n";
+			":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + ch->GetTopicSetter()->GetNickname() + " " + change_string(ch->GetTopicTime()) + "\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 	}
 	// チャンネルのトピックを取得
@@ -75,7 +76,7 @@ void Command::TOPIC(Client &client, Server *server, const Message &message)
 		else
 		{
 			msg_to_all = ":ft_irc 332 " + client.GetNickname() + " " + ch_name + " :"+ ch->GetTopic() + "\n" +
-				":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + ch->GetTopicSetter()->GetNickname() + " " + std::to_string(ch->GetTopicTime()) + "\n";
+				":ft_irc 333 " + client.GetNickname() + " " + ch_name + " " + ch->GetTopicSetter()->GetNickname() + " " + change_string(ch->GetTopicTime()) + "\n";
 			SendMessage(client.GetFd(), msg_to_all, 0);
 			ch->SendMsgToAll(msg_to_all, &client);
 		}
