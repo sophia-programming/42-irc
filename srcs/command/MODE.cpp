@@ -159,8 +159,8 @@ else if(mode_option == "-k"){
 				SendMessage(client.GetFd(), msg_to_c, 0);
 				return ;
 			}
-			//リミットがLONG_MAXを超える場合
-			if (string_to_lint(limit) > LONG_MAX){
+			//リミットが1000を超える場合
+			if (string_to_lint(limit) > 1000){
 				msg_to_c = ERR_LIMITVALUEOVER(client.GetNickname(), ch_name);
 				SendMessage(client.GetFd(), msg_to_c, 0);
 				return ;
