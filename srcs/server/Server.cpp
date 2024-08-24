@@ -126,7 +126,6 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PASS(client, password_, message);
 
 	// クライアントが認証されていない場合
-	// if (!client.GetIsWelcome() && !client.GetIsConnected()) { isconnected はcapでtrueになる
 	if (!client.GetIsWelcome()) {
 		if (cmd == "NICK") {
 			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
@@ -172,9 +171,6 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 
 	return false;
 }
-
-
-
 
 
 /* クライアントにデータを送信する関数
