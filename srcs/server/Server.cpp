@@ -126,7 +126,7 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 		Command::PASS(client, password_, message);
 
 	// クライアントが認証されていない場合
-	if (!client.GetIsWelcome()) {
+	if (!client.GetIsWelcome() && client.GetIsAuthenticated()) {
 		if (cmd == "NICK") {
 			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 		}
@@ -147,9 +147,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 
 	// 認証が完了していれば、他のコマンドを処理
-	if (cmd == "NICK") {
+	if (cmd == "NICK")
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
-	}
 	else if (cmd == "PING")
 		Command::PONG(client, params);
 	else if (cmd == "PRIVMSG")
@@ -171,6 +170,8 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 
 	return false;
 }
+
+
 
 
 /* クライアントにデータを送信する関数

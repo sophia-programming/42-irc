@@ -8,6 +8,12 @@ void Command::PASS(Client &client, const std::string &server_password, const Mes
 	int const &fd = client.GetFd();
 	const std::string &nick = client.GetNickname();
 
+	// 認証済みの場合
+	if (client.GetIsAuthenticated()) {
+		SendMessage(fd, ERR_ALREADYREGISTERED(nick), 0);
+		return ;
+	}
+
 	// パラメータが1つでない場合
 	if (message.GetParams().size() != 1){
 		SendMessage(fd, ERR_NEEDMOREPARAMS(nick, "PASS"), 0);
@@ -18,9 +24,10 @@ void Command::PASS(Client &client, const std::string &server_password, const Mes
 	std::string const &password = message.GetParams()[0];
 
 	// パスワードが正しい場合
-	if (password == server_password) {
+	if (password == server_password)
 		client.SetIsAuthenticated(); // 認証済みに設定
-	}
+	else
+		SendMessage(fd, ERR_PASSWDMISMATCH(nick), 0);
 }
 
 
