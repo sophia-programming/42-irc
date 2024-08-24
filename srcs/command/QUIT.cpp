@@ -21,7 +21,8 @@ void Command::QUIT(Client &client, Server *server, std::vector<struct pollfd> &p
 
 	(void)message;
 	// パラメータがない場合はデフォルトのメッセージ(Goodbye)を使用
-	std::string quitMessage = params.empty() ? "Goodbye" : params[0];
+	std::string temp = params[0];
+	std::string quitMessage = params.empty() ? "Goodbye" : RmRFromString(temp);
 
 	// サーバーのチャンネルリストを取得
 	const std::map<std::string, Channel*>& channels = server->GetChannels();
