@@ -49,6 +49,7 @@ class Message;
 #define ERR_NOTREGISTERED(nick) ":ft_irc 451 " + nick + " :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS(nick, command) ":ft_irc 461 " + nick + " " + command + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) ":ft_irc 462 " + nick + " :You may not reregister\r\n"
+// #define ERR_PASSWDMISMATCH(nick) ":ft_irc 464 "+nick+" :Password incorrect\r\n"
 
 // チャンネルエラーメッセージ
 #define ERR_CHANOPRIVSNEEDED(nick, ch_name) ":ft_irc 482 " + nick + " " + ch_name + " : You're not channel operator\r\n"
@@ -77,7 +78,7 @@ class Message;
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
 
 namespace Command{
-	void PASS(Client &client, const std::string &server_password, const Message &message);
+	void PASS(Client &client,const std::string &server_password, const Message &message);
 	void NICK(Client &client,  Server *server, std::map<std::string, int> &map_nick_fd, std::map<std::string, Channel*> &server_channels, const Message &message);
     void KICK(Client &client, Server *server, const Message &message);
     void JOIN(Client &client, Server *server, const Message &message);

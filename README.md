@@ -12,48 +12,48 @@ Do make and then run:
 ## Command Usage
 
 ### NICK
-ユーザーのニックネームを設定または変更する  
+ユーザーのニックネームを設定または変更する
 `NICK <nickname>`
 
-  
+
 ### USER
-サーバーにログインするために使用するユーザー情報を設定する  
+サーバーにログインするために使用するユーザー情報を設定する
 `USER <username> <hostname> <servername> :<real name>`
-  
+
 
 ### PASS
 
 
 ### JOIN
-特定のチャンネルに参加もしくは作成する  
+特定のチャンネルに参加もしくは作成する
 `JOIN #<channelname> [key]`
 
 
 ### PRIVMSG
-特定のユーザーやチャンネルにメッセージを送信する  
+特定のユーザーやチャンネルにメッセージを送信する
 `PRIVMSG <recipient> :<message>`
 
 ### QUIT
-サーバーから切断する  
+サーバーから切断する
 `QUIT :[optional message]`
 
 ### KICK
-特定のユーザーをチャンネルから追放する  
-オペレーター権限が必要  
+特定のユーザーをチャンネルから追放する
+オペレーター権限が必要
 `KICK #<channelname> <username> :[optional reason]`
 
 ### TOPIC
 チャンネルのトピックを設定または表示する
-``` 
+```
 TOPIC #<channelname> :<new topic>
 TOPIC #<channelname>
 ```
 
 
 ### MODE
-チャンネルやユーザーに対してモード（権限や設定）を変更する
+チャンネルに対してモード（権限や設定）を変更する
 ```
-MODE #<channelname> +<mode> <parameters>
+MODE #<channelname> +/-<mode> <parameters>
 MODE <username> +<mode>
 ```
  - i :招待のみチャンネルに設定/削除する
@@ -63,16 +63,16 @@ MODE <username> +<mode>
  - l :チャンネルの人数制限を設定/削除する
 
 ### INVITE
-特定のユーザーをプライベートチャンネルに招待する  
+特定のユーザーをプライベートチャンネルに招待する
 `INVITE <username> #<channelname>`
 
 ### PONG
 サーバーからの PING コマンドへの応答
-クライアントとサーバーの接続が維持されていることを確認するための機能  
+クライアントとサーバーの接続が維持されていることを確認するための機能
 `PONG :<server>`
 
 
 ### NOTICE
 ユーザーやチャンネルにメッセージを送信する
-PRIVMSGとの違いは応答が期待されないシステム通知や自動メッセージの送信に使用される  
+PRIVMSGとの違いは応答が期待されないシステム通知や自動メッセージの送信に使用される
 `NOTICE <target> :<message>`

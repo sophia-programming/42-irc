@@ -85,7 +85,7 @@ class Channel{
 		void SetModeIsLimit(const bool is_limited);
 		void SetModeLimit(long int limit);
 
-		void SetPrivAsOperator(const std::string& nick_name);
+		void SetPrivAsOperator(Client *client);
 		void SetPrivAsNomal(const std::string& nick_name);
 
 		// getter

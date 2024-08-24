@@ -122,57 +122,66 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
-	if (cmd == "PASS") {
+	if (cmd == "PASS"){
 		Command::PASS(client, password_, message);
-		if (!client.GetIsAuthenticated()) {
-			// PASSが失敗した場合、ここで処理終了
-			return false;
+		if(!client.GetIsAuthenticated()){
+			ClearClientInfo(client, fds_, this->users_, this->map_nick_fd_);
+			close(client.GetFd());
+			return true;
 		}
 	}
 
-
 	// クライアントが認証されていない場合
-	if (!client.GetIsWelcome() && client.GetIsAuthenticated()) {
-		if (cmd == "NICK") {
-			Command::NICK(client, this, map_nick_fd_, server_channels_, message);
-		}
+	if (!client.GetIsWelcome()) {
+		if(!client.GetIsAuthenticated()){
+			SendMessage(client.GetFd(),ERR_PASSWDMISMATCH(client.GetNickname()),0);
+			ClearClientInfo(client, fds_, this->users_, this->map_nick_fd_);
+			close(client.GetFd());
+			return true;
+		}else{
+			if (cmd == "NICK") {
+				std::cout << "nicknick" <<std::endl;
+				Command::NICK(client, this, map_nick_fd_, server_channels_, message);
+			}
+			if (cmd == "USER") {
+				std::cout << "useruser" <<std::endl;
+				Command::USER(client, message);
+			}
 
-		if (cmd == "USER") {
-			Command::USER(client, message);
+			// `NICK`と`USER`の両方が設定されたか確認
+			if (client.GetIsNick() && client.GetIsUserSet()) {
+				std::cout << "GetIsNick() = " << client.GetIsNick() << std::endl;
+				std::cout << "GetIsUserSet() = " << client.GetIsUserSet() << std::endl;
+				SendWelcomeMessage(client);
+				client.SetIsWelcome(true); // クライアントが正式に接続されたことを記録
+			}
 		}
-
-		// `NICK`と`USER`の両方が設定されたか確認
-		if (client.GetIsNick() && client.GetIsUserSet()) {
-			std::cout << "GetIsNick() = " << client.GetIsNick() << std::endl;
-			std::cout << "GetIsUserSet() = " << client.GetIsUserSet() << std::endl;
-			SendWelcomeMessage(client);
-			client.SetIsWelcome(true); // クライアントが正式に接続されたことを記録
-		}
-
 		return false; // 認証が完了するまでは他のコマンドを処理しない
 	}
 
 	// 認証が完了していれば、他のコマンドを処理
-	if (cmd == "NICK")
+	if(client.GetIsWelcome()){
+		if (cmd == "NICK")
 		Command::NICK(client, this, map_nick_fd_, server_channels_, message);
-	else if (cmd == "PING")
-		Command::PONG(client, params);
-	else if (cmd == "PRIVMSG")
-		Command::PRIVMSG(client, this, message);
-	else if (cmd == "NOTICE")
-		Command::NOTICE(client, this, message);
-	else if (cmd == "JOIN")
-		Command::JOIN(client, this, message);
-	else if (cmd == "KICK")
-		Command::KICK(client, this, message);
-	else if (cmd == "TOPIC")
-		Command::TOPIC(client, this, message);
-	else if (cmd == "INVITE")
-		Command::INVITE(client, this, message);
-	else if (cmd == "MODE")
-		Command::MODE(client, this, message);
-	else
-		SendMessage(fd, ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd), 0);
+		else if (cmd == "PING")
+			Command::PONG(client, params);
+		else if (cmd == "PRIVMSG")
+			Command::PRIVMSG(client, this, message);
+		else if (cmd == "NOTICE")
+			Command::NOTICE(client, this, message);
+		else if (cmd == "JOIN")
+			Command::JOIN(client, this, message);
+		else if (cmd == "KICK")
+			Command::KICK(client, this, message);
+		else if (cmd == "TOPIC")
+			Command::TOPIC(client, this, message);
+		else if (cmd == "INVITE")
+			Command::INVITE(client, this, message);
+		else if (cmd == "MODE")
+			Command::MODE(client, this, message);
+		else
+			SendMessage(fd, ERR_UNKNOWNCOMMAND(client.GetNickname(), cmd), 0);
+	}
 
 	return false;
 }

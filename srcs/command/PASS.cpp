@@ -4,9 +4,10 @@
  * 引数1 -> クライアント
  * 引数2 -> サーバーパスワード
  * 引数3 -> メッセージ */
-void Command::PASS(Client &client, const std::string &server_password, const Message &message) {
+void Command::PASS(Client &client,const std::string &server_password, const Message &message) {
 	int const &fd = client.GetFd();
 	const std::string &nick = client.GetNickname();
+	std::vector<std::string> msg = message.GetParams();
 
 	// 認証済みの場合
 	if (client.GetIsAuthenticated()) {
@@ -15,19 +16,19 @@ void Command::PASS(Client &client, const std::string &server_password, const Mes
 	}
 
 	// パラメータが1つでない場合
-	if (message.GetParams().size() != 1){
+	if (msg.size() != 1){
 		SendMessage(fd, ERR_NEEDMOREPARAMS(nick, "PASS"), 0);
 		return ;
 	}
 
 	// パスワードを取得
-	std::string const &password = message.GetParams()[0];
+	std::string const &password = RmRFromString(msg[0]);
 
 	// パスワードが正しい場合
 	if (password == server_password)
 		client.SetIsAuthenticated(); // 認証済みに設定
 	else
-		SendMessage(fd, ERR_PASSWDMISMATCH(nick), 0);
+		SendMessage(client.GetFd(),ERR_PASSWDMISMATCH(client.GetNickname()),0);
 }
 
 
