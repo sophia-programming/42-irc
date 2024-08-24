@@ -68,7 +68,7 @@ class Message;
 #define JOIN_SUCCESS_MSG(nick, user, host, ch_name) ":" + nick + "!" + user + "@" + host + " JOIN " + ch_name + "\r\n"
 #define ERR_CHANNELISFULL(nick, ch_name) ":ft_irc 471 " + nick + " "+ ch_name + " :Cannot join channel (+l)\r\n"
 #define ERR_BADCHANNELKEY(nick, ch_name)  ":ft_irc 475 " + nick + " " + ch_name + " :Cannot join channel (+k)\r\n"
-#define ERR_INVITEONLYCHAN(nick, ch_name) ":ft_irc 473  " + nick + " " + ch_name + " :Cannot join channel (+l)\r\n"
+#define ERR_INVITEONLYCHAN(nick, ch_name) ":ft_irc 473  " + nick + " " + ch_name + " :Cannot join channel (+i)\r\n"
 
 //チャンネルMODEエラーメッセージ
 #define ERR_LIMITVALUEMINUS(nick, ch_name) ":ft_irc 472 " + nick + " -l :is an unknown mode character to me\r\n"
@@ -76,6 +76,8 @@ class Message;
 #define SHOW_MODE(nick,ch_name,modes) ":ft_irc 324 "+nick+""+ch_name+ " <" +modes+ ">\r\n"
 // パスワードエラーメッセージ
 #define PASS_ERROR(host) "ERROR :Closing Link: " + host + "(Bad Password)\r\n"
+
+#define KICK_MSG(nick,user,host,ch_name,kicked,reason) ":"+nick+"!"+user+"@"+host+" KICK "+ch_name+" "+kicked+" :"+reason+"\r\n"
 
 namespace Command{
 	void PASS(Client &client,const std::string &server_password, const Message &message);

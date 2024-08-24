@@ -22,7 +22,7 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
     }
-    else if(ch->GetPriv(client.GetUsername())  != P_Operator){ //エラー２　コマンド実行権限なし
+    else if(ch->GetPriv(client.GetNickname())  != P_Operator){ //エラー２　コマンド実行権限なし
         msg_to_c = ERR_CHANOPRIVSNEEDED(client.GetNickname(), ch_name);
         SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
@@ -33,9 +33,11 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
     }
-    msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name;
     if(msg.size() == 3){
-        msg_to_all = client.GetNickname() + "! KICK " + ch_name + " "+ user_name + RmRFromString(msg[2]);
+        msg_to_all = KICK_MSG(client.GetNickname(), client.GetUsername(), client.GetHostname(),ch_name, user_name,msg[2]);
+    }else{
+        std::string emptystring;
+        msg_to_all = KICK_MSG(client.GetNickname(), client.GetUsername(), client.GetHostname(),ch_name, user_name, emptystring);
     }
     ch->SendMsgToAll(msg_to_all, &client);
     ch->RmUser(user);

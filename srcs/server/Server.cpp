@@ -140,11 +140,9 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 			return true;
 		}else{
 			if (cmd == "NICK") {
-				std::cout << "nicknick" <<std::endl;
 				Command::NICK(client, this, map_nick_fd_, server_channels_, message);
 			}
 			if (cmd == "USER") {
-				std::cout << "useruser" <<std::endl;
 				Command::USER(client, message);
 			}
 

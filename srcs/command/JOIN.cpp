@@ -40,12 +40,12 @@ void join_channel(Channel *ch, Client &client, std::string& msg_to_c, int client
     }
     if(ch->GetModeInvite() == true){ //エラー３招待が必要
         if(ch->IsInvited(client.GetNickname()) == false){ //招待されてるかの確認
+            std::cout << "not invited" << std::endl;
             msg_to_c = ERR_INVITEONLYCHAN(client.GetNickname(), ch->GetName());
             SendMessage(client_fd, msg_to_c, 0);
             return ;
         }
     }
-    std::cout << "print in join to all" << std::endl;
     msg_to_c = JOIN_SUCCESS_MSG(client.GetNickname(),client.GetUsername(), client.GetHostname() ,ch->GetName());
     ch->AddUserAsN(client);
     ch->SendMsgToAll(msg_to_c, &client);
