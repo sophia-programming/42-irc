@@ -14,7 +14,7 @@ void Server::SetupSignal() {
  * 引数1 -> 終了ステータス */
 void Server::Cleanup(int exitStatus) {
 	CloseFds();
-	std::cerr << YELLOW << "Server closed" << STOP << std::endl;
+	std::cerr << "Server closed" << std::endl;
 	std::exit(exitStatus);
 }
 

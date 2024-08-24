@@ -10,7 +10,7 @@ void Command::PONG(Client &client, const std::vector <std::string> &params) {
 	const std::string &ServerName = params[0];
 
 	if (params.empty()) {
-		SendMessage(fd, std::string(YELLOW) + ERR_NEEDMOREPARAMS(client.GetNickname(), "PONG") + std::string(STOP), 0);
+		SendMessage(fd, ERR_NEEDMOREPARAMS(client.GetNickname(), "PONG"), 0);
 		return;
 	}
 

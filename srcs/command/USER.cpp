@@ -12,7 +12,7 @@ void Command::USER(Client &client, const Message &message) {
 
 	// パラメータの数を確認し、不足している場合はエラーメッセージを送信して処理を終了
 	if (message.GetParams().size() != 4) {
-		SendMessage(fd, std::string(YELLOW) + ERR_NEEDMOREPARAMS(nickname, "USER") + std::string(STOP), 0);
+		SendMessage(fd, ERR_NEEDMOREPARAMS(nickname, "USER"), 0);
 		return; // エラーメッセージ送信後、処理を終了
 	}
 
