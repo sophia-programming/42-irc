@@ -67,14 +67,14 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
-		std::string user_name = message.GetParams()[2];
+		std::string user_name = RmRFromString(msg[2]);
 		Client* user = ch->GetUser(user_name);
 		if(!user){ //エラー３　指定したユーザーがチャンネルにいない
 			msg_to_c = ERR_USERNOTINCHANNEL(client.GetNickname(), ch_name);
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
-		ch->SetPrivAsOperator(user->GetNickname());
+		ch->SetPrivAsOperator(user);
 		msg_to_all = ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
 		SendMessage(client.GetFd(), msg_to_all, 0);
@@ -86,7 +86,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
-		std::string user_name = message.GetParams()[2];
+		std::string user_name = RmRFromString(msg[2]);
 		Client* user = ch->GetUser(user_name);
 		if(!user){ //エラー３　指定したユーザーがチャンネルにいない
 			msg_to_c = ERR_USERNOTINCHANNEL(client.GetNickname(), ch_name);

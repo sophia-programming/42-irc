@@ -137,9 +137,16 @@ void Channel::SetLimit(long int limit)
 
 // ユーザーの権限をオペレーターに設定する
 // 1:const std::string &nick_name -> オペレーターにしたいユーザーのニックネーム
-void Channel::SetPrivAsOperator(const std::string &nick_name)
+// void Channel::SetPrivAsOperator(const std::string &nick_name)
+// {
+//     user_list_iter iter = this->users_.find(this->GetUser(nick_name));
+//     if(iter != this->users_.end()){
+//         iter->second = P_Operator;
+//     }
+// }
+void Channel::SetPrivAsOperator(Client *client)
 {
-    user_list_iter iter = this->users_.find(this->GetUser(nick_name));
+    user_list_iter iter = this->users_.find(client);
     if(iter != this->users_.end()){
         iter->second = P_Operator;
     }
