@@ -122,8 +122,14 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 	}
 	if (cmd == "CAP")
 		Command::CAP(client, fds_, users_, map_nick_fd_, message);
-	if (cmd == "PASS")
+	if (cmd == "PASS") {
 		Command::PASS(client, password_, message);
+		if (!client.GetIsAuthenticated()) {
+			// PASSが失敗した場合、ここで処理終了
+			return false;
+		}
+	}
+
 
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome() && client.GetIsAuthenticated()) {
