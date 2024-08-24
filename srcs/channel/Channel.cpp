@@ -1,6 +1,16 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string channel_name):name_(channel_name), topic_("non"), limit_(__LONG_MAX__) {
+Channel::Channel(std::string channel_name):topic_("non"), limit_(__LONG_MAX__) {
+    for (size_t i = 0; i < channel_name.length(); ++i) {
+        if (!std::isalnum(channel_name[i]) && channel_name[i] != '-' && channel_name[i] != '_') {
+            if(i ==0 && channel_name[i] == '#'){
+                continue;
+            }else{
+                throw ChannelException("Error: invalid channel name");
+            }
+        }
+    }
+    this->name_ = channel_name;
 }
 
 Channel::~Channel()
