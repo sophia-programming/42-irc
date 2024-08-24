@@ -133,7 +133,7 @@ bool Server::ExecuteCommand(int fd, const Message &message) {
 
 	// クライアントが認証されていない場合
 	if (!client.GetIsWelcome()) {
-		if(!client.GetIsAuthenticated()){
+		if((cmd == "NICK" || cmd == "USER") && !client.GetIsAuthenticated()){
 			SendMessage(client.GetFd(),ERR_PASSWDMISMATCH(client.GetNickname()),0);
 			ClearClientInfo(client, fds_, this->users_, this->map_nick_fd_);
 			close(client.GetFd());

@@ -73,6 +73,9 @@ void Channel::RmUser(Client * user)
 void Channel::RmUserFromInvite(const std::string &nick_name)
 {
     std::vector<std::string>::iterator iter;
+    if(this->invate_users_.size() < 1){
+        return ;
+    }
     iter = std::find(this->invate_users_.begin(), this->invate_users_.end(), nick_name);
     if(iter != this->invate_users_.end()){
         this->invate_users_.erase(iter);

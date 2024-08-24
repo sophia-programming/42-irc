@@ -10,7 +10,6 @@ void Command::KICK(Client &client, Server *server, const Message &message)
         msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "kick");
 		SendMessage(client.GetFd(), msg_to_c, 0);
         return ;
-        return ;
     }
 
     std::string ch_name = RmRFromString(msg[0]);
