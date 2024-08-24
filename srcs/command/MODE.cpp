@@ -70,16 +70,14 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 		std::string user_name = message.GetParams()[2];
 		Client* user = ch->GetUser(user_name);
 		if(!user){ //エラー３　指定したユーザーがチャンネルにいない
-			// msg_to_c = ERR_USERNOTINCHANNEL(client.GetNickname(), ch_name);
-			msg_to_c = "403 " + client.GetNickname() + " " + ch_name + " No such nick/channel\r\n";
+			msg_to_c = ERR_USERNOTINCHANNEL(client.GetNickname(), ch_name);
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
 		ch->SetPrivAsOperator(user->GetNickname());
 		msg_to_all = ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
-		// SendMessage(client.GetFd(), msg_to_all, 0);
-		// ↑mergeしたら復活
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//オペレーター権限剥奪
 	else if(mode_option == "-o"){
@@ -91,39 +89,42 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 		std::string user_name = message.GetParams()[2];
 		Client* user = ch->GetUser(user_name);
 		if(!user){ //エラー３　指定したユーザーがチャンネルにいない
-			msg_to_c = "403 " + client.GetNickname() + " " + ch_name + " No such nick/channel\r\n";
+			msg_to_c = ERR_USERNOTINCHANNEL(client.GetNickname(), ch_name);
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
 		ch->SetPrivAsNomal(user->GetNickname());
-		msg_to_all =  ":" + client.GetNickname() + "!" +client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
+		msg_to_all =  ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -o "+ user_name + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
-		// SendMessage(client.GetFd(), msg_to_all, 0);
-		// ↑mergeしたら復活
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//招待制モードに変更
 	else if(mode_option == "+i"){
 		ch->SetModeInvite(true);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +i\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +i\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//招待制モード解除
 	else if(mode_option == "-i"){
 		ch->SetModeInvite(false);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -i\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -i\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//チャンネルをトピック保護モードに変更（オペレーターのみがトピック編集可能）
 	else if(mode_option == "+t"){
 		ch->SetModeTopic(true);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +t\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +t\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//チャンネルのトピック保護モードを解除
 	else if(mode_option == "-t"){
 		ch->SetModeTopic(false);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -t\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -t\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//チャンネルにキーを設定
 	else if(mode_option == "+k"){
@@ -135,15 +136,17 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 		std::string key = message.GetParams()[2];
 		ch->SetKey(key);
 		ch->SetModeKey(true);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +k " + key + "\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +k " + key + "\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	//チャンネルのキーを解除
 else if(mode_option == "-k"){
 		ch->SetKey("");
 		ch->SetModeKey(false);
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -k\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -k\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 	else if(mode_option == "+l"){ //人数制限設定
 		if(message.GetParams().size() < 3){
@@ -168,8 +171,9 @@ else if(mode_option == "-k"){
 			ch->SetModeIsLimit(true);
 			ch->SetModeLimit(string_to_lint(limit));
 			std::cout << "ch->limit:" << ch->GetModeLimit() << std::endl;
-			msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " +l " + limit + "\r\n";
+			msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +l " + limit + "\r\n";
 			ch->SendMsgToAll(msg_to_all, &client);
+			SendMessage(client.GetFd(), msg_to_all, 0);
 		}catch(const std::invalid_argument& e){
 			msg_to_c = ERR_NEEDMOREPARAMS(client.GetNickname(), "mode");
 			SendMessage(client.GetFd(), msg_to_c, 0);
@@ -179,7 +183,8 @@ else if(mode_option == "-k"){
 		ch->SetModeIsLimit(false);
 		ch->SetModeLimit(0);
 		msg_to_all = client.GetNickname() + "! MODE " + ch_name + "-l";
-		msg_to_all = ":nick!" + client.GetNickname() + client.GetHostname() + " MODE " + ch_name + " -l\r\n";
+		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -l\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
+		SendMessage(client.GetFd(), msg_to_all, 0);
 	}
 }
