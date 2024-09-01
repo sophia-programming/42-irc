@@ -98,7 +98,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     }
     else if (msg.size() == 2){ //チャンネルkeyが指定されているとき
         try{
-            const std::string key = msg[1];
+            const std::string key = RmRFromString(msg[1]);
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
                 Channel* ch = server->FindChannelByName(ch_name);

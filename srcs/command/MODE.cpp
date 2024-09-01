@@ -133,7 +133,7 @@ void Command::MODE(Client &client, Server *server, const Message &message)
 			SendMessage(client.GetFd(), msg_to_c, 0);
 			return ;
 		}
-		std::string key = message.GetParams()[2];
+		std::string key = RmRFromString(msg[2]);
 		ch->SetKey(key);
 		ch->SetModeKey(true);
 		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " +k " + key + "\r\n";
@@ -181,7 +181,6 @@ else if(mode_option == "-k"){
 	}
 	else if(mode_option == "-l"){ //人数制限解除
 		ch->SetModeIsLimit(false);
-		ch->SetModeLimit(0);
 		msg_to_all = client.GetNickname() + "! MODE " + ch_name + "-l";
 		msg_to_all = ":" + client.GetNickname() + "!" + client.GetUsername() + "@"+ client.GetHostname() + " MODE " + ch_name + " -l\r\n";
 		ch->SendMsgToAll(msg_to_all, &client);
