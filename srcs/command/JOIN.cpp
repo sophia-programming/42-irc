@@ -26,10 +26,12 @@ void show_topic_and_member(Channel *ch, const std::string &nick, std::string &ms
 
 
 void join_channel(Channel *ch, Client &client, std::string& msg_to_c, int client_fd ,const std::string& key){
-    if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
-        msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
-        SendMessage(client_fd, msg_to_c, 0);
-        return ;
+    if(ch->GetModeIsLimit() == true){// チャンネルの人数制限がある場合
+        if(ch->GetLimit() <= ch->users_.size()){ // エラー１すでに満員
+            msg_to_c = ERR_CHANNELISFULL(client.GetNickname(), ch->GetName());
+            SendMessage(client_fd, msg_to_c, 0);
+            return ;
+        }
     }
     if(ch->GetModeKey() == true){
         if(key.empty() || ch->GetKey() != key){ //エラー２keyが一致しない
@@ -98,7 +100,7 @@ void Command::JOIN(Client &client, Server *server, const Message &message)
     }
     else if (msg.size() == 2){ //チャンネルkeyが指定されているとき
         try{
-            const std::string key = msg[1];
+            const std::string key = RmRFromString(msg[1]);
             if(server->IsChannel(ch_name)){ //チャンネルが存在するとき
                 // 指定されているチャンネルの取得
                 Channel* ch = server->FindChannelByName(ch_name);
